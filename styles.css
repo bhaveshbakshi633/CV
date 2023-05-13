@@ -4,7 +4,6 @@ body {
   font-family: 'Merriweather', serif;
 }
 
-
 .top_container {
   position: relative;
   padding-top: 100px;
@@ -13,11 +12,13 @@ body {
 }
 
 .middle_container {
-
+  max-width: 800px; /* Add this line */
+  margin: 0 auto; /* Add this line */
 }
 
 .bottom_container {
-
+  max-width: 800px; /* Add this line */
+  margin: 0 auto; /* Add this line */
 }
 
 h1 {
@@ -47,9 +48,14 @@ h3 {
   right: 300px;
   top: 50px;
 }
+
 .profile-image{
   height: 250px;
   width: 250px;
   border-radius: 100%;
 }
- 
+
+.description-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
