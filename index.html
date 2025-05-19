@@ -1,70 +1,220 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Bhavesh Bakshi</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Bhavesh Bakshi - Mechatronics Engineer portfolio showcasing robotics and mechanical design projects." />
+  <title>Bhavesh Bakshi | Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: #fff;
+      color: #111;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a {
+      color: #111;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    a:hover {
+      border-color: #111;
+    }
+    header {
+      padding: 5rem 2rem 3rem;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 3rem;
+      margin: 0;
+      letter-spacing: 0.05em;
+    }
+    header p {
+      width: 100%;
+      font-weight: 400;
+      font-size: 1.2rem;
+      color: #555;
+      letter-spacing: 0.03em;
+      margin-top: 0.25rem;
+      text-align: center;
+    }
+    .download-cv {
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.45rem 1.2rem;
+      border: 2px solid #111;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      text-align: center;
+      white-space: nowrap;
+      text-decoration: none;
+      color: #111;
+    }
+    .download-cv:hover,
+    .download-cv:focus {
+      background-color: #111;
+      color: #fff;
+      outline: none;
+    }
+    .profile {
+      max-width: 200px;
+      margin: 3rem auto 4rem;
+      border-radius: 20%;
+      overflow: hidden;
+      box-shadow: 0 0 0 2px #111;
+    }
+    .profile img {
+      width: 100%;
+      display: block;
+      height: auto;
+      object-fit: cover;
+    }
+    section {
+      max-width: 720px;
+      margin: 0 auto 4rem;
+      padding: 0 1rem;
+    }
+    section h2 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #111;
+      padding-bottom: 0.25rem;
+      letter-spacing: 0.05em;
+    }
+    p {
+      color: #222;
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .skills, .projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: #fafafa;
+      padding: 1.5rem 1.25rem;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      transition: box-shadow 0.25s ease;
+      cursor: default;
+    }
+    .card:hover {
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: #111;
+      font-size: 1.25rem;
+      letter-spacing: 0.03em;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid #eee;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      header h1 {
+        font-size: 2.5rem;
+      }
+      section {
+        margin-bottom: 3rem;
+      }
+    }
+  </style>
 </head>
-<link rel="stylesheet" href="styles.css">
-<link rel="icon" href="favicon.ico?v=2">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Sacramento&display=swap" rel="stylesheet">
-
 <body>
-  <div class="top_container">
-    <img class="top-cloud" src="images/cloud.png" alt="cloud-image" class="cloud1">
+  <header>
+    <h1>Bhavesh Bakshi</h1>
+    <a href="resume.pdf" download class="download-cv" aria-label="Download Bhavesh Bakshi's CV">Download CV</a>
+    <p>Mechatronics Engineer | Robotics Enthusiast</p>
+  </header>
 
-    <h1 class="title"> I'm Bhavesh.</h1>
-    <p>a Mechatronics Engineer and a Robotics Enthusiast</p>
-    <img class="bottom-cloud" src="images/cloud.png" alt="cloud-image">
-    <img src="images/mountain.png" alt="mountain-image">
+  <div class="profile">
+    <img src="profile_pic.jpg" alt="Bhavesh Bakshi Profile Picture" />
   </div>
 
-  <div class="middle-container">
-    <div class="profile">
-      <img class = "profile-image" src="https://drive.google.com/uc?export=view&id=1sDBKUTGe0sKR_6SQfccTHASwFOoZaoFe ", alt="profile-image">
-      <h2>Hello there.</h2>
-      <p>Highly trained mechanical design engineer with finely tuned technical writing,
-        critical thinking and collaborative skills. Experienced in prototyping,
-        simulating and testing Electro-mechanical systems in a high-stakes environment, Surgical Robotics for instance. 
-        Led multiple specialized teams during current employment and earned recognition for outstanding creative solutions.
-        Excelled in both practical skills and face-to-face communication settings. Studied and applied environmental regulations to design safe, responsible and sustainable products.</p>
-    </div>
-    <hr>
+  <section>
+    <h2>About Me</h2>
+    <p>
+      I am a Mechatronics Engineer passionate about blending mechanical design with robotics and automation.
+      I create innovative solutions with precision and elegance, specializing in autonomous systems and
+      mechanical prototyping.
+    </p>
+  </section>
+
+  <section>
+    <h2>Skills</h2>
     <div class="skills">
-      <h2>My Skills.</h2>
-      <div class="skill-row">
-        <img class="" src="" alt="">
-        <h3>Mechanical Designer</h3>
-        <p>Been a Designer since 2018. Designed 3 All-terrain vehicle and got awarded for cost-effective, sustainable designs.</p>
+      <div class="card">
+        <h3>Mechanical Design</h3>
+        <p>CAD modeling, FEA, prototyping, design for manufacturing, structural analysis.</p>
       </div>
-      <div class="skill-row">
-        <img class="" src="" alt="">
-        <h3>Robotics Innovator</h3>
-        <p>Been a Robotics Enthusiast since 2014. Worked on and produced more than 25 task specific robots, drones, RC aircrafts and more!</p>
+      <div class="card">
+        <h3>Robotics & Automation</h3>
+        <p>Embedded systems, control algorithms, mechatronics integration, task-specific robots.</p>
+      </div>
+      <div class="card">
+        <h3>Technical Communication</h3>
+        <p>Technical documentation, reports, presentations, stakeholder collaboration.</p>
+      </div>
+      <div class="card">
+        <h3>Tools & Technologies</h3>
+        <p>SolidWorks, Ansys, Python, Arduino, Raspberry Pi, Fusion 360.</p>
       </div>
     </div>
-    <hr>
-    <div class="contact-me">
-      <h2>Get In Touch</h2>
-      <h3>For any sort of designing requirements, feel free to contact @.</h3>
-      <p>+91-8825095037 bhaveshbakshi633@gmail.com.</p>
-      <a class="btn" href="mailto:bhaveshbakshi633@gmail.com">CONTACT ME</a>
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+    <div class="projects">
+      <div class="card">
+        <h3>All-Terrain Vehicle (ATV)</h3>
+        <p>Designed a lightweight, rugged ATV chassis optimized for performance using advanced FEA.</p>
+      </div>
+      <div class="card">
+        <h3>Surgical Robotics Assistant</h3>
+        <p>Developed modular robotic systems for precision surgical tasks, improving safety and workflow.</p>
+      </div>
+      <div class="card">
+        <h3>Automated Chess Board</h3>
+        <p>Built an interactive chessboard with electromagnets enabling remote gameplay and automated moves.</p>
+      </div>
+      <div class="card">
+        <h3>IR Remote Control System</h3>
+        <p>Created a microcontroller-driven IR remote capable of device detection and selective control.</p>
+      </div>
     </div>
-  </div>
+  </section>
 
-
-  <div class="bottom-container">
-    <a class="footer-link" href="https://www.instagram.com/_bhavesh.bakshi_/">Instagram</a>
-    <a class="footer-link" href="https://www.facebook.com/profile.php?id=100008957463202">Facebook</a>
-    
-    <p>© 2022 Bhavesh Bakshi.</p>
-  </div>
-
-
-
-
+  <footer>
+    &copy; 2025 Bhavesh Bakshi &nbsp;&bull;&nbsp; <a href="mailto:bhavesh@example.com">bhavesh@example.com</a>
+  </footer>
 </body>
-
 </html>
