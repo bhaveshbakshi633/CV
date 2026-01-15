@@ -522,26 +522,20 @@ function handleNavigation(e) {
 // SCROLL ANIMATIONS
 // =============================================
 function initScrollAnimations() {
+  // Scroll pe subtle fade-in effect - content hamesha visible rahega
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
+        entry.target.classList.add('animate-in');
       }
     });
   }, { threshold: 0.1 });
 
-  document.querySelectorAll('.section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'all 0.8s ease';
+  // Sirf non-hero sections pe animation lagao
+  document.querySelectorAll('.section:not(.hero-section)').forEach(section => {
     observer.observe(section);
   });
 }
-
-// Add visible state styles
-const style = document.createElement('style');
-style.textContent = `.section.visible { opacity: 1 !important; transform: translateY(0) !important; }`;
-document.head.appendChild(style);
 
 // =============================================
 // INIT
