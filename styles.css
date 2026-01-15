@@ -116,7 +116,7 @@ ul { list-style: none; }
   pointer-events: none;
   z-index: 10000;
   mix-blend-mode: difference;
-  transition: transform 0.1s ease;
+  transform: translate(-50%, -50%);
 }
 
 .cursor-follower {
@@ -127,7 +127,8 @@ ul { list-style: none; }
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
-  transition: transform 0.15s ease, width 0.3s ease, height 0.3s ease;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
 }
 
 .cursor-follower.hover {

@@ -198,19 +198,27 @@ function initParticles() {
 function initCursor() {
   if (!cursor || !cursorFollower || window.innerWidth < 1024) return;
 
+  // Cursor position - dono ko same position pe rakhna hai
+  let targetX = 0, targetY = 0;
+  let followerX = 0, followerY = 0;
+
   document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    targetX = e.clientX;
+    targetY = e.clientY;
   });
 
   function animateCursor() {
-    cursorX += (mouseX - cursorX) * 0.2;
-    cursorY += (mouseY - cursorY) * 0.2;
+    // Follower smoothly follows with delay
+    followerX += (targetX - followerX) * 0.15;
+    followerY += (targetY - followerY) * 0.15;
 
-    cursor.style.left = mouseX + 'px';
-    cursor.style.top = mouseY + 'px';
-    cursorFollower.style.left = cursorX + 'px';
-    cursorFollower.style.top = cursorY + 'px';
+    // Dot follows mouse directly (instant)
+    cursor.style.left = targetX + 'px';
+    cursor.style.top = targetY + 'px';
+
+    // Circle follows with smooth delay
+    cursorFollower.style.left = followerX + 'px';
+    cursorFollower.style.top = followerY + 'px';
 
     requestAnimationFrame(animateCursor);
   }
@@ -552,7 +560,25 @@ document.addEventListener('DOMContentLoaded', () => {
   hamburger?.addEventListener('click', toggleSidebar);
   sidebarClose?.addEventListener('click', closeSidebar);
   sidebarOverlay?.addEventListener('click', closeSidebar);
-  openSidebarBtn?.addEventListener('click', toggleSidebar);
+
+  // Browse Projects button - mobile pe sidebar kholo, desktop pe first project kholo
+  openSidebarBtn?.addEventListener('click', () => {
+    if (window.innerWidth < 1024) {
+      // Mobile pe sidebar toggle karo
+      toggleSidebar();
+    } else {
+      // Desktop pe first project expand karo aur uski detail dikhao
+      const firstProject = projects[0];
+      if (firstProject) {
+        toggleProjectDropdown(firstProject.id);
+        // Thodi der baad project detail view kholo
+        setTimeout(() => {
+          showProjectDetail(firstProject.id);
+        }, 300);
+      }
+    }
+  });
+
   backBtn?.addEventListener('click', hideProjectDetail);
   lightboxClose?.addEventListener('click', closeLightboxModal);
   lightboxPrev?.addEventListener('click', prevImage);
