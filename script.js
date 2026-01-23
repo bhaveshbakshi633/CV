@@ -1917,4 +1917,4 @@ window.toggleTechDeepDive = toggleTechDeepDive;
 
 // Export for external use
 window.portfolioProjects = projects;
-window.addProject = (data) => { projects.push(data); renderProjectList(); };
+window.addProject = (data) => { projects.push(data); renderProjectsCatalog(); };
