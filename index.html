@@ -40,20 +40,14 @@
     <nav class="sidebar-nav">
       <div class="sidebar-section">
         <h3 class="sidebar-section-title">
-          <span class="title-icon">◆</span> Projects
-        </h3>
-        <ul class="project-list" id="projectList"></ul>
-      </div>
-
-      <div class="sidebar-section">
-        <h3 class="sidebar-section-title">
           <span class="title-icon">◆</span> Navigate
         </h3>
         <ul class="nav-links">
           <li><a href="#home" class="nav-link" data-section="home"><span class="nav-icon">01</span>Home</a></li>
           <li><a href="#about" class="nav-link" data-section="about"><span class="nav-icon">02</span>About</a></li>
           <li><a href="#skills" class="nav-link" data-section="skills"><span class="nav-icon">03</span>Skills</a></li>
-          <li><a href="#contact" class="nav-link" data-section="contact"><span class="nav-icon">04</span>Contact</a></li>
+          <li><a href="#projects-section" class="nav-link" data-section="projects"><span class="nav-icon">04</span>Projects</a></li>
+          <li><a href="#contact" class="nav-link" data-section="contact"><span class="nav-icon">05</span>Contact</a></li>
         </ul>
       </div>
     </nav>
@@ -232,7 +226,7 @@
           </div>
           <div class="about-image">
             <div class="image-frame">
-              <img src="profile_pic.jpg" alt="Bhavesh at work" />
+              <img src="about_photo_cropped.png" alt="Bhavesh at work" />
               <div class="frame-corner corner-tl"></div>
               <div class="frame-corner corner-tr"></div>
               <div class="frame-corner corner-bl"></div>
@@ -358,22 +352,8 @@
           <h2 class="section-title">Featured Projects</h2>
           <div class="section-line"></div>
         </div>
-        <div class="projects-cta">
-          <div class="cta-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-          </div>
-          <p>Select a project from the sidebar to explore detailed case studies with images, videos, and technical breakdowns.</p>
-          <button class="open-sidebar-btn" id="openSidebarBtn">
-            <span>Browse Projects</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12,5 19,12 12,19"></polyline>
-            </svg>
-          </button>
+        <div class="projects-catalog" id="projectsCatalog">
+          <!-- Projects will be rendered here by JS -->
         </div>
       </section>
 
