@@ -7,10 +7,13 @@
 const projects = [
   {
     id: 'naamika',
-    title: 'Naamika: LLM-Powered Humanoid Voice Assistant',
+    title: 'Naamika: LLM-Powered Voice Assistant for Robots',
     shortTitle: 'Naamika Voice AI',
-    category: 'Humanoid Robotics',
-    oneLiner: 'Voice-controlled bipedal robot with RAG-enhanced LLM reasoning and 22-action safety gatekeeper',
+    category: 'Robotics Integration',
+    flagship: true,
+    problem: 'Robots need natural voice control, but LLMs hallucinate and can trigger dangerous actions',
+    outcome: 'Deployed production voice system with 50ms emergency stop, 22-action whitelist, and zero unsafe executions',
+    oneLiner: 'Voice-controlled robot with RAG-enhanced LLM and C++ safety gatekeeper',
     description: `
       Production-grade voice-controlled assistant for bipedal humanoid robots. End-to-end pipeline
       from speech recognition to physical robot actions with sub-second response latency.
@@ -130,10 +133,12 @@ const projects = [
   },
   {
     id: 'asap',
-    title: 'Humanoid Motion Learning with ASAP Framework',
-    shortTitle: 'ASAP Motion',
-    category: 'Humanoid Robotics',
-    oneLiner: 'Sim2Real transfer of agile locomotion using PPO in 4096 parallel Isaac Gym environments',
+    title: 'Bipedal Motion Learning with ASAP Framework',
+    shortTitle: 'ASAP Motion RL',
+    category: 'Reinforcement Learning',
+    problem: 'Training locomotion policies in simulation that actually transfer to real robots',
+    outcome: 'Deployed walking, kicking, and gesture policies with <5% sim-to-real performance gap',
+    oneLiner: 'Sim2Real locomotion using PPO in 4096 parallel Isaac Gym environments',
     description: `
       Deployed whole-body agile motion policies on a 23-DOF bipedal humanoid robot using the
       open-source ASAP (Aligning Simulation And real-world Physics) framework. Achieved successful
@@ -259,11 +264,105 @@ Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height
     }
   },
   {
+    id: 'rl-training-center',
+    title: 'Universal RL Training Center',
+    shortTitle: 'RL Training Center',
+    category: 'Reinforcement Learning',
+    problem: 'RL training requires juggling configs, environments, rewards, and hardware — no unified tooling exists',
+    outcome: '12-tab PyQt6 application with URDF conversion, domain randomization, curriculum training, and real-time metrics',
+    oneLiner: 'Production-grade GUI for training any RL agent on any robot',
+    description: `
+      Comprehensive PyQt6 application for end-to-end reinforcement learning workflow on robotic systems.
+      Designed to eliminate the fragmented tooling problem in robotics RL research.
+
+      <strong>Core Features (12 Tabs):</strong>
+      • Joint Explorer: Interactive MuJoCo 3D visualization with real-time joint manipulation
+      • Reward Designer: Visual reward function composition with live preview
+      • Training Dashboard: Real-time loss curves, episode rewards, and TensorBoard integration
+      • Model Tester: Load and compare trained policies with quantitative metrics
+
+      <strong>Robot Configuration:</strong>
+      • URDF to MJCF Converter: One-click conversion with mesh/joint/actuator mapping
+      • Start Pose Editor: Save/load pose library for consistent training initialization
+      • Hardware Profiler: Auto-detect GPU/CPU and recommend batch sizes
+
+      <strong>Training Pipeline:</strong>
+      • Domain Randomization: Mass, friction, noise, delays — all configurable per-parameter
+      • Curriculum Builder: Define staged difficulty progression
+      • Algorithm Selection: PPO, SAC, TD3, A2C with hyperparameter presets
+      • Checkpoint management with model versioning
+
+      <strong>Tech Stack:</strong> PyQt6, MuJoCo, Stable-Baselines3, ONNX export, TensorBoard
+    `,
+    tags: ['PyQt6', 'MuJoCo', 'PPO', 'Stable-Baselines3', 'URDF', 'RL'],
+    images: [
+      'assets/projects/rl-training-center/img1.png',
+      'assets/projects/rl-training-center/img2.png',
+      'assets/projects/rl-training-center/img3.png',
+      'assets/projects/rl-training-center/img4.png',
+      'assets/projects/rl-training-center/img5.png',
+      'assets/projects/rl-training-center/img6.png',
+      'assets/projects/rl-training-center/img7.png'
+    ],
+    videos: [],
+    thumbnail: 'assets/projects/rl-training-center/img1.png',
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "Architecture",
+          content: `
+            <p>Built on <strong>PyQt6</strong> with a modular dock-based layout. Each feature is an independent widget that can be rearranged, floated, or tabbed.</p>
+            <p>MuJoCo rendering uses <code>mujoco.Renderer</code> with offscreen framebuffer, converted to QPixmap for display. Achieves 60fps on integrated graphics.</p>
+            <div class="code-block"><code>class MuJoCoWidget(QOpenGLWidget):
+    def render_frame(self):
+        self.renderer.update_scene(self.data)
+        pixels = self.renderer.render()
+        return QPixmap.fromImage(QImage(pixels, ...))</code></div>
+          `
+        },
+        {
+          title: "Reward Designer",
+          content: `
+            <p>Visual reward function builder with <strong>drag-and-drop components</strong>:</p>
+            <p>Distance to target, orientation alignment, velocity tracking, energy penalty, collision penalty, joint limit penalty.</p>
+            <p>Each component has configurable weight, and the combined reward function is previewed as Python code that can be exported directly to training scripts.</p>
+          `
+        },
+        {
+          title: "Domain Randomization",
+          content: `
+            <p>Comprehensive randomization for sim-to-real transfer:</p>
+            <div class="code-block"><code>randomization:
+  mass_scale: [0.8, 1.2]      # ±20% mass
+  friction: [0.5, 1.5]        # friction coefficient
+  joint_stiffness: [0.9, 1.1] # actuator variation
+  observation_noise: 0.01     # sensor noise
+  action_delay: [0, 3]        # steps of latency</code></div>
+            <p>All parameters exportable as YAML config for reproducible experiments.</p>
+          `
+        }
+      ],
+      metrics: [
+        { label: "Tabs/Features", value: "12" },
+        { label: "Lines of Code", value: "15K+" },
+        { label: "Render FPS", value: "60" },
+        { label: "Supported Algos", value: "5" }
+      ],
+      references: [
+        { title: "Stable-Baselines3", url: "https://stable-baselines3.readthedocs.io/" },
+        { title: "MuJoCo Documentation", url: "https://mujoco.readthedocs.io/" },
+        { title: "PyQt6", url: "https://www.riverbankcomputing.com/software/pyqt/" }
+      ]
+    }
+  },
+  {
     id: 'rc-uav',
     title: 'RC Aircraft & Multi-Rotor UAV Systems',
     shortTitle: 'RC UAV',
     category: 'Aerial Systems',
-    oneLiner: 'Custom fixed-wing aircraft and FPV racing quadcopter with Betaflight-tuned flight controllers',
+    problem: 'Building flight-capable UAVs from scratch with stable control characteristics',
+    outcome: 'Successful flight tests for both fixed-wing and quadcopter platforms',
+    oneLiner: 'Custom fixed-wing aircraft and FPV quadcopter with tuned flight controllers',
     description: `
       Designed and built multiple unmanned aerial vehicles from scratch, including fixed-wing aircraft
       and multi-rotor quadcopters. Projects span from concept design to successful flight testing.
@@ -302,10 +401,12 @@ Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height
   },
   {
     id: 'arm-control-gui',
-    title: 'G1 Humanoid Arm Control GUI',
+    title: 'Robot Arm Control GUI with MuJoCo',
     shortTitle: 'Arm Control GUI',
-    category: 'Humanoid Robotics',
-    oneLiner: 'PyQt6 interface with MuJoCo visualization, PPO policy inference, and real-time arm control',
+    category: 'Robotics Integration',
+    problem: 'Need unified interface to test arm policies in simulation before deploying to real robot',
+    outcome: 'Hot-swappable sim/real backend with 30fps MuJoCo viz and 2ms policy inference',
+    oneLiner: 'PyQt6 interface with MuJoCo visualization and real-time arm control',
     description: `
       Real-time control interface for bipedal humanoid robot arm manipulation. Integrates MuJoCo physics
       simulation, RL-based policy inference, and live camera feedback in a unified PyQt6 application.
@@ -468,9 +569,11 @@ multiple times without deadlock.</code></div>
   {
     id: 'hand-target',
     title: '6-DOF Object Pose Estimation for Robot Manipulation',
-    shortTitle: 'Hand Target',
+    shortTitle: 'Pose Estimation',
     category: 'Computer Vision',
-    oneLiner: 'RealSense RGB-D with ArUco markers and quaternion averaging for sub-cm pose accuracy',
+    problem: 'Robot arms need stable, accurate 6-DOF target poses for manipulation tasks',
+    outcome: 'Sub-centimeter position accuracy at 1m range with 30fps processing',
+    oneLiner: 'RealSense RGB-D with ArUco markers and quaternion averaging',
     description: `
       Real-time 3D pose estimation pipeline for robot manipulation tasks. Combines ArUco marker
       tracking with point cloud processing to provide stable 6-DOF target poses for arm control.
@@ -576,10 +679,12 @@ Orientation = eigenvectors(covariance_matrix)</div>
   },
   {
     id: 'g1-isaac-training',
-    title: 'G1 Humanoid Reinforcement Learning in Isaac Gym',
-    shortTitle: 'G1 Isaac RL',
-    category: 'Humanoid Robotics',
-    oneLiner: 'Custom RL environment for G1 locomotion with terrain curriculum and domain randomization',
+    title: 'Legged Robot RL Training in Isaac Gym',
+    shortTitle: 'Isaac Gym RL',
+    category: 'Reinforcement Learning',
+    problem: 'Training robust locomotion policies that generalize across terrain and disturbances',
+    outcome: 'Stable walking at 1.5 m/s with automatic recovery from perturbations',
+    oneLiner: 'Custom RL environment with terrain curriculum and domain randomization',
     description: `
       Custom reinforcement learning environment for training locomotion and manipulation policies
       on Unitree G1 humanoid robot using NVIDIA Isaac Gym massively parallel simulation.
@@ -722,7 +827,9 @@ Output: logs/g1/&lt;timestamp&gt;/model_&lt;iter&gt;.pt</code></div>
     title: 'Real-Time Hand Gesture Recognition System',
     shortTitle: 'Gesture Detection',
     category: 'Computer Vision',
-    oneLiner: 'MediaPipe-based 21-landmark tracking with MLP classifier for robot gesture control',
+    problem: 'Touchless robot control through natural hand gestures',
+    outcome: '95% accuracy gesture classification at 30+ fps on CPU',
+    oneLiner: 'MediaPipe 21-landmark tracking with MLP classifier for robot control',
     description: `
       Deep learning-based hand gesture recognition for human-robot interaction. Enables intuitive
       control of robotic systems through natural hand gestures captured via RGB camera.
@@ -863,9 +970,11 @@ Gesture → Action Mapping (configurable):
   {
     id: 'availsure',
     title: 'AvailSure: Home Services Booking Platform',
-    shortTitle: 'AvailSure',
+    shortTitle: 'AvailSure App',
     category: 'Software Development',
-    oneLiner: 'React Native + Node.js platform with real-time Socket.io tracking and MongoDB geospatial queries',
+    problem: 'Connect users with verified service providers with real-time tracking',
+    outcome: 'Full-stack app with sub-second booking and 95%+ location accuracy',
+    oneLiner: 'React Native + Node.js with real-time Socket.io tracking',
     description: `
       Full-stack mobile application for booking and managing household maintenance services.
       Connects users with verified service providers for plumbing, electrical, cleaning, and more.
@@ -1014,10 +1123,12 @@ Queue: Pending API calls (synced on reconnect)</div>
   },
   {
     id: 'xr-teleop',
-    title: 'XR Teleoperation for Humanoid Robots',
+    title: 'XR Teleoperation for Robot Arms',
     shortTitle: 'XR Teleop',
-    category: 'Humanoid Robotics',
-    oneLiner: 'Quest 3/Vision Pro hand tracking to robot IK with sub-50ms latency via CycloneDDS',
+    category: 'Robotics Integration',
+    problem: 'Intuitive robot arm control through immersive hand tracking',
+    outcome: 'Sub-50ms end-to-end latency with 6-DOF hand-to-robot mapping',
+    oneLiner: 'Quest 3 hand tracking to robot IK via CycloneDDS',
     description: `
       Immersive teleoperation system enabling real-time control of bipedal humanoid robots through
       Extended Reality (XR) devices. Operator hand/head tracking mapped to robot end-effectors
@@ -1155,9 +1266,11 @@ Latency Budget:
   {
     id: 'atv',
     title: 'All-Terrain Vehicle (ATV) Chassis Design',
-    shortTitle: 'ATV Design',
+    shortTitle: 'ATV Chassis',
     category: 'Mechanical Design',
-    oneLiner: 'BAJA SAE tubular space frame with FEA-optimized 4130 chromoly for 2.1+ FOS under 40kg',
+    problem: 'Design lightweight yet rigid chassis meeting BAJA SAE safety standards',
+    outcome: '38kg frame with 2.1+ FOS, 25% cost reduction through DFM optimization',
+    oneLiner: 'FEA-optimized 4130 chromoly space frame for BAJA SAE',
     description: `
       Complete mechanical design and structural analysis of a high-performance ATV chassis
       for the BAJA SAE competition. Optimized for durability, weight, and manufacturability.
@@ -1193,7 +1306,9 @@ Latency Budget:
     title: 'Surgical Robotics Assistant',
     shortTitle: 'Surgical Robot',
     category: 'Medical Robotics',
-    oneLiner: 'Sub-millimeter precision manipulator with redundant safety systems for minimally invasive surgery',
+    problem: 'Precision manipulation for minimally invasive surgical procedures',
+    outcome: 'Sub-millimeter accuracy with redundant safety interlocks',
+    oneLiner: 'Precision manipulator with redundant safety systems',
     description: `
       Developed modular robotic systems for precision surgical applications. The project focused on
       creating reliable, accurate robotic assistance for minimally invasive procedures.
@@ -1210,9 +1325,11 @@ Latency Budget:
   {
     id: 'chess-board',
     title: 'Automated Chess Board System',
-    shortTitle: 'Chess Board',
+    shortTitle: 'Auto Chess Board',
     category: 'Embedded Systems',
-    oneLiner: 'XY gantry with electromagnets, Reed switch detection, and custom chess engine for AI gameplay',
+    problem: 'Physical chess board that moves pieces autonomously for remote/AI gameplay',
+    outcome: 'Working XY gantry system with piece detection and network play',
+    oneLiner: 'XY gantry with electromagnets and custom chess engine',
     description: `
       Created an interactive chessboard featuring electromagnetic piece movement, computer vision
       for move detection, and network connectivity for remote gameplay.
@@ -1229,9 +1346,11 @@ Latency Budget:
   {
     id: 'ir-remote',
     title: 'Smart IR Control Network',
-    shortTitle: 'IR Remote',
+    shortTitle: 'Smart IR Hub',
     category: 'Embedded Systems',
-    oneLiner: 'ESP32-based IR learning system with protocol detection and smartphone app control',
+    problem: 'Unified control for all IR devices without multiple remotes',
+    outcome: 'Learning remote that clones any IR signal with smartphone app control',
+    oneLiner: 'ESP32-based IR learning system with protocol detection',
     description: `
       Designed a microcontroller-based infrared remote system capable of device identification,
       learning, and selective control.
@@ -1430,11 +1549,10 @@ function initTyping() {
   if (!typingElement) return;
 
   const phrases = [
-    'Robotics Innovation Specialist',
-    'Mechanical Design Expert',
-    'Automation Engineer',
-    'Problem Solver',
-    'Future Builder'
+    'Robotics Systems Engineer',
+    'RL & Sim2Real Specialist',
+    'Control Systems Integrator',
+    'I Ship Robots That Work'
   ];
 
   let phraseIndex = 0;
@@ -1552,7 +1670,8 @@ function renderProjectsCatalog() {
 
   // Category order
   const categoryOrder = [
-    'Humanoid Robotics',
+    'Robotics Integration',
+    'Reinforcement Learning',
     'Computer Vision',
     'Aerial Systems',
     'Medical Robotics',
@@ -1572,10 +1691,12 @@ function renderProjectsCatalog() {
         </div>
         <div class="category-projects">
           ${categories[name].map(project => `
-            <a href="#" class="project-card" data-project-id="${project.id}">
+            <a href="#" class="project-card ${project.flagship ? 'flagship' : ''}" data-project-id="${project.id}">
+              ${project.flagship ? '<span class="flagship-badge">Featured</span>' : ''}
               <div class="project-card-content">
                 <h4 class="project-card-title">${project.shortTitle}</h4>
-                <p class="project-card-desc">${project.oneLiner || ''}</p>
+                <p class="project-card-problem"><span class="label">Problem:</span> ${project.problem || ''}</p>
+                <p class="project-card-outcome"><span class="label">Outcome:</span> ${project.outcome || ''}</p>
                 <div class="project-card-tags">
                   ${project.tags.slice(0, 3).map(tag => `<span class="card-tag">${tag}</span>`).join('')}
                 </div>
