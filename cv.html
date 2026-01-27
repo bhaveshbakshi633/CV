@@ -3,463 +3,370 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bhavesh Bakshi - CV</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Bhavesh Bakshi</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    @page { margin: 0.5in; size: letter; }
+    @media print {
+      html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Source Sans 3', 'Helvetica Neue', sans-serif;
       font-size: 10pt;
-      line-height: 1.5;
-      color: #1a1a1a;
+      line-height: 1.4;
+      color: #000;
       background: #fff;
       padding: 0.5in;
       max-width: 8.5in;
       margin: 0 auto;
     }
 
-    @media print {
-      body {
-        padding: 0;
-        font-size: 9.5pt;
-      }
-    }
-
-    /* Header */
-    .header {
+    /* HEADER */
+    header {
       text-align: center;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #b5986a;
+      padding-bottom: 16px;
       margin-bottom: 16px;
+      border-bottom: 0.5px solid #000;
     }
 
     .name {
-      font-size: 24pt;
-      font-weight: 700;
-      color: #1a1a1a;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-
-    .title {
-      font-size: 11pt;
-      color: #b5986a;
-      font-weight: 600;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 28pt;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
       margin-bottom: 8px;
     }
 
-    .contact-row {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
+    .contact {
       font-size: 9pt;
-      color: #555;
+      font-weight: 400;
+      color: #333;
+      letter-spacing: 0.5px;
     }
 
-    .contact-row a {
-      color: #555;
+    .contact a {
+      color: #333;
       text-decoration: none;
     }
 
-    .contact-row a:hover {
-      color: #b5986a;
+    .divider {
+      margin: 0 8px;
+      color: #999;
     }
 
-    /* Sections */
-    .section {
+    /* SECTIONS */
+    section {
       margin-bottom: 14px;
     }
 
     .section-title {
+      font-family: 'EB Garamond', Georgia, serif;
       font-size: 11pt;
-      font-weight: 700;
-      color: #b5986a;
+      font-weight: 600;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 0.5px solid #000;
       padding-bottom: 4px;
       margin-bottom: 10px;
     }
 
-    /* Summary */
-    .summary {
-      font-size: 9.5pt;
-      color: #333;
-      line-height: 1.6;
-    }
-
-    /* Experience */
-    .job {
+    /* EXPERIENCE */
+    .exp-item {
       margin-bottom: 12px;
     }
 
-    .job:last-child {
-      margin-bottom: 0;
-    }
-
-    .job-header {
+    .exp-row {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 2px;
     }
 
-    .job-title {
+    .exp-title {
       font-weight: 700;
       font-size: 10.5pt;
-      color: #1a1a1a;
     }
 
-    .job-date {
+    .exp-date {
       font-size: 9pt;
-      color: #666;
+      font-weight: 400;
+      color: #444;
     }
 
-    .job-company {
-      font-weight: 500;
-      color: #444;
+    .exp-org {
+      font-style: italic;
+      font-size: 9.5pt;
+      color: #333;
       margin-bottom: 4px;
     }
 
-    .job-company span {
-      font-weight: 400;
-      color: #888;
-      font-size: 9pt;
-    }
-
-    .job-bullets {
+    .exp-list {
       list-style: none;
       padding-left: 0;
     }
 
-    .job-bullets li {
+    .exp-list li {
       position: relative;
       padding-left: 12px;
-      margin-bottom: 3px;
       font-size: 9.5pt;
-      color: #333;
+      margin-bottom: 2px;
+      color: #111;
     }
 
-    .job-bullets li::before {
-      content: '';
+    .exp-list li::before {
+      content: '\2013';
       position: absolute;
       left: 0;
-      top: 7px;
-      width: 4px;
-      height: 4px;
-      background: #b5986a;
-      border-radius: 50%;
+      color: #666;
     }
 
-    /* Skills */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px 24px;
-    }
-
-    .skill-category {
-      margin-bottom: 4px;
-    }
-
-    .skill-label {
+    .highlight {
       font-weight: 600;
+    }
+
+    /* TWO COLUMN */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 32px;
+    }
+
+    /* SKILLS */
+    .skill-line {
       font-size: 9.5pt;
-      color: #1a1a1a;
+      margin-bottom: 3px;
     }
 
-    .skill-items {
+    .skill-cat {
+      font-weight: 600;
+    }
+
+    /* PROJECTS */
+    .project {
+      margin-bottom: 8px;
+    }
+
+    .project-name {
+      font-weight: 700;
+      font-size: 10pt;
+    }
+
+    .project-desc {
       font-size: 9pt;
-      color: #444;
+      color: #222;
     }
 
-    /* Education */
-    .edu-item {
+    .project-tech {
+      font-size: 8.5pt;
+      color: #555;
+      font-style: italic;
+    }
+
+    /* EDUCATION */
+    .edu-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
     }
 
     .edu-degree {
       font-weight: 600;
-      color: #1a1a1a;
+      font-size: 10pt;
     }
 
     .edu-school {
+      font-size: 9.5pt;
+      color: #333;
+    }
+
+    .edu-detail {
+      font-size: 9pt;
       color: #444;
     }
 
-    .edu-meta {
-      text-align: right;
-      color: #666;
-      font-size: 9pt;
-    }
-
-    .edu-highlight {
-      font-size: 8.5pt;
-      color: #b5986a;
-      margin-top: 2px;
-    }
-
-    /* Awards */
-    .awards-grid {
+    /* AWARDS */
+    .awards-list {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 4px 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 24px;
+      font-size: 9pt;
     }
 
-    .award-item {
-      font-size: 9pt;
-      color: #333;
+    .award {
       display: flex;
       gap: 6px;
     }
 
-    .award-badge {
+    .badge {
       font-weight: 700;
-      color: #b5986a;
       font-size: 8pt;
+      background: #000;
+      color: #fff;
+      padding: 1px 4px;
+      border-radius: 1px;
     }
 
-    /* Projects */
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px 20px;
+    .badge-silver {
+      background: #555;
     }
 
-    .project {
-      margin-bottom: 0;
-    }
-
-    .project-title {
-      font-weight: 600;
-      font-size: 9.5pt;
-      color: #1a1a1a;
-    }
-
-    .project-desc {
-      font-size: 8.5pt;
-      color: #555;
-      line-height: 1.4;
-    }
-
-    .project-tags {
-      font-size: 8pt;
-      color: #888;
-      margin-top: 2px;
-    }
-
-    /* Languages */
-    .languages-row {
+    /* LANGUAGES */
+    .lang-row {
+      font-size: 9pt;
       display: flex;
       gap: 24px;
-    }
-
-    .lang-item {
-      font-size: 9pt;
-    }
-
-    .lang-name {
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-
-    .lang-level {
-      color: #666;
     }
   </style>
 </head>
 <body>
-  <header class="header">
-    <h1 class="name">BHAVESH BAKSHI</h1>
-    <div class="title">Robotics Systems Engineer</div>
-    <div class="contact-row">
-      <span>bhaveshbakshi633@gmail.com</span>
-      <span>+91 88250 95037</span>
-      <span>Gurgaon, India</span>
-      <a href="https://linkedin.com/in/bhavesh-bakshi633">LinkedIn</a>
-      <a href="https://github.com/bhaveshbakshi633">GitHub</a>
-      <a href="https://bhaveshbakshi633.github.io/CV">Portfolio</a>
-    </div>
-  </header>
 
-  <section class="section">
-    <h2 class="section-title">Summary</h2>
-    <p class="summary">
-      Robotics Systems Engineer with 5+ years of experience in full-stack robot integration, specializing in humanoid robots, reinforcement learning, and sim-to-real deployment. Proven track record of shipping production systems across bipedal humanoids, UAVs, and manipulators. Core expertise in ROS2, motion control, computer vision, and embedded systems.
-    </p>
-  </section>
+<header>
+  <h1 class="name">Bhavesh Bakshi</h1>
+  <div class="contact">
+    bhaveshbakshi633@gmail.com<span class="divider">|</span>+91 88250 95037<span class="divider">|</span>Gurgaon, India<span class="divider">|</span><a href="https://linkedin.com/in/bhavesh-bakshi633">LinkedIn</a><span class="divider">|</span><a href="https://github.com/bhaveshbakshi633">GitHub</a><span class="divider">|</span><a href="https://bhaveshbakshi633.github.io/CV">Portfolio</a>
+  </div>
+</header>
 
-  <section class="section">
-    <h2 class="section-title">Experience</h2>
+<section>
+  <h2 class="section-title">Experience</h2>
 
-    <div class="job">
-      <div class="job-header">
-        <span class="job-title">Mechatronics Engineer</span>
-        <span class="job-date">Oct 2022 - Present</span>
-      </div>
-      <div class="job-company">SS Innovations <span>| Surgical Robotics Company, Gurgaon</span></div>
-      <ul class="job-bullets">
-        <li>Deployed 29-DOF bipedal humanoid robot with voice control, SLAM navigation, and RL-trained locomotion policies</li>
-        <li>Built sim-to-real pipeline using Isaac Gym (4096 parallel environments) achieving less than 5% performance gap on hardware</li>
-        <li>Developed XR teleoperation system with sub-50ms end-to-end latency for dexterous manipulation tasks</li>
-        <li>Integrated whole-body control coordinating arms, legs, and waist at 500Hz via Unitree SDK2 (CycloneDDS)</li>
-        <li>Implemented voice AI pipeline: Whisper STT, Ollama LLM (RAG), neural TTS with 200ms response latency</li>
-        <li>System integration and testing for surgical robotics platforms; motion control with drives and encoders</li>
-      </ul>
+  <div class="exp-item">
+    <div class="exp-row">
+      <span class="exp-title">Mechatronics Engineer</span>
+      <span class="exp-date">Oct 2022 - Present</span>
     </div>
+    <div class="exp-org">SS Innovations (Surgical Robotics), Gurgaon</div>
+    <ul class="exp-list">
+      <li>Architected <span class="highlight">29-DOF bipedal humanoid</span> integrating whole-body control, SLAM, voice AI, and RL locomotion</li>
+      <li>Built sim-to-real pipeline with <span class="highlight">4,096 parallel Isaac Lab environments</span>; achieved <span class="highlight">&lt;5% real-world gap</span></li>
+      <li>Developed XR teleoperation (Quest 3) with <span class="highlight">&lt;50ms latency</span> for dexterous manipulation via IK</li>
+      <li>Implemented voice pipeline: Whisper + Ollama LLM + RAG + TTS; <span class="highlight">200ms</span> response, <span class="highlight">50ms</span> e-stop</li>
+      <li>Engineered <span class="highlight">500Hz</span> control loop: 14-DOF arms, 12-DOF legs, 3-DOF waist via Unitree SDK2</li>
+      <li>Led surgical robotics integration: motion control, encoders, safety systems</li>
+    </ul>
+  </div>
 
-    <div class="job">
-      <div class="job-header">
-        <span class="job-title">Lead Consultant</span>
-        <span class="job-date">Apr 2022 - Sep 2022</span>
-      </div>
-      <div class="job-company">Learning Links Foundation <span>| EdTech NGO</span></div>
-      <ul class="job-bullets">
-        <li>Trained 1000+ students across Kendriya Vidyalayas in IoT, mobile robotics, and embedded systems</li>
-        <li>Mentored 30+ projects from ideation to working prototypes; developed curriculum for hands-on learning</li>
-      </ul>
+  <div class="exp-item">
+    <div class="exp-row">
+      <span class="exp-title">Lead Technical Consultant</span>
+      <span class="exp-date">Apr - Sep 2022</span>
     </div>
+    <div class="exp-org">Learning Links Foundation (EdTech NGO)</div>
+    <ul class="exp-list">
+      <li>Trained <span class="highlight">1,000+ students</span> in robotics, IoT, embedded systems across Kendriya Vidyalayas</li>
+      <li>Mentored <span class="highlight">30+ projects</span> from ideation to working prototypes</li>
+    </ul>
+  </div>
 
-    <div class="job">
-      <div class="job-header">
-        <span class="job-title">Engineering Intern</span>
-        <span class="job-date">Jun 2019 - Aug 2019</span>
-      </div>
-      <div class="job-company">Heavy Engineering Corporation Ltd <span>| Ranchi</span></div>
-      <ul class="job-bullets">
-        <li>Assisted in project planning, execution, and monitoring of heavy machinery manufacturing systems</li>
-      </ul>
+  <div class="exp-item">
+    <div class="exp-row">
+      <span class="exp-title">Engineering Intern</span>
+      <span class="exp-date">Jun - Aug 2019</span>
     </div>
-  </section>
+    <div class="exp-org">Heavy Engineering Corporation Ltd, Ranchi</div>
+    <ul class="exp-list">
+      <li>Assisted heavy machinery manufacturing; cross-functional engineering reviews</li>
+    </ul>
+  </div>
+</section>
 
-  <section class="section">
-    <h2 class="section-title">Technical Skills</h2>
-    <div class="skills-grid">
-      <div class="skill-category">
-        <span class="skill-label">Languages:</span>
-        <span class="skill-items">Python, C++, C, MATLAB</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">Robotics:</span>
-        <span class="skill-items">ROS2, Unitree SDK, MuJoCo, Isaac Gym</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">ML/RL:</span>
-        <span class="skill-items">PyTorch, Stable-Baselines3, PPO, ONNX</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">Computer Vision:</span>
-        <span class="skill-items">OpenCV, RealSense, ArUco, MediaPipe</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">CAD/FEA:</span>
-        <span class="skill-items">SolidWorks, Fusion 360, Ansys, Creo</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">Embedded:</span>
-        <span class="skill-items">Arduino, Raspberry Pi, ESP32, EtherCAT</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">Protocols:</span>
-        <span class="skill-items">CycloneDDS, WebSocket, REST APIs, I2C/SPI</span>
-      </div>
-      <div class="skill-category">
-        <span class="skill-label">Tools:</span>
-        <span class="skill-items">Git, Docker, Linux, TensorBoard</span>
-      </div>
-    </div>
-  </section>
+<section>
+  <h2 class="section-title">Technical Skills</h2>
+  <div class="two-col">
+    <div class="skill-line"><span class="skill-cat">Robotics:</span> ROS2, Unitree SDK2, MuJoCo, Isaac Lab, SLAM, IK/FK</div>
+    <div class="skill-line"><span class="skill-cat">Languages:</span> Python, C++, MATLAB, Bash</div>
+    <div class="skill-line"><span class="skill-cat">ML/RL:</span> PyTorch, Stable-Baselines3, PPO, ONNX, TensorBoard</div>
+    <div class="skill-line"><span class="skill-cat">Vision:</span> OpenCV, RealSense, ArUco, MediaPipe</div>
+    <div class="skill-line"><span class="skill-cat">CAD/FEA:</span> SolidWorks, Fusion 360, Ansys, Creo</div>
+    <div class="skill-line"><span class="skill-cat">Embedded:</span> Arduino, RPi, ESP32, EtherCAT, CAN</div>
+    <div class="skill-line"><span class="skill-cat">Infrastructure:</span> Docker, Git, Linux, CycloneDDS, REST</div>
+    <div class="skill-line"><span class="skill-cat">Fabrication:</span> 3D Print, TIG Weld, PCB, Machining</div>
+  </div>
+</section>
 
-  <section class="section">
-    <h2 class="section-title">Key Projects</h2>
-    <div class="projects-grid">
-      <div class="project">
-        <div class="project-title">Naamika: Voice-Controlled Humanoid</div>
-        <div class="project-desc">29-DOF bipedal robot with WBC, SLAM, voice AI (Whisper + LLM), and gesture control. 500Hz control loop, 50ms emergency stop.</div>
-        <div class="project-tags">ROS2, Python, C++, Ollama, FAISS</div>
-      </div>
-      <div class="project">
-        <div class="project-title">ASAP Bipedal Motion Learning</div>
-        <div class="project-desc">Sim-to-real locomotion using PPO in 4096 parallel Isaac Gym envs. Deployed walking, kicking, gesture policies with less than 5% gap.</div>
-        <div class="project-tags">Isaac Gym, PyTorch, ONNX, Sim2Real</div>
-      </div>
-      <div class="project">
-        <div class="project-title">Universal RL Training Center</div>
-        <div class="project-desc">PyQt6 GUI for end-to-end RL workflow: joint visualization, reward design, curriculum training, domain randomization.</div>
-        <div class="project-tags">PyQt6, MuJoCo, Stable-Baselines3</div>
-      </div>
-      <div class="project">
-        <div class="project-title">XR Teleoperation System</div>
-        <div class="project-desc">Quest 3 hand tracking to robot IK via CycloneDDS. Sub-50ms latency, 6-DOF mapping, dexterous hand support.</div>
-        <div class="project-tags">OpenXR, IK, CycloneDDS, RealSense</div>
-      </div>
-      <div class="project">
-        <div class="project-title">RC Aircraft & Multi-Rotor UAVs</div>
-        <div class="project-desc">Custom fixed-wing aircraft and FPV quadcopter. Aerodynamic design, Betaflight tuning, successful flight tests.</div>
-        <div class="project-tags">Betaflight, PID Tuning, FPV</div>
-      </div>
-      <div class="project">
-        <div class="project-title">BAJA SAE ATV Chassis (3x)</div>
-        <div class="project-desc">FEA-optimized 4130 chromoly space frame. 38kg with 2.1+ FOS, 25% cost reduction through DFM.</div>
-        <div class="project-tags">SolidWorks, Ansys, TIG Welding</div>
-      </div>
+<section>
+  <h2 class="section-title">Selected Projects</h2>
+  <div class="two-col">
+    <div class="project">
+      <div class="project-name">Naamika: Voice-Controlled Humanoid</div>
+      <div class="project-desc">29-DOF bipedal with WBC, SLAM, LLM voice control, 22-action safety gate. Production-deployed.</div>
+      <div class="project-tech">ROS2, CycloneDDS, Whisper, Ollama, FAISS</div>
     </div>
-  </section>
+    <div class="project">
+      <div class="project-name">ASAP Bipedal Motion Learning</div>
+      <div class="project-desc">Sim-to-real via PPO in 4,096 parallel envs. Walking, kicking, gesture policies on hardware.</div>
+      <div class="project-tech">Isaac Lab, PyTorch, ONNX, Domain Randomization</div>
+    </div>
+    <div class="project">
+      <div class="project-name">Universal RL Training Center</div>
+      <div class="project-desc">PyQt6 GUI: URDF loading, reward design, curriculum training, domain rand. 12 modules.</div>
+      <div class="project-tech">PyQt6, MuJoCo, Stable-Baselines3, ONNX</div>
+    </div>
+    <div class="project">
+      <div class="project-name">XR Teleoperation System</div>
+      <div class="project-desc">Quest 3 to robot IK. Sub-50ms, 6-DOF mapping, dexterous hands.</div>
+      <div class="project-tech">OpenXR, CycloneDDS, RealSense</div>
+    </div>
+    <div class="project">
+      <div class="project-name">Fixed-Wing & Multi-Rotor UAVs</div>
+      <div class="project-desc">5 aircraft iterations + FPV quad. Aerodynamic design, PID tuning, flight tested.</div>
+      <div class="project-tech">Betaflight, Arduino, PID Control</div>
+    </div>
+    <div class="project">
+      <div class="project-name">BAJA SAE ATV Chassis (3x)</div>
+      <div class="project-desc">4130 chromoly frame. 38kg, 2.1+ FOS, 25% cost reduction via DFM.</div>
+      <div class="project-tech">SolidWorks, Ansys, TIG Welding</div>
+    </div>
+  </div>
+</section>
 
-  <section class="section">
-    <h2 class="section-title">Education</h2>
-    <div class="edu-item">
-      <div>
-        <div class="edu-degree">B.E. Mechanical Engineering</div>
-        <div class="edu-school">Birla Institute of Technology, Mesra</div>
+<section>
+  <h2 class="section-title">Education</h2>
+  <div class="two-col">
+    <div>
+      <div class="edu-row">
+        <span class="edu-degree">B.E. Mechanical Engineering</span>
+        <span class="edu-detail">2017 - 2021</span>
       </div>
-      <div class="edu-meta">
-        <div>2017 - 2021</div>
-        <div>CGPA: 7.3</div>
-      </div>
+      <div class="edu-school">Birla Institute of Technology, Mesra</div>
+      <div class="edu-detail">CGPA: 7.3/10</div>
     </div>
-    <div class="edu-item">
-      <div>
-        <div class="edu-degree">12th - Science (PCM + CS)</div>
-        <div class="edu-school">Army Public School Damana, Jammu</div>
-        <div class="edu-highlight">Topper: C++, Physics, Chemistry (95/100)</div>
+    <div>
+      <div class="edu-row">
+        <span class="edu-degree">Higher Secondary (PCM + CS)</span>
+        <span class="edu-detail">2015 - 2017</span>
       </div>
-      <div class="edu-meta">
-        <div>2015 - 2017</div>
-        <div>90%</div>
-      </div>
+      <div class="edu-school">Army Public School Damana, Jammu</div>
+      <div class="edu-detail">School Topper: C++, Physics, Chemistry (95/100) | 90%</div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="section">
-    <h2 class="section-title">Awards & Competitions</h2>
-    <div class="awards-grid">
-      <div class="award-item"><span class="award-badge">GOLD</span> World Skills India 2017 - Mobile Robotics State</div>
-      <div class="award-item"><span class="award-badge">GOLD</span> IIT Patna Robotics 2018 - Aqua Soccer</div>
-      <div class="award-item"><span class="award-badge">GOLD</span> BIT Patna Robotics 2018</div>
-      <div class="award-item"><span class="award-badge">GOLD</span> IIT Delhi Robotryst 2014 - Junior State</div>
-      <div class="award-item"><span class="award-badge">2ND</span> IIT Patna Robotics 2017 - Aqua Soccer</div>
-      <div class="award-item">SAE BAJA 2019 & 2020 Participant</div>
-      <div class="award-item">Boeing RC Aircraft - IIT Kharagpur 2018</div>
-      <div class="award-item">Technoxian-18 Drone Championship</div>
-    </div>
-  </section>
+<section>
+  <h2 class="section-title">Awards</h2>
+  <div class="awards-list">
+    <div class="award"><span class="badge">GOLD</span> World Skills India 2017 - Mobile Robotics</div>
+    <div class="award"><span class="badge">GOLD</span> IIT Patna Robotics 2018 - Aqua Soccer</div>
+    <div class="award"><span class="badge">GOLD</span> BIT Patna Robotics 2018</div>
+    <div class="award"><span class="badge">GOLD</span> IIT Delhi Robotryst 2014 - Junior</div>
+    <div class="award"><span class="badge badge-silver">2ND</span> IIT Patna Robotics 2017</div>
+    <div class="award">SAE BAJA India 2019 & 2020</div>
+    <div class="award">Boeing RC Aircraft - IIT KGP 2018</div>
+    <div class="award">Technoxian-18 Drone Championship</div>
+  </div>
+</section>
 
-  <section class="section">
-    <h2 class="section-title">Languages</h2>
-    <div class="languages-row">
-      <div class="lang-item"><span class="lang-name">English</span> <span class="lang-level">- Professional</span></div>
-      <div class="lang-item"><span class="lang-name">Hindi</span> <span class="lang-level">- Native</span></div>
-      <div class="lang-item"><span class="lang-name">French</span> <span class="lang-level">- Basic</span></div>
-    </div>
-  </section>
+<section>
+  <h2 class="section-title">Languages</h2>
+  <div class="lang-row">
+    <span><strong>English</strong> - Professional</span>
+    <span><strong>Hindi</strong> - Native</span>
+    <span><strong>French</strong> - Basic</span>
+  </div>
+</section>
+
 </body>
 </html>
