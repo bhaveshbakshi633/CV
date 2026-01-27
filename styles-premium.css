@@ -73,11 +73,8 @@
 
 html {
   font-size: 16px;
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  max-width: 100vw;
 }
 
 /* Reduced motion - CRITICAL */
@@ -2514,12 +2511,6 @@ body {
    ============================================= */
 
 @media (max-width: 768px) {
-  /* Prevent horizontal scroll */
-  html, body {
-    overflow-x: hidden;
-    max-width: 100vw;
-  }
-
   .showcase-carousel {
     animation-duration: 8s;
   }
