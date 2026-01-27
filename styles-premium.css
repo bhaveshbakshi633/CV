@@ -572,7 +572,7 @@ body {
   display: flex;
   gap: 1.5rem;
   padding: 0 clamp(1rem, 5vw, 3rem);
-  animation: carouselScroll 12s linear infinite;
+  animation: carouselScroll 18s linear infinite;
   will-change: transform;
 }
 
@@ -646,15 +646,17 @@ body {
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.45s var(--ease-out-quart);
+  transition: opacity 0.8s ease-in-out;
 }
 
 .showcase-media-item.active {
   opacity: 1;
+  transition: opacity 0.8s ease-in-out;
 }
 
 .showcase-media-item.fading {
   opacity: 0;
+  transition: opacity 0.6s ease-out;
 }
 
 /* Navigation arrows */
