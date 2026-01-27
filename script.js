@@ -9,7 +9,7 @@
 // =============================================
 const FEATURE_FLAGS = {
   ENABLE_SHOWCASE: true,        // New showcase section between hero and about
-  ENABLE_GOLD_THEME: false,     // Gold + white theme (experimental)
+  ENABLE_GOLD_THEME: true,      // Gold + white theme (experimental)
   DISABLE_PARTICLES: true,      // Remove particle canvas background
   DISABLE_CUSTOM_CURSOR: true,  // Use system cursor instead
   SIMPLIFIED_HERO: true,        // Reduced hero height, no rings
@@ -17,47 +17,115 @@ const FEATURE_FLAGS = {
 };
 
 // Flagship project IDs for showcase section
-const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'rl-training-center', 'rc-uav', 'atv'];
+const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'rc-uav', 'atv'];
+
+// Ongoing Projects (separate from completed projects)
+const ongoingProjects = [
+  {
+    id: 'rl-training-center',
+    title: 'Universal RL Training Center',
+    shortTitle: 'RL Training Center',
+    category: 'Reinforcement Learning',
+    status: 'Active Development',
+    progress: '~70% Complete',
+    description: 'End-to-end GUI for training RL agents on any robot. Joint visualization, reward design, curriculum training, domain randomization — all in one PyQt6 application.',
+    currentWork: 'Building model comparison tools and Isaac Lab integration',
+    tags: ['PyQt6', 'MuJoCo', 'PPO', 'Stable-Baselines3', 'URDF'],
+    thumbnail: 'assets/projects/rl-training-center/img1.png',
+    images: [
+      'assets/projects/rl-training-center/img1.png',
+      'assets/projects/rl-training-center/img2.png',
+      'assets/projects/rl-training-center/img3.png',
+      'assets/projects/rl-training-center/img4.png',
+      'assets/projects/rl-training-center/img5.png',
+      'assets/projects/rl-training-center/img6.png',
+      'assets/projects/rl-training-center/img7.png'
+    ],
+    videos: [],
+    fullDescription: `
+      Comprehensive PyQt6 application for end-to-end reinforcement learning workflow on robotic systems.
+      Designed to eliminate the fragmented tooling problem in robotics RL research.
+
+      <strong>Completed Features (12 Tabs):</strong>
+      • Joint Explorer: Interactive MuJoCo 3D visualization with real-time joint manipulation
+      • Reward Designer: Visual reward function composition with live preview
+      • Training Dashboard: Real-time loss curves, episode rewards, and TensorBoard integration
+      • URDF to MJCF Converter: One-click conversion with mesh/joint/actuator mapping
+      • Start Pose Editor: Save/load pose library for consistent training initialization
+      • Hardware Profiler: Auto-detect GPU/CPU and recommend batch sizes
+      • Domain Randomization: Mass, friction, noise, delays — all configurable per-parameter
+      • Curriculum Builder: Define staged difficulty progression
+
+      <strong>In Progress:</strong>
+      • Model Testing Framework: Load and compare trained policies with quantitative metrics
+      • Isaac Lab Backend: GPU-accelerated parallel training
+      • Model Library: Pre-trained policies for common robots
+
+      <strong>Tech Stack:</strong> PyQt6, MuJoCo, Stable-Baselines3, ONNX export, TensorBoard
+    `,
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "Architecture",
+          content: `
+            <p>Built on <strong>PyQt6</strong> with a modular dock-based layout. Each feature is an independent widget that can be rearranged, floated, or tabbed.</p>
+            <p>MuJoCo rendering uses <code>mujoco.Renderer</code> with offscreen framebuffer, converted to QPixmap for display. Achieves 60fps on integrated graphics.</p>
+          `
+        },
+        {
+          title: "Reward Designer",
+          content: `
+            <p>Visual reward function builder with <strong>drag-and-drop components</strong>:</p>
+            <p>Distance to target, orientation alignment, velocity tracking, energy penalty, collision penalty, joint limit penalty.</p>
+            <p>Each component has configurable weight, and the combined reward function is previewed as Python code.</p>
+          `
+        }
+      ]
+    }
+  }
+];
 
 // Project Data
 const projects = [
   {
     id: 'naamika',
-    title: 'Naamika: LLM-Powered Voice Assistant for Robots',
-    shortTitle: 'Naamika Voice AI',
+    title: 'Naamika: Voice-Controlled Humanoid with Whole Body Control',
+    shortTitle: 'Naamika Humanoid',
     category: 'Robotics Integration',
     flagship: true,
-    problem: 'Robots need natural voice control, but LLMs hallucinate and can trigger dangerous actions',
-    outcome: 'Deployed production voice system with 50ms emergency stop, 22-action whitelist, and zero unsafe executions',
-    oneLiner: 'Voice-controlled robot with RAG-enhanced LLM and C++ safety gatekeeper',
+    problem: 'Humanoid robots need seamless integration of locomotion, manipulation, navigation, and natural interaction',
+    outcome: 'Deployed 29-DOF bipedal humanoid with voice control, SLAM navigation, arm manipulation, and RL-trained gestures',
+    oneLiner: 'Full-stack humanoid system: WBC, SLAM, voice AI, and gesture control on real hardware',
     description: `
-      Production-grade voice-controlled assistant for bipedal humanoid robots. End-to-end pipeline
-      from speech recognition to physical robot actions with sub-second response latency.
+      Complete humanoid robot system deployed on a 29-DOF bipedal platform. Integrates whole-body control,
+      autonomous navigation, arm manipulation, and voice-driven AI interaction into a single production system.
+
+      <strong>Whole Body Control:</strong>
+      • 29-DOF joint control: legs (12), arms (14), waist (3)
+      • RL-trained locomotion policies (PPO, Isaac Gym) for walking, turning, gestures
+      • Real-time arm trajectory control with inverse kinematics
+      • Coordinated upper-lower body motion during locomotion
+      • 500Hz control loop via Unitree SDK2 (CycloneDDS)
+
+      <strong>Navigation & SLAM:</strong>
+      • Real-time SLAM with waypoint persistence
+      • Collision-aware path planning via costmap
+      • Time-based locomotion control (velocity commands)
+      • Indoor localization and map management
+
+      <strong>Voice & AI Integration:</strong>
+      • Whisper STT + Ollama LLM (llama3.1:8b) for natural interaction
+      • RAG pipeline with FAISS for domain knowledge
+      • C++ safety gatekeeper with 22-action whitelist
+      • 50ms emergency stop fast-path
+      • Neural TTS for speech output
 
       <strong>System Architecture:</strong>
-      • Distributed microservices: Flask orchestrator + 4 specialized services
-      • Whisper STT (large-v3) on dedicated GPU node via HTTP streaming
-      • Ollama LLM (llama3.1:8b) with 4-bit quantization for intent reasoning
-      • Chatterbox neural TTS with prosody control for natural speech
-      • WebSocket pub/sub for real-time state synchronization
-
-      <strong>RAG Pipeline:</strong>
-      • FAISS vector store with sentence-transformers embeddings (384-dim)
-      • Chunk size: 512 tokens with 50-token overlap
-      • Hybrid retrieval: dense + BM25 sparse scoring
-      • Context window: top-5 chunks with MMR diversity
-
-      <strong>Intent & Safety System:</strong>
-      • 22 whitelisted actions with C++ gatekeeper validation
-      • Risk levels: LOW (immediate) → MEDIUM/HIGH (confirmation required)
-      • STOP fast-path: "stop/halt/freeze" → 50ms DAMP state bypass
-      • Semantic veto: question words block action execution
-      • Timeout cascade: LLM 3s → pattern matching → safe fallback
-
-      <strong>Navigation:</strong> SLAM with waypoint persistence, time-based locomotion
-      (2s forward/back, 1.5s turns), collision-aware path planning via costmap.
+      • Distributed ROS2 nodes across multiple machines
+      • Flask orchestrator coordinating voice, motion, and navigation
+      • WebSocket pub/sub for real-time state sync
     `,
-    tags: ['LLM', 'RAG', 'Whisper STT', 'ROS2', 'SLAM', 'Python'],
+    tags: ['Humanoid', 'WBC', 'SLAM', 'ROS2', 'LLM', 'Python', 'C++'],
     images: [
       'assets/projects/naamika/img1.jpg',
       'assets/projects/naamika/img2.jpg',
@@ -182,17 +250,17 @@ const projects = [
       and stable locomotion gaits on physical hardware with <5% performance degradation.
     `,
     tags: ['Sim2Real', 'IsaacGym', 'PPO', 'Motion Retargeting', 'PyTorch', 'ONNX'],
-    images: [
-      'assets/projects/asap/img1.gif',
-      'assets/projects/asap/img2.gif',
-      'assets/projects/asap/img3.gif',
-      'assets/projects/asap/img4.gif'
-    ],
+    images: [],
     videos: [
+      { src: 'assets/projects/asap/img1.gif', title: 'Trained Action 1' },
+      { src: 'assets/projects/asap/img2.gif', title: 'Trained Action 2' },
+      { src: 'assets/projects/asap/img3.gif', title: 'Trained Action 3' },
+      { src: 'assets/projects/asap/img4.gif', title: 'Trained Action 4' },
       { src: 'assets/projects/asap/video1.mp4', title: 'Initial Training Stage' },
       { src: 'assets/projects/asap/video2.mp4', title: 'Intermediate' }
     ],
     thumbnail: 'assets/projects/asap/img1.gif',
+    hideGallery: true,
     technicalDeepDive: {
       sections: [
         {
@@ -276,98 +344,6 @@ Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height
         { title: "PPO Algorithm", url: "https://arxiv.org/abs/1707.06347" },
         { title: "Unitree RL Gym", url: "https://github.com/unitreerobotics/unitree_rl_gym" },
         { title: "ASAP Framework", url: "https://agility.csail.mit.edu/asap/" }
-      ]
-    }
-  },
-  {
-    id: 'rl-training-center',
-    title: 'Universal RL Training Center',
-    shortTitle: 'RL Training Center',
-    category: 'Reinforcement Learning',
-    problem: 'RL training requires juggling configs, environments, rewards, and hardware — no unified tooling exists',
-    outcome: '12-tab PyQt6 application with URDF conversion, domain randomization, curriculum training, and real-time metrics',
-    oneLiner: 'Production-grade GUI for training any RL agent on any robot',
-    description: `
-      Comprehensive PyQt6 application for end-to-end reinforcement learning workflow on robotic systems.
-      Designed to eliminate the fragmented tooling problem in robotics RL research.
-
-      <strong>Core Features (12 Tabs):</strong>
-      • Joint Explorer: Interactive MuJoCo 3D visualization with real-time joint manipulation
-      • Reward Designer: Visual reward function composition with live preview
-      • Training Dashboard: Real-time loss curves, episode rewards, and TensorBoard integration
-      • Model Tester: Load and compare trained policies with quantitative metrics
-
-      <strong>Robot Configuration:</strong>
-      • URDF to MJCF Converter: One-click conversion with mesh/joint/actuator mapping
-      • Start Pose Editor: Save/load pose library for consistent training initialization
-      • Hardware Profiler: Auto-detect GPU/CPU and recommend batch sizes
-
-      <strong>Training Pipeline:</strong>
-      • Domain Randomization: Mass, friction, noise, delays — all configurable per-parameter
-      • Curriculum Builder: Define staged difficulty progression
-      • Algorithm Selection: PPO, SAC, TD3, A2C with hyperparameter presets
-      • Checkpoint management with model versioning
-
-      <strong>Tech Stack:</strong> PyQt6, MuJoCo, Stable-Baselines3, ONNX export, TensorBoard
-    `,
-    tags: ['PyQt6', 'MuJoCo', 'PPO', 'Stable-Baselines3', 'URDF', 'RL'],
-    images: [
-      'assets/projects/rl-training-center/img1.png',
-      'assets/projects/rl-training-center/img2.png',
-      'assets/projects/rl-training-center/img3.png',
-      'assets/projects/rl-training-center/img4.png',
-      'assets/projects/rl-training-center/img5.png',
-      'assets/projects/rl-training-center/img6.png',
-      'assets/projects/rl-training-center/img7.png'
-    ],
-    videos: [],
-    thumbnail: 'assets/projects/rl-training-center/img1.png',
-    technicalDeepDive: {
-      sections: [
-        {
-          title: "Architecture",
-          content: `
-            <p>Built on <strong>PyQt6</strong> with a modular dock-based layout. Each feature is an independent widget that can be rearranged, floated, or tabbed.</p>
-            <p>MuJoCo rendering uses <code>mujoco.Renderer</code> with offscreen framebuffer, converted to QPixmap for display. Achieves 60fps on integrated graphics.</p>
-            <div class="code-block"><code>class MuJoCoWidget(QOpenGLWidget):
-    def render_frame(self):
-        self.renderer.update_scene(self.data)
-        pixels = self.renderer.render()
-        return QPixmap.fromImage(QImage(pixels, ...))</code></div>
-          `
-        },
-        {
-          title: "Reward Designer",
-          content: `
-            <p>Visual reward function builder with <strong>drag-and-drop components</strong>:</p>
-            <p>Distance to target, orientation alignment, velocity tracking, energy penalty, collision penalty, joint limit penalty.</p>
-            <p>Each component has configurable weight, and the combined reward function is previewed as Python code that can be exported directly to training scripts.</p>
-          `
-        },
-        {
-          title: "Domain Randomization",
-          content: `
-            <p>Comprehensive randomization for sim-to-real transfer:</p>
-            <div class="code-block"><code>randomization:
-  mass_scale: [0.8, 1.2]      # ±20% mass
-  friction: [0.5, 1.5]        # friction coefficient
-  joint_stiffness: [0.9, 1.1] # actuator variation
-  observation_noise: 0.01     # sensor noise
-  action_delay: [0, 3]        # steps of latency</code></div>
-            <p>All parameters exportable as YAML config for reproducible experiments.</p>
-          `
-        }
-      ],
-      metrics: [
-        { label: "Tabs/Features", value: "12" },
-        { label: "Lines of Code", value: "15K+" },
-        { label: "Render FPS", value: "60" },
-        { label: "Supported Algos", value: "5" }
-      ],
-      references: [
-        { title: "Stable-Baselines3", url: "https://stable-baselines3.readthedocs.io/" },
-        { title: "MuJoCo Documentation", url: "https://mujoco.readthedocs.io/" },
-        { title: "PyQt6", url: "https://www.riverbankcomputing.com/software/pyqt/" }
       ]
     }
   },
@@ -1404,6 +1380,7 @@ const cursorFollower = document.getElementById('cursorFollower');
 let currentProject = null;
 let currentImageIndex = 0;
 let currentImages = [];
+let savedScrollPosition = 0;
 let mouseX = 0, mouseY = 0;
 let cursorX = 0, cursorY = 0;
 
@@ -1703,11 +1680,16 @@ function renderProjectsCatalog() {
   categoryOrder.forEach(name => {
     if (!categories[name]) return;
     html += `
-      <div class="project-category">
-        <div class="category-header">
+      <div class="project-category collapsed">
+        <button class="category-header" aria-expanded="false">
           <h3 class="category-title">${name}</h3>
-          <span class="category-count">${categories[name].length}</span>
-        </div>
+          <div class="category-header-right">
+            <span class="category-count">${categories[name].length} ${categories[name].length === 1 ? 'project' : 'projects'}</span>
+            <svg class="category-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </div>
+        </button>
         <div class="category-projects">
           ${categories[name].map(project => `
             <a href="#" class="project-card ${project.flagship ? 'flagship' : ''}" data-project-id="${project.id}">
@@ -1735,12 +1717,147 @@ function renderProjectsCatalog() {
 
   catalog.innerHTML = html;
 
-  // Add click handlers
+  // Add click handlers for project cards
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('click', (e) => {
       e.preventDefault();
       showProjectDetail(card.dataset.projectId);
     });
+  });
+
+  // Add click handlers for collapsible category headers
+  document.querySelectorAll('.category-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const category = header.closest('.project-category');
+      const isCollapsed = category.classList.contains('collapsed');
+      category.classList.toggle('collapsed');
+      header.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+    });
+  });
+}
+
+// =============================================
+// ONGOING PROJECTS RENDER
+// =============================================
+function renderOngoingProjects() {
+  const container = document.getElementById('ongoingProjects');
+  if (!container || ongoingProjects.length === 0) return;
+
+  let html = '';
+  ongoingProjects.forEach(project => {
+    html += `
+      <div class="ongoing-card" data-project-id="${project.id}">
+        <div class="ongoing-card-thumbnail">
+          <img src="${project.thumbnail}" alt="${project.title}" loading="lazy" />
+        </div>
+        <div class="ongoing-card-content">
+          <span class="ongoing-card-badge">${project.status}</span>
+          <h4 class="ongoing-card-title">${project.title}</h4>
+          <p class="ongoing-card-desc">${project.description}</p>
+          <p class="ongoing-card-status">${project.progress} — ${project.currentWork}</p>
+          <div class="ongoing-card-tags">
+            ${project.tags.map(tag => `<span class="ongoing-card-tag">${tag}</span>`).join('')}
+          </div>
+        </div>
+        <div class="ongoing-card-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12,5 19,12 12,19"></polyline>
+          </svg>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Add click handlers for ongoing project cards
+  document.querySelectorAll('.ongoing-card').forEach(card => {
+    card.addEventListener('click', () => {
+      showOngoingProjectDetail(card.dataset.projectId);
+    });
+  });
+}
+
+// Show ongoing project detail
+function showOngoingProjectDetail(projectId) {
+  const project = ongoingProjects.find(p => p.id === projectId);
+  if (!project) return;
+
+  savedScrollPosition = window.scrollY;
+  currentProject = project;
+  currentImages = project.images || [];
+  currentImageIndex = 0;
+
+  const detail = document.getElementById('projectDetail');
+  detail.innerHTML = `
+    <header class="project-detail-header">
+      <div class="project-title-row">
+        <h1 class="project-detail-title">${project.title}</h1>
+        <div class="ongoing-badge-large">
+          <span class="ongoing-dot"></span>
+          ${project.status}
+        </div>
+      </div>
+      <div class="project-detail-tags">
+        ${project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
+      </div>
+    </header>
+
+    <div class="project-detail-description">
+      ${project.fullDescription || project.description}
+    </div>
+
+    ${currentImages.length > 0 ? `
+      <div class="project-gallery">
+        <h3 class="gallery-title">Development Progress</h3>
+        <div class="gallery-grid">
+          ${currentImages.map((img, i) => `
+            <div class="gallery-item" data-index="${i}">
+              <img src="${img}" alt="${project.title} screenshot ${i + 1}" loading="lazy" />
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    ${project.technicalDeepDive ? `
+      <div class="tech-deepdive-section expanded">
+        <div class="tech-deepdive-header">
+          <div class="tech-deepdive-badge">
+            <span>🔧</span>
+            <span class="deepdive-pulse"></span>
+          </div>
+          <div class="tech-deepdive-title">
+            <h3>Technical Details</h3>
+            <p>Architecture and implementation notes</p>
+          </div>
+        </div>
+        <div class="tech-deepdive-content">
+          ${project.technicalDeepDive.sections.map((section, i) => `
+            <div class="tech-section">
+              <div class="tech-section-header">
+                <span class="tech-section-number">${i + 1}</span>
+                <span class="tech-section-title">${section.title}</span>
+              </div>
+              <div class="tech-section-content">
+                ${section.content}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+  `;
+
+  // Show detail view
+  contentWrapper.classList.add('hidden');
+  projectDetailView.classList.add('active');
+  window.scrollTo(0, 0);
+
+  // Add gallery click handlers
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', () => openLightbox(parseInt(item.dataset.index)));
   });
 }
 
@@ -1948,7 +2065,7 @@ function showProjectDetail(projectId) {
           ${project.videos.map((vid, i) => `
             <div class="video-card">
               <div class="video-container">
-                <video controls autoplay muted loop playsinline preload="auto">
+                <video class="project-video-player" autoplay muted loop playsinline preload="auto" title="Hover to unmute, click for fullscreen">
                   <source src="${vid.src}" type="video/mp4">
                   Your browser does not support video.
                 </video>
@@ -1962,7 +2079,7 @@ function showProjectDetail(projectId) {
       <div class="project-video">
         <h3 class="video-title">Project Video</h3>
         <div class="video-container">
-          <video controls preload="metadata">
+          <video class="project-video-player" muted loop playsinline preload="metadata" title="Hover to unmute, click for fullscreen">
             <source src="${project.video}" type="video/mp4">
             Your browser does not support video.
           </video>
@@ -2035,9 +2152,39 @@ function showProjectDetail(projectId) {
     });
   });
 
+  // Video controls: hover to unmute, click for fullscreen
+  document.querySelectorAll('.project-video-player').forEach(video => {
+    // Hover to unmute
+    video.addEventListener('mouseenter', () => {
+      video.muted = false;
+    });
+    video.addEventListener('mouseleave', () => {
+      video.muted = true;
+    });
+    // Click for fullscreen with controls
+    video.addEventListener('click', () => {
+      if (video.requestFullscreen) {
+        video.controls = true;
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) {
+        video.controls = true;
+        video.webkitRequestFullscreen();
+      }
+    });
+    // Remove controls when exiting fullscreen
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        video.controls = false;
+      }
+    });
+  });
+
+  // Save scroll position before showing detail
+  savedScrollPosition = window.scrollY;
+
   contentWrapper.classList.add('hidden');
   projectDetailView.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'instant' });
 
   if (window.innerWidth < 1024) closeSidebar();
 }
@@ -2047,6 +2194,9 @@ function hideProjectDetail() {
   projectDetailView.classList.remove('active');
   currentProject = null;
   document.querySelectorAll('.project-toggle').forEach(t => t.classList.remove('active'));
+
+  // Restore scroll position
+  window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
 }
 
 // =============================================
@@ -2133,6 +2283,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (FEATURE_FLAGS.SIMPLIFIED_SKILLS) {
     document.body.classList.add('simplified-skills');
   }
+  if (FEATURE_FLAGS.ENABLE_GOLD_THEME) {
+    document.body.classList.add('gold-theme');
+  }
 
   // Initialize features
   initParticles();
@@ -2142,6 +2295,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharReveal();
   initScrollAnimations();
   renderProjectsCatalog();
+  renderOngoingProjects();
   renderShowcase();
 
   // Event listeners
@@ -2160,6 +2314,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', handleNavigation);
+  });
+
+  // Copy button functionality
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const textToCopy = btn.dataset.copy;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1500);
+      });
+    });
   });
 
   // Keyboard shortcuts
