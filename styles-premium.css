@@ -2379,6 +2379,20 @@ body {
   border-radius: var(--radius-sm);
 }
 
+.education-highlights {
+  margin-top: 0.5rem;
+}
+
+.highlight-tag.topper {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  background: rgba(181, 152, 106, 0.1);
+  color: var(--gold-primary);
+  border: 1px solid rgba(181, 152, 106, 0.2);
+  border-radius: var(--radius-sm);
+}
+
 /* Achievements Subsection */
 .achievements-subsection {
   margin-top: 2.5rem;
@@ -2422,10 +2436,29 @@ body {
   border-color: rgba(192, 192, 192, 0.3);
 }
 
-.achievement-icon {
-  font-size: 1.5rem;
-  line-height: 1;
+.achievement-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
+  text-align: center;
+  min-width: 40px;
+}
+
+.gold-badge {
+  background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+  color: #1a1a1a;
+}
+
+.winner-badge {
+  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-deep) 100%);
+  color: #fff;
+}
+
+.runner-badge {
+  background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
+  color: #1a1a1a;
 }
 
 .achievement-content {
