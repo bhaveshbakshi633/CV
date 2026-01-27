@@ -2480,9 +2480,13 @@ function initCarouselInteraction() {
   const carousel = document.getElementById('showcaseCarousel');
   if (!carousel) return;
 
+  // Only enable pause on desktop (not mobile)
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) return;
+
   let hasInteracted = false;
 
-  // Pause on hover
+  // Pause on hover (desktop only)
   carousel.addEventListener('mouseenter', () => {
     carousel.classList.add('paused');
   });
@@ -2493,16 +2497,11 @@ function initCarouselInteraction() {
     }
   });
 
-  // Pause permanently after first click/interaction
+  // Pause permanently after first click/interaction (desktop only)
   carousel.addEventListener('click', () => {
     hasInteracted = true;
     carousel.classList.add('paused');
   });
-
-  // Touch support
-  carousel.addEventListener('touchstart', () => {
-    carousel.classList.add('paused');
-  }, { passive: true });
 }
 
 // =============================================
