@@ -572,7 +572,7 @@ body {
   display: flex;
   gap: 1.5rem;
   padding: 0 clamp(1rem, 5vw, 3rem);
-  animation: carouselScroll 18s linear infinite;
+  animation: carouselScroll 12s linear infinite;
   will-change: transform;
 }
 
@@ -2476,6 +2476,10 @@ body {
    ============================================= */
 
 @media (max-width: 768px) {
+  .showcase-carousel {
+    animation-duration: 8s;
+  }
+
   .timeline {
     padding-left: 1.5rem;
   }
@@ -2490,6 +2494,15 @@ body {
 
   .timeline-title {
     font-size: 1rem;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .competitions-list {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
   .hero-section {
