@@ -2158,6 +2158,9 @@ body {
 .marker-dot {
   width: 12px;
   height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  flex-shrink: 0;
   background: var(--bg-primary);
   border: 2px solid var(--gold-primary);
   border-radius: 50%;
@@ -2529,6 +2532,9 @@ body {
   .marker-dot {
     width: 10px;
     height: 10px;
+    min-width: 10px;
+    min-height: 10px;
+    flex-shrink: 0;
   }
 
   .timeline-content {
