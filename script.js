@@ -3,6 +3,22 @@
 // Particles, Typing, Custom Cursor, Animations
 // =============================================
 
+// =============================================
+// FEATURE FLAGS (v2 Redesign)
+// Set to false to disable new features
+// =============================================
+const FEATURE_FLAGS = {
+  ENABLE_SHOWCASE: true,        // New showcase section between hero and about
+  ENABLE_GOLD_THEME: false,     // Gold + white theme (experimental)
+  DISABLE_PARTICLES: true,      // Remove particle canvas background
+  DISABLE_CUSTOM_CURSOR: true,  // Use system cursor instead
+  SIMPLIFIED_HERO: true,        // Reduced hero height, no rings
+  SIMPLIFIED_SKILLS: true       // Text-based skills, no progress bars
+};
+
+// Flagship project IDs for showcase section
+const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'rl-training-center', 'rc-uav', 'atv'];
+
 // Project Data
 const projects = [
   {
@@ -1395,6 +1411,8 @@ let cursorX = 0, cursorY = 0;
 // PARTICLE BACKGROUND
 // =============================================
 function initParticles() {
+  if (FEATURE_FLAGS.DISABLE_PARTICLES) return;
+
   const canvas = document.getElementById('particleCanvas');
   if (!canvas) return;
 
@@ -1485,6 +1503,7 @@ function initParticles() {
 // CUSTOM CURSOR
 // =============================================
 function initCursor() {
+  if (FEATURE_FLAGS.DISABLE_CUSTOM_CURSOR) return;
   if (!cursor || !cursorFollower || window.innerWidth < 1024) return;
 
   // Cursor position - dono ko same position pe rakhna hai
@@ -1722,6 +1741,141 @@ function renderProjectsCatalog() {
       e.preventDefault();
       showProjectDetail(card.dataset.projectId);
     });
+  });
+}
+
+
+// =============================================
+// SHOWCASE SECTION (Flagship Projects)
+// =============================================
+function renderShowcase() {
+  if (!FEATURE_FLAGS.ENABLE_SHOWCASE) return;
+
+  const carousel = document.getElementById('showcaseCarousel');
+  if (!carousel) return;
+
+  // Filter flagship projects by ID list
+  const flagshipProjects = FLAGSHIP_PROJECT_IDS
+    .map(id => projects.find(p => p.id === id))
+    .filter(p => p);
+
+  if (flagshipProjects.length === 0) return;
+
+  // Generate card HTML for a project
+  const generateCard = (project) => {
+    const hasVideo = project.videos && project.videos.length > 0;
+    const hasImages = project.images && project.images.length > 0;
+    const thumbnailSrc = project.thumbnail || (hasImages ? project.images[0] : '');
+
+    return `
+      <article class="showcase-card" data-project-id="${project.id}" tabindex="0" role="button" aria-label="View ${project.shortTitle || project.title} project">
+        <div class="showcase-card-media">
+          ${hasVideo ? `
+            <video
+              class="showcase-video"
+              src="${project.videos[0].src}"
+              poster="${thumbnailSrc}"
+              muted
+              loop
+              playsinline
+              preload="metadata"
+            ></video>
+          ` : hasImages ? `
+            <div class="showcase-media-slideshow" data-images='${JSON.stringify(project.images.slice(0, 5))}'>
+              <img src="${project.images[0]}" alt="${project.title}" loading="lazy" />
+            </div>
+          ` : `
+            <div class="showcase-media-placeholder">
+              <span>${project.shortTitle || project.title}</span>
+            </div>
+          `}
+        </div>
+        <div class="showcase-card-content">
+          <span class="showcase-card-category">${project.category}</span>
+          <h3 class="showcase-card-title">${project.shortTitle || project.title}</h3>
+          <p class="showcase-card-outcome">${project.outcome || project.oneLiner}</p>
+        </div>
+        <div class="showcase-card-arrow">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12,5 19,12 12,19"></polyline>
+          </svg>
+        </div>
+      </article>
+    `;
+  };
+
+  // Render cards - duplicate for seamless infinite scroll
+  const cardsHtml = flagshipProjects.map(generateCard).join('');
+  carousel.innerHTML = cardsHtml + cardsHtml; // Duplicate for seamless loop
+
+  // Click and keyboard handlers - open project detail
+  carousel.querySelectorAll('.showcase-card').forEach(card => {
+    card.addEventListener('click', () => {
+      showProjectDetail(card.dataset.projectId);
+    });
+
+    // Keyboard accessibility - Enter or Space to activate
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showProjectDetail(card.dataset.projectId);
+      }
+    });
+  });
+
+  // Check for reduced motion preference
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Video autoplay with IntersectionObserver (for visibility-based playback)
+  if ('IntersectionObserver' in window && !prefersReducedMotion) {
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const video = entry.target;
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    carousel.querySelectorAll('.showcase-video').forEach(video => {
+      videoObserver.observe(video);
+    });
+  }
+
+  // Video hover behavior - play on hover (overrides auto behavior), pause on leave
+  carousel.querySelectorAll('.showcase-video').forEach(video => {
+    const card = video.closest('.showcase-card');
+
+    card.addEventListener('mouseenter', () => {
+      video.play().catch(() => {});
+    });
+
+    card.addEventListener('mouseleave', () => {
+      video.pause();
+      video.currentTime = 0;
+    });
+  });
+
+  // Image slideshow for cards without video
+  carousel.querySelectorAll('.showcase-media-slideshow').forEach(slideshow => {
+    const images = JSON.parse(slideshow.dataset.images || '[]');
+    if (images.length <= 1) return;
+
+    let currentIndex = 0;
+    const img = slideshow.querySelector('img');
+
+    // Cycle images every 3 seconds
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % images.length;
+      img.style.opacity = '0';
+      setTimeout(() => {
+        img.src = images[currentIndex];
+        img.style.opacity = '1';
+      }, 200);
+    }, 3000);
   });
 }
 
@@ -1966,6 +2120,20 @@ function initScrollAnimations() {
 // INIT
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
+  // Apply feature flag body classes
+  if (FEATURE_FLAGS.SIMPLIFIED_HERO) {
+    document.body.classList.add('simplified-hero');
+  }
+  if (FEATURE_FLAGS.DISABLE_PARTICLES) {
+    document.body.classList.add('no-particles');
+  }
+  if (FEATURE_FLAGS.DISABLE_CUSTOM_CURSOR) {
+    document.body.classList.add('no-custom-cursor');
+  }
+  if (FEATURE_FLAGS.SIMPLIFIED_SKILLS) {
+    document.body.classList.add('simplified-skills');
+  }
+
   // Initialize features
   initParticles();
   initCursor();
@@ -1974,6 +2142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharReveal();
   initScrollAnimations();
   renderProjectsCatalog();
+  renderShowcase();
 
   // Event listeners
   hamburger?.addEventListener('click', toggleSidebar);
