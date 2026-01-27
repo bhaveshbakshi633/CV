@@ -17,7 +17,7 @@ const FEATURE_FLAGS = {
 };
 
 // Flagship project IDs for showcase section
-const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'rc-uav', 'atv'];
+const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'rl-training-center', 'rc-uav', 'atv'];
 
 // Ongoing Projects (separate from completed projects)
 const ongoingProjects = [
@@ -1825,7 +1825,7 @@ function showOngoingProjectDetail(projectId) {
       <div class="tech-deepdive-section expanded">
         <div class="tech-deepdive-header">
           <div class="tech-deepdive-badge">
-            <span>🔧</span>
+            <span>⚡</span>
             <span class="deepdive-pulse"></span>
           </div>
           <div class="tech-deepdive-title">
@@ -1871,9 +1871,10 @@ function renderShowcase() {
   const carousel = document.getElementById('showcaseCarousel');
   if (!carousel) return;
 
-  // Filter flagship projects by ID list
+  // Filter flagship projects by ID list (check both projects and ongoingProjects)
+  const allProjects = [...projects, ...ongoingProjects];
   const flagshipProjects = FLAGSHIP_PROJECT_IDS
-    .map(id => projects.find(p => p.id === id))
+    .map(id => allProjects.find(p => p.id === id))
     .filter(p => p);
 
   if (flagshipProjects.length === 0) return;
@@ -1883,40 +1884,68 @@ function renderShowcase() {
     const hasVideo = project.videos && project.videos.length > 0;
     const hasImages = project.images && project.images.length > 0;
     const thumbnailSrc = project.thumbnail || (hasImages ? project.images[0] : '');
+    const isOngoing = ongoingProjects.some(p => p.id === project.id);
+
+    // Faster slideshow interval (2.5s default, images only - videos play continuously)
+    const slideInterval = project.slideInterval || 2500;
+
+    // Only images for slideshow (videos play on loop, not rotated)
+    // For RC-UAV: only show video, no images in slideshow
+    const mediaItems = [];
+    if (hasVideo) {
+      // Video projects: just show video (loops continuously)
+      mediaItems.push({ type: 'video', src: project.videos[0].src });
+    } else if (hasImages) {
+      // Image-only projects: create slideshow
+      project.images.slice(0, 5).forEach(img => mediaItems.push({ type: 'image', src: img }));
+    }
+
+    const showSlideshow = !hasVideo && mediaItems.length > 1;
 
     return `
-      <article class="showcase-card" data-project-id="${project.id}" tabindex="0" role="button" aria-label="View ${project.shortTitle || project.title} project">
-        <div class="showcase-card-media">
+      <article class="showcase-card ${isOngoing ? 'ongoing' : ''}" data-project-id="${project.id}" tabindex="0" role="button" aria-label="View ${project.shortTitle || project.title} project">
+        <div class="showcase-card-media" data-media='${JSON.stringify(mediaItems)}' data-interval="${slideInterval}" data-slideshow="${showSlideshow}">
           ${hasVideo ? `
             <video
-              class="showcase-video"
+              class="showcase-video showcase-media-item active"
               src="${project.videos[0].src}"
               poster="${thumbnailSrc}"
               muted
               loop
               playsinline
               preload="metadata"
+              autoplay
             ></video>
           ` : hasImages ? `
-            <div class="showcase-media-slideshow" data-images='${JSON.stringify(project.images.slice(0, 5))}'>
-              <img src="${project.images[0]}" alt="${project.title}" loading="lazy" />
-            </div>
+            <img class="showcase-media-item active" src="${project.images[0]}" alt="${project.title}" loading="lazy" />
           ` : `
             <div class="showcase-media-placeholder">
               <span>${project.shortTitle || project.title}</span>
             </div>
           `}
+          ${showSlideshow ? `
+            <button class="showcase-nav showcase-nav-prev" aria-label="Previous">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15,18 9,12 15,6"></polyline>
+              </svg>
+            </button>
+            <button class="showcase-nav showcase-nav-next" aria-label="Next">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9,6 15,12 9,18"></polyline>
+              </svg>
+            </button>
+            <div class="showcase-media-dots">
+              ${mediaItems.map((_, i) => `<span class="showcase-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('')}
+            </div>
+          ` : ''}
         </div>
-        <div class="showcase-card-content">
-          <span class="showcase-card-category">${project.category}</span>
+        <div class="showcase-card-body">
+          <span class="showcase-card-category">${project.category}${isOngoing ? ' <span class="ongoing-indicator">In Progress</span>' : ''}</span>
           <h3 class="showcase-card-title">${project.shortTitle || project.title}</h3>
-          <p class="showcase-card-outcome">${project.outcome || project.oneLiner}</p>
-        </div>
-        <div class="showcase-card-arrow">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12,5 19,12 12,19"></polyline>
-          </svg>
+          <p class="showcase-card-description">${project.outcome || project.oneLiner || project.description?.slice(0, 100) || ''}</p>
+          <div class="showcase-card-tags">
+            ${(project.tags || []).slice(0, 4).map(tag => `<span class="showcase-tag">${tag}</span>`).join('')}
+          </div>
         </div>
       </article>
     `;
@@ -1944,6 +1973,154 @@ function renderShowcase() {
   // Check for reduced motion preference
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Initialize media slideshow for each card
+  carousel.querySelectorAll('.showcase-card-media').forEach(mediaContainer => {
+    const mediaItems = JSON.parse(mediaContainer.dataset.media || '[]');
+    const interval = parseInt(mediaContainer.dataset.interval) || 2500;
+    const isSlideshow = mediaContainer.dataset.slideshow === 'true';
+
+    // Video cards: just play video continuously (no slideshow)
+    if (!isSlideshow) {
+      const video = mediaContainer.querySelector('video');
+      if (video && !prefersReducedMotion) {
+        video.play().catch(() => {});
+      }
+      return;
+    }
+
+    // Image slideshow only
+    if (mediaItems.length <= 1) {
+      return;
+    }
+
+    let currentIndex = 0;
+    let slideshowTimer = null;
+    let isPaused = false;
+    const card = mediaContainer.closest('.showcase-card');
+    const dots = mediaContainer.querySelectorAll('.showcase-dot');
+
+    // Function to go to specific slide
+    const goToSlide = (index) => {
+      const oldIndex = currentIndex;
+      currentIndex = ((index % mediaItems.length) + mediaItems.length) % mediaItems.length; // Handle negative
+
+      const currentItem = mediaItems[currentIndex];
+      const existingMedia = mediaContainer.querySelector('.showcase-media-item');
+
+      // Fade out current
+      if (existingMedia) {
+        existingMedia.classList.remove('active');
+        existingMedia.classList.add('fading');
+      }
+
+      // After fade out, replace content
+      setTimeout(() => {
+        // Remove old media
+        const oldMedia = mediaContainer.querySelector('.showcase-media-item.fading');
+        if (oldMedia) oldMedia.remove();
+
+        // Create new media element
+        let newEl;
+        if (currentItem.type === 'video') {
+          newEl = document.createElement('video');
+          newEl.className = 'showcase-video showcase-media-item';
+          newEl.src = currentItem.src;
+          newEl.muted = true;
+          newEl.loop = true;
+          newEl.playsInline = true;
+          newEl.autoplay = true;
+          if (!prefersReducedMotion) {
+            newEl.play().catch(() => {});
+          }
+        } else {
+          newEl = document.createElement('img');
+          newEl.className = 'showcase-media-item';
+          newEl.src = currentItem.src;
+          newEl.alt = 'Project media';
+          newEl.loading = 'lazy';
+        }
+
+        // Insert before nav buttons
+        const navPrev = mediaContainer.querySelector('.showcase-nav-prev');
+        if (navPrev) {
+          mediaContainer.insertBefore(newEl, navPrev);
+        } else {
+          mediaContainer.appendChild(newEl);
+        }
+
+        // Trigger fade in
+        requestAnimationFrame(() => {
+          newEl.classList.add('active');
+        });
+
+        // Update dots
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentIndex);
+        });
+      }, 450); // Match CSS transition duration
+    };
+
+    // Auto advance slideshow
+    const startSlideshow = () => {
+      if (slideshowTimer) clearInterval(slideshowTimer);
+      slideshowTimer = setInterval(() => {
+        if (!isPaused && !document.hidden) {
+          goToSlide(currentIndex + 1);
+        }
+      }, interval);
+    };
+
+    // Navigation button handlers
+    const prevBtn = mediaContainer.querySelector('.showcase-nav-prev');
+    const nextBtn = mediaContainer.querySelector('.showcase-nav-next');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        goToSlide(currentIndex - 1);
+        startSlideshow(); // Reset timer after manual nav
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        goToSlide(currentIndex + 1);
+        startSlideshow(); // Reset timer after manual nav
+      });
+    }
+
+    // Dot click handlers
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const index = parseInt(dot.dataset.index);
+        goToSlide(index);
+        startSlideshow(); // Reset timer after manual nav
+      });
+    });
+
+    // Pause on hover (but keep showing media)
+    card.addEventListener('mouseenter', () => {
+      isPaused = true;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      isPaused = false;
+    });
+
+    // Start the slideshow
+    if (!prefersReducedMotion) {
+      startSlideshow();
+    }
+
+    // Ensure first video plays
+    const firstVideo = mediaContainer.querySelector('video');
+    if (firstVideo && !prefersReducedMotion) {
+      firstVideo.play().catch(() => {});
+    }
+  });
+
   // Video autoplay with IntersectionObserver (for visibility-based playback)
   if ('IntersectionObserver' in window && !prefersReducedMotion) {
     const videoObserver = new IntersectionObserver((entries) => {
@@ -1955,45 +2132,12 @@ function renderShowcase() {
           video.pause();
         }
       });
-    }, { threshold: 0.5 });
+    }, { threshold: 0.3 });
 
     carousel.querySelectorAll('.showcase-video').forEach(video => {
       videoObserver.observe(video);
     });
   }
-
-  // Video hover behavior - play on hover (overrides auto behavior), pause on leave
-  carousel.querySelectorAll('.showcase-video').forEach(video => {
-    const card = video.closest('.showcase-card');
-
-    card.addEventListener('mouseenter', () => {
-      video.play().catch(() => {});
-    });
-
-    card.addEventListener('mouseleave', () => {
-      video.pause();
-      video.currentTime = 0;
-    });
-  });
-
-  // Image slideshow for cards without video
-  carousel.querySelectorAll('.showcase-media-slideshow').forEach(slideshow => {
-    const images = JSON.parse(slideshow.dataset.images || '[]');
-    if (images.length <= 1) return;
-
-    let currentIndex = 0;
-    const img = slideshow.querySelector('img');
-
-    // Cycle images every 3 seconds
-    setInterval(() => {
-      currentIndex = (currentIndex + 1) % images.length;
-      img.style.opacity = '0';
-      setTimeout(() => {
-        img.src = images[currentIndex];
-        img.style.opacity = '1';
-      }, 200);
-    }, 3000);
-  });
 }
 
 
@@ -2001,7 +2145,11 @@ function renderShowcase() {
 // PROJECT DETAIL VIEW
 // =============================================
 function showProjectDetail(projectId) {
-  const project = projects.find(p => p.id === projectId);
+  // Check both projects and ongoingProjects
+  let project = projects.find(p => p.id === projectId);
+  if (!project) {
+    project = ongoingProjects.find(p => p.id === projectId);
+  }
   if (!project) return;
 
   currentProject = project;
@@ -2125,7 +2273,7 @@ function showProjectDetail(projectId) {
 
           ${project.technicalDeepDive.references ? `
             <div class="tech-references">
-              <h5>📚 References & Resources</h5>
+              <h5>References & Resources</h5>
               <div class="reference-list">
                 ${project.technicalDeepDive.references.map(ref => `
                   <a href="${ref.url}" target="_blank" class="reference-link">
@@ -2248,22 +2396,113 @@ function handleNavigation(e) {
 }
 
 // =============================================
-// SCROLL ANIMATIONS
+// SCROLL REVEAL SYSTEM (Apple-inspired)
 // =============================================
 function initScrollAnimations() {
-  // Scroll pe subtle fade-in effect - content hamesha visible rahega
-  const observer = new IntersectionObserver((entries) => {
+  // Check for reduced motion preference
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReducedMotion) {
+    // Just show everything immediately
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+      el.classList.add('revealed');
+    });
+    document.querySelectorAll('.stagger-children').forEach(el => {
+      el.classList.add('revealed');
+    });
+    return;
+  }
+
+  // Main scroll reveal observer
+  const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('animate-in');
+        entry.target.classList.add('revealed');
+        // Optionally unobserve after revealing (one-time animation)
+        // revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
-
-  // Sirf non-hero sections pe animation lagao
-  document.querySelectorAll('.section:not(.hero-section)').forEach(section => {
-    observer.observe(section);
+  }, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -50px 0px'
   });
+
+  // Add scroll-reveal class to key elements
+  const revealElements = [
+    '.section-header',
+    '.about-content',
+    '.skill-card',
+    '.project-category',
+    '.ongoing-card',
+    '.contact-intro',
+    '.contact-icons-row'
+  ];
+
+  revealElements.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      el.classList.add('scroll-reveal');
+      revealObserver.observe(el);
+    });
+  });
+
+  // Stagger children for grids
+  document.querySelectorAll('.skills-grid').forEach(grid => {
+    grid.classList.add('stagger-children');
+    revealObserver.observe(grid);
+  });
+
+  // Section fade-in (backwards compat)
+  document.querySelectorAll('.section:not(.hero-section)').forEach(section => {
+    revealObserver.observe(section);
+    section.classList.add('scroll-reveal');
+  });
+}
+
+// =============================================
+// TAB VISIBILITY (Pause animations when hidden)
+// =============================================
+function initTabVisibility() {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      document.body.classList.add('tab-hidden');
+      // Pause all videos
+      document.querySelectorAll('video').forEach(v => v.pause());
+    } else {
+      document.body.classList.remove('tab-hidden');
+    }
+  });
+}
+
+// =============================================
+// CAROUSEL INTERACTION (Pause on hover/touch)
+// =============================================
+function initCarouselInteraction() {
+  const carousel = document.getElementById('showcaseCarousel');
+  if (!carousel) return;
+
+  let hasInteracted = false;
+
+  // Pause on hover
+  carousel.addEventListener('mouseenter', () => {
+    carousel.classList.add('paused');
+  });
+
+  carousel.addEventListener('mouseleave', () => {
+    if (!hasInteracted) {
+      carousel.classList.remove('paused');
+    }
+  });
+
+  // Pause permanently after first click/interaction
+  carousel.addEventListener('click', () => {
+    hasInteracted = true;
+    carousel.classList.add('paused');
+  });
+
+  // Touch support
+  carousel.addEventListener('touchstart', () => {
+    carousel.classList.add('paused');
+  }, { passive: true });
 }
 
 // =============================================
@@ -2294,9 +2533,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initCounters();
   initCharReveal();
   initScrollAnimations();
+  initTabVisibility();
   renderProjectsCatalog();
   renderOngoingProjects();
   renderShowcase();
+  initCarouselInteraction();
 
   // Event listeners
   hamburger?.addEventListener('click', toggleSidebar);
