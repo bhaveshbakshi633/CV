@@ -76,6 +76,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  overflow-y: scroll;
+  height: auto;
 }
 
 /* Reduced motion - CRITICAL */
@@ -99,8 +101,11 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll !important;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  height: auto;
+  min-height: 100vh;
 }
 
 /* Tab blur - pause all motion */
@@ -280,6 +285,7 @@ body {
   min-height: 100vh;
   padding-top: 64px;
   overflow-x: hidden;
+  overflow-y: visible;
   max-width: 100vw;
 }
 
