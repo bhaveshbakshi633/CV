@@ -1886,20 +1886,18 @@ function renderShowcase() {
     const thumbnailSrc = project.thumbnail || (hasImages ? project.images[0] : '');
     const isOngoing = ongoingProjects.some(p => p.id === project.id);
 
-    // Faster slideshow interval (2.5s default, images only - videos play continuously)
+    // Slideshow interval (2.5s for images)
     const slideInterval = project.slideInterval || 2500;
 
-    // Only images for slideshow (videos play on loop, not rotated)
-    // For RC-UAV: only show video, no images in slideshow
+    // Video projects: show video. Image-only: slideshow with arrows
     const mediaItems = [];
     if (hasVideo) {
-      // Video projects: just show video (loops continuously)
       mediaItems.push({ type: 'video', src: project.videos[0].src });
     } else if (hasImages) {
-      // Image-only projects: create slideshow
       project.images.slice(0, 5).forEach(img => mediaItems.push({ type: 'image', src: img }));
     }
 
+    // Slideshow only for image-only projects with multiple images
     const showSlideshow = !hasVideo && mediaItems.length > 1;
 
     return `
@@ -2132,9 +2130,11 @@ function renderShowcase() {
           video.pause();
         }
       });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.1 }); // Lower threshold for earlier trigger
 
     carousel.querySelectorAll('.showcase-video').forEach(video => {
+      // Try to play immediately if visible
+      video.play().catch(() => {});
       videoObserver.observe(video);
     });
   }
