@@ -2512,7 +2512,7 @@ body {
 
 @media (max-width: 768px) {
   .showcase-carousel {
-    animation-duration: 8s;
+    animation-duration: 15s;
   }
 
   /* Fix timeline marker alignment */
