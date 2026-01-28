@@ -2474,34 +2474,66 @@ function initTabVisibility() {
 }
 
 // =============================================
-// CAROUSEL INTERACTION (Pause on hover/touch)
+// CAROUSEL INFINITE SCROLL (JS-based)
 // =============================================
 function initCarouselInteraction() {
   const carousel = document.getElementById('showcaseCarousel');
   if (!carousel) return;
 
-  // Only enable pause on desktop (not mobile)
-  const isMobile = window.innerWidth <= 768;
-  if (isMobile) return;
+  // Remove CSS animation - we'll use JS
+  carousel.style.animation = 'none';
 
-  let hasInteracted = false;
+  let position = 0;
+  let isPaused = false;
+  let speed = window.innerWidth <= 768 ? 1.5 : 1; // Faster on mobile
+
+  // Get the width of half the carousel (original content before duplication)
+  const getHalfWidth = () => {
+    const cards = carousel.querySelectorAll('.showcase-card');
+    const halfCount = cards.length / 2;
+    let width = 0;
+    for (let i = 0; i < halfCount; i++) {
+      width += cards[i].offsetWidth + 24; // card width + gap
+    }
+    return width;
+  };
+
+  let halfWidth = getHalfWidth();
+
+  // Recalculate on resize
+  window.addEventListener('resize', () => {
+    halfWidth = getHalfWidth();
+    speed = window.innerWidth <= 768 ? 1.5 : 1;
+  });
+
+  // Animation loop
+  function animate() {
+    if (!isPaused) {
+      position += speed;
+
+      // Reset seamlessly when we've scrolled past the first half
+      if (position >= halfWidth) {
+        position = 0;
+      }
+
+      carousel.style.transform = `translateX(-${position}px)`;
+    }
+    requestAnimationFrame(animate);
+  }
+
+  animate();
 
   // Pause on hover (desktop only)
-  carousel.addEventListener('mouseenter', () => {
-    carousel.classList.add('paused');
-  });
+  const isMobile = window.innerWidth <= 768;
+  if (!isMobile) {
+    carousel.addEventListener('mouseenter', () => {
+      isPaused = true;
+    });
 
-  carousel.addEventListener('mouseleave', () => {
-    if (!hasInteracted) {
-      carousel.classList.remove('paused');
-    }
-  });
-
-  // Pause permanently after first click/interaction (desktop only)
-  carousel.addEventListener('click', () => {
-    hasInteracted = true;
-    carousel.classList.add('paused');
-  });
+    carousel.addEventListener('mouseleave', () => {
+      isPaused = false;
+    });
+  }
 }
 
 // =============================================

@@ -569,19 +569,10 @@ body {
   display: flex;
   gap: 1.5rem;
   padding: 0 clamp(1rem, 5vw, 3rem);
-  animation: carouselScroll 18s linear infinite;
   will-change: transform;
 }
 
-.showcase-carousel:hover,
-.showcase-carousel.paused {
-  animation-play-state: paused;
-}
-
-@keyframes carouselScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
+/* Carousel animation handled by JS */
 
 /* Showcase Card */
 .showcase-card {
@@ -2509,10 +2500,6 @@ body {
    ============================================= */
 
 @media (max-width: 768px) {
-  .showcase-carousel {
-    animation-duration: 15s;
-  }
-
   /* Fix timeline marker alignment */
   .timeline {
     padding-left: 1.5rem;
