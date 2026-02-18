@@ -46,7 +46,7 @@
   --duration-slower: 0.8s;
 
   /* Spacing */
-  --section-padding: clamp(4rem, 10vw, 8rem);
+  --section-padding: clamp(3rem, 6vw, 5rem);
   --content-max-width: 1200px;
 
   /* Typography Scale */
@@ -251,6 +251,26 @@ body {
   border-radius: 50%;
 }
 
+.topbar-lock-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  padding: 0;
+}
+
+.topbar-lock-btn:hover {
+  background: var(--surface-hover);
+  color: var(--gold-primary);
+}
+
 .topbar-download {
   display: flex;
   align-items: center;
@@ -296,7 +316,7 @@ body {
 }
 
 .section-header {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .section-number {
@@ -623,7 +643,8 @@ body {
 }
 
 .showcase-video {
-  object-fit: cover;
+  object-fit: contain;
+  background: #000;
 }
 
 /* Media item fade transitions */
@@ -635,6 +656,12 @@ body {
   object-fit: cover;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
+}
+
+.showcase-media-item[src$=".mp4"],
+video.showcase-media-item {
+  object-fit: contain;
+  background: #000;
 }
 
 .showcase-media-item.active {
@@ -1111,6 +1138,209 @@ body {
 
 .flagship-badge {
   display: none;
+}
+
+/* Protected project badges */
+.protected-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.75rem;
+  z-index: 2;
+  color: var(--gold-primary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.project-card.protected,
+.showcase-card.protected {
+  position: relative;
+}
+
+/* Showcase carousel: confidential overlay for protected projects */
+.showcase-card.protected .showcase-card-media {
+  filter: blur(8px) brightness(0.7);
+  pointer-events: none;
+}
+
+.showcase-card.protected .showcase-card-body {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.showcase-lock-badge {
+  display: none;
+}
+
+.showcase-card.protected .showcase-confidential-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(2px);
+  gap: 8px;
+}
+
+.showcase-confidential-overlay .confidential-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.showcase-confidential-overlay .confidential-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--gold-primary);
+}
+
+.showcase-confidential-overlay .confidential-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  padding: 4px 14px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
+}
+
+.showcase-confidential-overlay .confidential-sub {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* Password modal — site-matched styling */
+.pw-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(8px);
+}
+
+.pw-modal-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.pw-modal-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.pw-modal-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--gold-primary);
+}
+
+.pw-modal-card h3 {
+  color: var(--text-primary);
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.pw-modal-card .pw-subtitle {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.pw-modal-card input[type="password"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  transition: border-color var(--duration-fast);
+}
+
+.pw-modal-card input[type="password"]:focus {
+  border-color: var(--gold-primary);
+}
+
+.pw-modal-card .pw-error {
+  color: #c0392b;
+  font-size: 0.75rem;
+  margin-bottom: 10px;
+  display: none;
+}
+
+.pw-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pw-modal-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.pw-btn-cancel {
+  border: 1px solid var(--surface-border);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.pw-btn-cancel:hover {
+  background: var(--surface-hover);
+}
+
+.pw-btn-unlock {
+  border: none;
+  background: var(--gold-gradient);
+  color: #fff;
+  font-weight: 600;
+}
+
+.pw-btn-unlock:hover {
+  opacity: 0.9;
 }
 
 /* =============================================
@@ -1761,8 +1991,9 @@ body {
 .video-card video {
   width: 100%;
   display: block;
-  max-height: 300px;
-  object-fit: cover;
+  max-height: 400px;
+  object-fit: contain;
+  background: #000;
 }
 
 .video-card-title {
@@ -2127,7 +2358,7 @@ body {
 
 .timeline-item {
   position: relative;
-  padding-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .timeline-item:last-child {
@@ -2162,7 +2393,7 @@ body {
   background: var(--surface-elevated);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1.25rem;
   transition: all var(--duration-normal) var(--ease-out-quart);
 }
 
@@ -2300,8 +2531,8 @@ body {
 
 /* Education Subsection */
 .education-subsection {
-  margin-top: 3rem;
-  padding-top: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--surface-border);
 }
 
@@ -2386,8 +2617,8 @@ body {
 
 /* Achievements Subsection */
 .achievements-subsection {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--surface-border);
 }
 
@@ -2496,6 +2727,159 @@ body {
 }
 
 /* =============================================
+   COMPACT TIMELINE ITEMS (older roles)
+   ============================================= */
+
+.timeline-item.compact {
+  padding-bottom: 0.75rem;
+}
+
+.timeline-content-compact {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.compact-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.compact-separator {
+  color: var(--text-muted);
+}
+
+.compact-company {
+  color: var(--gold-primary);
+  font-weight: 500;
+}
+
+.compact-dates {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* =============================================
+   INLINE EDUCATION
+   ============================================= */
+
+.education-inline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.edu-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.edu-divider {
+  color: var(--text-muted);
+  margin: 0 0.25rem;
+}
+
+/* =============================================
+   AWARD BADGE ROW
+   ============================================= */
+
+.awards-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.award-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.3rem 0.625rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.award-badge.gold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(184, 134, 11, 0.08) 100%);
+  color: #8b6914;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+.award-badge.silver {
+  background: rgba(192, 192, 192, 0.1);
+  color: #666;
+  border: 1px solid rgba(192, 192, 192, 0.3);
+}
+
+/* =============================================
+   PROJECT CARD ONE-LINER
+   ============================================= */
+
+.project-card-oneliner {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.375rem;
+}
+
+/* =============================================
+   PROJECT DETAIL ONE-LINER SUBTITLE
+   ============================================= */
+
+.project-detail-oneliner {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+  font-style: italic;
+}
+
+/* =============================================
+   METRICS GRID (visible outside deep dive)
+   ============================================= */
+
+.project-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.project-metric-card {
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-border);
+}
+
+.project-metric-card .metric-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold-primary);
+  display: block;
+}
+
+.project-metric-card .metric-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 
@@ -2528,6 +2912,19 @@ body {
   .competitions-list {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .education-inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .edu-divider {
+    display: none;
+  }
+
+  .timeline-content-compact {
+    font-size: 0.8rem;
   }
 
   /* Hide copy tooltips on mobile - direct tap only */

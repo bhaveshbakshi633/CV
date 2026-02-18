@@ -138,13 +138,21 @@
         <span class="status-dot"></span>
         <span class="status-text">Available for opportunities</span>
       </div>
-      <a href="cv.pdf" download class="topbar-download" aria-label="Download CV">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="7,10 12,15 17,10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-      </a>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="topbar-lock-btn" id="protectionSettingsBtn" aria-label="Protection settings" onclick="showProtectionSettings()" title="Protection settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </button>
+        <a href="cv.pdf" download class="topbar-download" aria-label="Download CV">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7,10 12,15 17,10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </a>
+      </div>
     </header>
 
     <!-- Content Wrapper -->
@@ -343,66 +351,33 @@
             </div>
           </div>
 
-          <!-- Previous Role -->
-          <div class="timeline-item">
+          <!-- Previous Roles (compact) -->
+          <div class="timeline-item compact">
             <div class="timeline-marker">
               <span class="marker-dot"></span>
-              <span class="marker-line"></span>
             </div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-title-row">
-                  <h3 class="timeline-title">Lead Consultant</h3>
-                </div>
-                <div class="timeline-company">
-                  <span class="company-name">Learning Links Foundation</span>
-                  <span class="company-type">EdTech NGO</span>
-                </div>
-                <div class="timeline-meta">
-                  <span class="timeline-date">Apr 2022 — Sep 2022</span>
-                  <span class="timeline-location">India</span>
-                </div>
-              </div>
-              <ul class="timeline-achievements">
-                <li>Trained <strong>1000+ students</strong> across Kendriya Vidyalayas in IoT and robotics</li>
-                <li>Mentored <strong>30+ projects</strong> from ideation to working prototypes</li>
-              </ul>
-              <div class="timeline-tags">
-                <span class="timeline-tag">IoT</span>
-                <span class="timeline-tag">Arduino</span>
-                <span class="timeline-tag">Mentorship</span>
-              </div>
+            <div class="timeline-content-compact">
+              <span class="compact-title">Lead Consultant</span>
+              <span class="compact-separator">@</span>
+              <span class="compact-company">Learning Links Foundation</span>
+              <span class="compact-dates">(Apr 2022 — Sep 2022)</span>
             </div>
           </div>
 
-          <!-- Internship -->
-          <div class="timeline-item">
+          <div class="timeline-item compact">
             <div class="timeline-marker">
               <span class="marker-dot"></span>
-              <span class="marker-line"></span>
             </div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-title-row">
-                  <h3 class="timeline-title">Engineering Intern</h3>
-                </div>
-                <div class="timeline-company">
-                  <span class="company-name">Heavy Engineering Corporation Ltd</span>
-                  <span class="company-type">Public Sector</span>
-                </div>
-                <div class="timeline-meta">
-                  <span class="timeline-date">Jun 2019 — Aug 2019</span>
-                  <span class="timeline-location">Ranchi, India</span>
-                </div>
-              </div>
-              <ul class="timeline-achievements">
-                <li>Assisted in project planning, execution, and monitoring of heavy machinery systems</li>
-              </ul>
+            <div class="timeline-content-compact">
+              <span class="compact-title">Engineering Intern</span>
+              <span class="compact-separator">@</span>
+              <span class="compact-company">Heavy Engineering Corporation Ltd</span>
+              <span class="compact-dates">(Jun — Aug 2019)</span>
             </div>
           </div>
         </div>
 
-        <!-- Education Subsection -->
+        <!-- Education (inline) -->
         <div class="education-subsection">
           <h3 class="subsection-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -411,30 +386,14 @@
             </svg>
             Education
           </h3>
-          <div class="education-cards">
-            <div class="education-card">
-              <div class="education-degree">B.E. Mechanical Engineering</div>
-              <div class="education-school">Birla Institute of Technology, Mesra</div>
-              <div class="education-meta">
-                <span class="education-year">2017 — 2021</span>
-                <span class="education-grade">CGPA: 7.3</span>
-              </div>
-            </div>
-            <div class="education-card">
-              <div class="education-degree">12th — Science (PCM + CS)</div>
-              <div class="education-school">Army Public School Damana, Jammu</div>
-              <div class="education-meta">
-                <span class="education-year">2015 — 2017</span>
-                <span class="education-grade">90%</span>
-              </div>
-              <div class="education-highlights">
-                <span class="highlight-tag topper">Topper: C++, Physics, Chemistry (95/100)</span>
-              </div>
-            </div>
+          <div class="education-inline">
+            <span class="edu-item"><strong>B.E. Mechanical Engineering</strong>, BIT Mesra (2017–21)</span>
+            <span class="edu-divider">|</span>
+            <span class="edu-item"><strong>12th PCM + CS</strong>, APS Jammu (90%)</span>
           </div>
         </div>
 
-        <!-- Achievements Subsection -->
+        <!-- Awards (compact badge row) -->
         <div class="achievements-subsection">
           <h3 class="subsection-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -443,42 +402,12 @@
             </svg>
             Awards & Competitions
           </h3>
-          <div class="achievements-grid">
-            <div class="achievement-card gold">
-              <span class="achievement-badge gold-badge">GOLD</span>
-              <div class="achievement-content">
-                <div class="achievement-title">World Skills India 2017</div>
-                <div class="achievement-desc">Mobile Robotics — State Gold Medalist</div>
-              </div>
-            </div>
-            <div class="achievement-card gold">
-              <span class="achievement-badge gold-badge">GOLD</span>
-              <div class="achievement-content">
-                <div class="achievement-title">IIT Patna Robotics 2018</div>
-                <div class="achievement-desc">Aqua Soccer — Winner</div>
-              </div>
-            </div>
-            <div class="achievement-card gold">
-              <span class="achievement-badge gold-badge">GOLD</span>
-              <div class="achievement-content">
-                <div class="achievement-title">BIT Patna Robotics 2018</div>
-                <div class="achievement-desc">Winner</div>
-              </div>
-            </div>
-            <div class="achievement-card gold">
-              <span class="achievement-badge gold-badge">GOLD</span>
-              <div class="achievement-content">
-                <div class="achievement-title">IIT Delhi Robotryst 2014</div>
-                <div class="achievement-desc">Junior Category — State Winner</div>
-              </div>
-            </div>
-            <div class="achievement-card runner">
-              <span class="achievement-badge runner-badge">2ND</span>
-              <div class="achievement-content">
-                <div class="achievement-title">IIT Patna Robotics 2017</div>
-                <div class="achievement-desc">Aqua Soccer — Runner Up</div>
-              </div>
-            </div>
+          <div class="awards-badge-row">
+            <span class="award-badge gold">GOLD: World Skills 2017</span>
+            <span class="award-badge gold">GOLD: IIT Patna 2018</span>
+            <span class="award-badge gold">GOLD: BIT Patna 2018</span>
+            <span class="award-badge gold">GOLD: IIT Delhi 2014</span>
+            <span class="award-badge silver">2ND: IIT Patna 2017</span>
           </div>
           <div class="competitions-list">
             <span class="competitions-label">Notable Participations:</span>

@@ -17,20 +17,159 @@ const FEATURE_FLAGS = {
 };
 
 // Flagship project IDs for showcase section
-const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'rl-training-center', 'rc-uav', 'atv'];
+const FLAGSHIP_PROJECT_IDS = ['naamika', 'asap', 'xr-teleop', 'rl-training-center', 'rc-uav', 'atv'];
+
+// Password-protected project IDs (content hidden until password entered)
+// Default list — overridden by localStorage if user has customized
+const DEFAULT_PROTECTED_IDS = ['naamika', 'xr-teleop', 'surgical-robot'];
+let PROTECTED_PROJECT_IDS = JSON.parse(localStorage.getItem('protectedProjectIds')) || [...DEFAULT_PROTECTED_IDS];
+// SHA-256 hash of the access password (change hash when changing password)
+// Current password: "recruiter2026"
+const PROTECTED_HASH = '9f2feb701519cf3605ae8075e865857b97b17927bbd5045e33e3fb498a43b040';
+let protectedUnlocked = false;
+
+async function checkProtectedPassword(input) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex === PROTECTED_HASH;
+}
+
+function isProjectProtected(projectId) {
+  return PROTECTED_PROJECT_IDS.includes(projectId) && !protectedUnlocked;
+}
+
+function saveProtectedIds() {
+  localStorage.setItem('protectedProjectIds', JSON.stringify(PROTECTED_PROJECT_IDS));
+}
+
+function showProtectionSettings() {
+  if (!protectedUnlocked) {
+    showPasswordModal(() => showProtectionSettings());
+    return;
+  }
+
+  const existing = document.getElementById('protectionSettingsModal');
+  if (existing) existing.remove();
+
+  const allProjects = [...projects, ...ongoingProjects];
+
+  const modal = document.createElement('div');
+  modal.id = 'protectionSettingsModal';
+  modal.className = 'pw-modal-overlay';
+  modal.innerHTML = `
+    <div class="pw-modal-card" style="max-width:460px;text-align:left">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div class="pw-modal-icon" style="margin:0;width:36px;height:36px;flex-shrink:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h3 style="margin:0;font-size:1.05rem">Protection Settings</h3>
+      </div>
+      <p style="color:var(--text-tertiary);font-size:0.8rem;margin:0 0 16px">Select which projects require password to view:</p>
+      <div id="protectionCheckboxes" style="max-height:350px;overflow-y:auto;margin-bottom:16px">
+        ${allProjects.map(p => `
+          <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background 0.15s;margin-bottom:2px"
+            onmouseenter="this.style.background='var(--surface-hover)'" onmouseleave="this.style.background='transparent'">
+            <input type="checkbox" value="${p.id}" ${PROTECTED_PROJECT_IDS.includes(p.id) ? 'checked' : ''}
+              style="width:16px;height:16px;accent-color:var(--gold-primary);cursor:pointer">
+            <span style="color:var(--text-primary);font-size:0.85rem;flex:1">${p.shortTitle || p.title}</span>
+            <span style="color:var(--text-tertiary);font-size:0.7rem">${p.category}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="pw-modal-actions">
+        <button id="protSettingsCancel" class="pw-btn-cancel">Cancel</button>
+        <button id="protSettingsSave" class="pw-btn-unlock">Save</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  document.getElementById('protSettingsSave').addEventListener('click', () => {
+    const checked = modal.querySelectorAll('input[type="checkbox"]:checked');
+    PROTECTED_PROJECT_IDS = Array.from(checked).map(cb => cb.value);
+    saveProtectedIds();
+    modal.remove();
+    // Re-render to update lock badges
+    renderProjectsCatalog();
+    renderShowcase();
+  });
+
+  document.getElementById('protSettingsCancel').addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+function showPasswordModal(onSuccess) {
+  const existing = document.getElementById('passwordModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'passwordModal';
+  modal.className = 'pw-modal-overlay';
+  modal.innerHTML = `
+    <div class="pw-modal-card">
+      <div class="pw-modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h3>Protected Content</h3>
+      <p class="pw-subtitle">This project contains confidential material.<br>Enter the access password to view.</p>
+      <input type="password" id="protectedPwInput" placeholder="Enter password" autocomplete="off">
+      <div id="pwError" class="pw-error">Incorrect password</div>
+      <div class="pw-modal-actions">
+        <button id="pwCancel" class="pw-btn-cancel">Cancel</button>
+        <button id="pwSubmit" class="pw-btn-unlock">Unlock</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const input = document.getElementById('protectedPwInput');
+  const submit = document.getElementById('pwSubmit');
+  const cancel = document.getElementById('pwCancel');
+  const error = document.getElementById('pwError');
+
+  input.focus();
+
+  async function tryUnlock() {
+    const ok = await checkProtectedPassword(input.value);
+    if (ok) {
+      protectedUnlocked = true;
+      modal.remove();
+      // Re-render to remove lock badges
+      renderProjectsCatalog();
+      renderShowcase();
+      if (onSuccess) onSuccess();
+    } else {
+      error.style.display = 'block';
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  submit.addEventListener('click', tryUnlock);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+  cancel.addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
 
 // Ongoing Projects (separate from completed projects)
 const ongoingProjects = [
   {
     id: 'rl-training-center',
-    title: 'Universal RL Training Center',
+    title: 'Isaac Lab RL Training Environment for Precision Arm Reaching',
     shortTitle: 'RL Training Center',
     category: 'Reinforcement Learning',
     status: 'Active Development',
     progress: '~70% Complete',
-    description: 'End-to-end GUI for training RL agents on any robot. Joint visualization, reward design, curriculum training, domain randomization — all in one PyQt6 application.',
-    currentWork: 'Building model comparison tools and Isaac Lab integration',
-    tags: ['PyQt6', 'MuJoCo', 'PPO', 'Stable-Baselines3', 'URDF'],
+    description: 'Custom Isaac Lab environment for training PPO-based arm reaching policies on the Unitree G1. 3-phase curriculum learning with distance-based action scaling for precision manipulation.',
+    currentWork: 'Extending to bimanual coordination and integrating with arm control GUI',
+    tags: ['Isaac Lab', 'RSL-RL', 'PPO', 'PhysX', 'PyTorch', 'Curriculum Learning'],
     thumbnail: 'assets/projects/rl-training-center/img1.png',
     images: [
       'assets/projects/rl-training-center/img1.png',
@@ -43,41 +182,126 @@ const ongoingProjects = [
     ],
     videos: [],
     fullDescription: `
-      Comprehensive PyQt6 application for end-to-end reinforcement learning workflow on robotic systems.
-      Designed to eliminate the fragmented tooling problem in robotics RL research.
+      Custom reinforcement learning environment built on NVIDIA Isaac Lab (Isaac Sim) for training
+      precision arm reaching policies on the Unitree G1 humanoid. Uses RSL-RL PPO with a 3-phase
+      curriculum that progressively tightens success thresholds from 20mm → 10mm → 5mm.
 
-      <strong>Completed Features (12 Tabs):</strong>
-      • Joint Explorer: Interactive MuJoCo 3D visualization with real-time joint manipulation
-      • Reward Designer: Visual reward function composition with live preview
-      • Training Dashboard: Real-time loss curves, episode rewards, and TensorBoard integration
-      • URDF to MJCF Converter: One-click conversion with mesh/joint/actuator mapping
-      • Start Pose Editor: Save/load pose library for consistent training initialization
-      • Hardware Profiler: Auto-detect GPU/CPU and recommend batch sizes
-      • Domain Randomization: Mass, friction, noise, delays — all configurable per-parameter
-      • Curriculum Builder: Define staged difficulty progression
+      <strong>Environment Design (Isaac Lab):</strong>
+      • Isaac Lab (Isaac Sim 4.x + PhysX GPU) — NOT Isaac Gym
+      • 27-dim observation space: joint pos (7) + joint vel (7) + hand pos (3) + target pos (3) + error vec (3) + distance (1) + prev action (7) - 4
+      • 7-dim action space: delta joint angles for single arm
+      • Distance-based action scaling: actions shrink as hand approaches target
+      • Episode length: 200 steps with auto-reset on success or timeout
 
-      <strong>In Progress:</strong>
-      • Model Testing Framework: Load and compare trained policies with quantitative metrics
-      • Isaac Lab Backend: GPU-accelerated parallel training
-      • Model Library: Pre-trained policies for common robots
+      <strong>3-Phase Curriculum:</strong>
+      • Phase 1 (0–2000 iter): Success < 20mm, wide workspace, large action scale
+      • Phase 2 (2000–5000 iter): Success < 10mm, refined targets, medium scale
+      • Phase 3 (5000+ iter): Success < 5mm, precision reaching, small action scale
+      • Automatic phase advancement based on moving average success rate > 80%
 
-      <strong>Tech Stack:</strong> PyQt6, MuJoCo, Stable-Baselines3, ONNX export, TensorBoard
+      <strong>Reward Function:</strong>
+      • Dense: -distance_to_target (continuous gradient signal)
+      • Sparse: +10 bonus on reaching within threshold
+      • Penalties: joint velocity (-0.01), joint acceleration (-0.001), action magnitude (-0.005)
+      • Alive bonus: +0.1 per step (encourages exploration)
+
+      <strong>Training Stack:</strong>
+      • RSL-RL PPO (NOT Stable-Baselines3): optimized for GPU-parallel sim
+      • MLP policy: 256 → 256 → 7 with ELU activations
+      • Training: ~2hrs on RTX 3090 for convergence
+      • Export: PyTorch checkpoint → loaded directly in arm control GUI
     `,
     technicalDeepDive: {
       sections: [
         {
-          title: "Architecture",
+          title: "Isaac Lab Environment Architecture",
           content: `
-            <p>Built on <strong>PyQt6</strong> with a modular dock-based layout. Each feature is an independent widget that can be rearranged, floated, or tabbed.</p>
-            <p>MuJoCo rendering uses <code>mujoco.Renderer</code> with offscreen framebuffer, converted to QPixmap for display. Achieves 60fps on integrated graphics.</p>
+            <p>Built on <strong>NVIDIA Isaac Lab</strong> (Isaac Sim 4.x), NOT Isaac Gym. Uses PhysX GPU pipeline for physics with articulation-based robot model:</p>
+            <div class="code-block"><code>Environment Config:
+  Framework: Isaac Lab (omni.isaac.lab)
+  Physics: PhysX GPU pipeline
+  Robot: Unitree G1 (URDF → USD articulation)
+  Action type: delta joint positions (7-DOF arm)
+
+Observation Space (27-dim):
+  joint_positions (7): current arm angles
+  joint_velocities (7): current arm velocities
+  hand_position (3): end-effector XYZ
+  target_position (3): goal XYZ
+  error_vector (3): target - hand
+  distance (1): ‖error‖
+  prev_action (7): last commanded deltas
+  (minus 4 for internal processing)
+
+Action Space (7-dim):
+  delta_joints: clipped to [-action_scale, +action_scale]
+  action_scale: varies by curriculum phase</code></div>
           `
         },
         {
-          title: "Reward Designer",
+          title: "3-Phase Curriculum Learning",
           content: `
-            <p>Visual reward function builder with <strong>drag-and-drop components</strong>:</p>
-            <p>Distance to target, orientation alignment, velocity tracking, energy penalty, collision penalty, joint limit penalty.</p>
-            <p>Each component has configurable weight, and the combined reward function is previewed as Python code.</p>
+            <p>Progressive difficulty scaling automatically advances as the policy improves:</p>
+            <div class="code-block"><code>Phase 1 — Coarse Reaching (0–2000 iter):
+  Success threshold: 20mm
+  Action scale: 0.05 rad (large corrections OK)
+  Workspace: full arm range
+  Target: learn general reaching behavior
+
+Phase 2 — Medium Precision (2000–5000 iter):
+  Success threshold: 10mm
+  Action scale: 0.03 rad (moderate)
+  Workspace: refined region
+  Target: consistent sub-cm reaching
+
+Phase 3 — Fine Precision (5000+ iter):
+  Success threshold: 5mm
+  Action scale: 0.01 rad (tiny corrections)
+  Distance-based scaling activates
+  Target: sub-5mm terminal accuracy
+
+Advancement Criterion:
+  Moving average success rate > 80% over 500 episodes
+  Automatic phase transition (no manual intervention)</code></div>
+          `
+        },
+        {
+          title: "Distance-Based Action Scaling",
+          content: `
+            <p>Key innovation: action magnitude automatically scales with distance to target, enabling both fast gross motion and precise fine adjustments:</p>
+            <div class="code-block"><code>scale_factor = clamp(distance / d_max, 0.1, 1.0)
+effective_action = raw_action × action_scale × scale_factor
+
+Effect:
+  Far (>10cm): Full action range → fast approach
+  Medium (3–10cm): Reduced actions → controlled approach
+  Close (<3cm): Minimal actions → precision adjustment
+
+This prevents overshoot near the target without
+sacrificing speed during gross motion.</code></div>
+            <p>Combined with the curriculum, this produces policies that achieve ~3cm accuracy in Phase 1, ~1cm in Phase 2, and ~5mm in Phase 3.</p>
+          `
+        },
+        {
+          title: "RSL-RL PPO Training",
+          content: `
+            <p>Uses <strong>RSL-RL</strong> (from ETH Zürich / Legged Robotics), optimized for GPU-parallel simulation — NOT Stable-Baselines3:</p>
+            <div class="code-block"><code>PPO Config:
+  Algorithm: RSL-RL ActorCritic PPO
+  Policy MLP: [256, 256] + ELU activations
+  Value MLP: [256, 256] + ELU activations
+  γ (discount): 0.99
+  λ (GAE): 0.95
+  clip_range: 0.2
+  entropy_coef: 0.005
+  learning_rate: 3e-4
+  mini_batches: 4
+  num_epochs: 5
+
+Training Performance:
+  ~2 hours on RTX 3090 (5000 iterations)
+  Convergence: reward plateau + >80% success rate
+  Checkpoint: model_{iter}.pt every 100 iterations</code></div>
           `
         }
       ]
@@ -89,43 +313,18 @@ const ongoingProjects = [
 const projects = [
   {
     id: 'naamika',
-    title: 'Naamika: Voice-Controlled Humanoid with Whole Body Control',
+    title: 'Naamika: Humanoid Arm Manipulation & Control System',
     shortTitle: 'Naamika Humanoid',
     category: 'Robotics Integration',
     flagship: true,
-    problem: 'Humanoid robots need seamless integration of locomotion, manipulation, navigation, and natural interaction',
-    outcome: 'Deployed 29-DOF bipedal humanoid with voice control, SLAM navigation, arm manipulation, and RL-trained gestures',
-    oneLiner: 'Full-stack humanoid system: WBC, SLAM, voice AI, and gesture control on real hardware',
+    protected: true,
+    problem: 'Precise dual-arm manipulation on a bipedal humanoid requires safe, real-time control across simulation and hardware with zero-jitter motion',
+    outcome: 'Production 500Hz orchestrator with PPO-based IK, hot-swappable sim/real backends, ArUco vision tracking, and safety-critical motion control on Unitree G1',
+    oneLiner: 'Single-authority 500Hz control loop → PPO IK solver → arm_sdk DDS → Unitree G1 with ArUco-guided reaching',
     description: `
-      Complete humanoid robot system deployed on a 29-DOF bipedal platform. Integrates whole-body control,
-      autonomous navigation, arm manipulation, and voice-driven AI interaction into a single production system.
-
-      <strong>Whole Body Control:</strong>
-      • 29-DOF joint control: legs (12), arms (14), waist (3)
-      • RL-trained locomotion policies (PPO, Isaac Gym) for walking, turning, gestures
-      • Real-time arm trajectory control with inverse kinematics
-      • Coordinated upper-lower body motion during locomotion
-      • 500Hz control loop via Unitree SDK2 (CycloneDDS)
-
-      <strong>Navigation & SLAM:</strong>
-      • Real-time SLAM with waypoint persistence
-      • Collision-aware path planning via costmap
-      • Time-based locomotion control (velocity commands)
-      • Indoor localization and map management
-
-      <strong>Voice & AI Integration:</strong>
-      • Whisper STT + Ollama LLM (llama3.1:8b) for natural interaction
-      • RAG pipeline with FAISS for domain knowledge
-      • C++ safety gatekeeper with 22-action whitelist
-      • 50ms emergency stop fast-path
-      • Neural TTS for speech output
-
-      <strong>System Architecture:</strong>
-      • Distributed ROS2 nodes across multiple machines
-      • Flask orchestrator coordinating voice, motion, and navigation
-      • WebSocket pub/sub for real-time state sync
+      Production arm manipulation system for the Unitree G1 humanoid. Single-authority 500Hz orchestrator with PPO-based IK, hot-swappable sim/real backends, and ArUco vision-guided reaching. Deploys on real hardware via arm_sdk/DDS with safety-critical motion control.
     `,
-    tags: ['Humanoid', 'WBC', 'SLAM', 'ROS2', 'LLM', 'Python', 'C++'],
+    tags: ['Unitree G1', 'PPO', 'MuJoCo', 'PyQt6', 'arm_sdk', 'DDS', 'ArUco'],
     images: [
       'assets/projects/naamika/img1.jpg',
       'assets/projects/naamika/img2.jpg',
@@ -137,213 +336,308 @@ const projects = [
       { src: 'assets/projects/naamika/video3.mp4', title: 'Voice Command Response' }
     ],
     thumbnail: 'assets/projects/naamika/img1.jpg',
-    hideGallery: true,
     technicalDeepDive: {
       sections: [
         {
-          title: "Voice Activity Detection Pipeline",
+          title: "Single-Authority Orchestrator Architecture",
           content: `
-            <p>The VAD system uses <strong>Silero VAD</strong> (ONNX runtime) for real-time speech detection at 16kHz sample rate. Audio chunks arrive via WebSocket from the browser's MediaRecorder API in 16-bit PCM format.</p>
-            <div class="code-block"><code>VADConfig:
-  sample_rate: 16000
-  frame_size: 512 samples (32ms)
-  threshold: 0.5
-  silence_timeout: 0.5s
-  min_speech_duration: 0.25s</code></div>
-            <p>The pipeline uses a state machine: <code>IDLE → SPEECH_DETECTED → RECORDING → SILENCE_DETECTED → PROCESSING</code>. The 0.5s silence timeout allows natural pauses without premature cutoff.</p>
+            <p>The system enforces a strict <strong>single-writer rule</strong>: only the <code>ControlOrchestrator</code> can issue motor commands. GUI, policies, and cameras are advisory only.</p>
+            <div class="code-block"><code>Architecture (RULEBOOK-enforced):
+MainWindow (PyQt6) ─── signals ──→ ControlOrchestrator (500Hz)
+PolicyController ──── callbacks ──→      │
+ArUco Camera ──────── targets ───→      │
+                                         ↓
+                              ┌─── PlantAdapter ───┐
+                              │                    │
+                         SimPlant              RobotPlant
+                         (MuJoCo)             (arm_sdk/DDS)
+
+Threading Model:
+  Main thread: Qt event loop (display only)
+  Control thread: 500Hz deterministic loop
+  Policy thread: PPO inference (~50Hz)
+  Render thread: MuJoCo 30 FPS</code></div>
+            <p>Mode exclusivity: exactly one mode active at any time. Emergency stop overrides from any thread. Simulation becomes <strong>passive shadow</strong> (display only) when real robot is active.</p>
           `
         },
         {
-          title: "Hybrid RAG Architecture",
+          title: "PPO Policy as IK Solver",
           content: `
-            <p>Unlike pure RAG systems that lose conversation context, NAAMIKA implements a <strong>Hybrid RAG</strong> approach that maintains both conversation memory and knowledge retrieval simultaneously.</p>
-            <div class="formula">Prompt = SystemPrompt + CriticalFacts + ConversationHistory[-10:] + RetrievedContext[top-5] + UserQuery</div>
-            <p><strong>Vector Store:</strong> FAISS with HuggingFace sentence-transformers (<code>all-MiniLM-L6-v2</code>, 384-dim embeddings). Chunk size: 512 tokens with 50-token overlap using RecursiveCharacterTextSplitter.</p>
-            <p><strong>Anti-Hallucination:</strong> Critical facts (exact values for frequently-asked questions) are injected into EVERY prompt to prevent LLM fabrication. This includes specific dates, numbers, and named entities that LLMs commonly hallucinate.</p>
+            <p>Instead of analytical IK or Jacobian methods, arm reaching uses a <strong>trained PPO neural network</strong> that implicitly handles joint limits, collision, and smooth motion:</p>
+            <div class="code-block"><code>Phase 1 — Internal IK Solve (no robot motion):
+  1. Seed MuJoCo env with current robot joint state
+  2. Set target position in environment
+  3. Run policy.predict(obs) for up to 200 steps
+  4. Check convergence: ‖hand_pos - target‖ < 3cm
+  5. Extract final joint positions as IK solution
+
+Phase 2 — Smoothstep Blend (robot moves):
+  Duration: 3.0s at 50Hz (150 steps)
+  Interpolation: t² × (3 - 2t) ease-in-out
+  Output: blended joints → orchestrator → plant
+
+Observation (41-dim):
+  joint_pos (7) + joint_vel (7) + hand_xyz (3)
+  + goal_xyz (3) + delta (3) + step_frac (1)
+
+Action: 7-dim delta angles, clipped [-0.05, 0.05]
+Model: ppo_ftp_LEFT/RIGHT_HAND_final.zip (173 KB each)</code></div>
           `
         },
         {
-          title: "Intent Classification & Safety Gating",
+          title: "Plant Abstraction & Hot-Swap",
           content: `
-            <p>Before LLM inference, the <code>IntentReasoner</code> module classifies input into three categories:</p>
-            <p><strong>1. ACTION:</strong> Direct robot commands (22 whitelisted actions) - bypasses LLM, goes directly to robot API.</p>
-            <p><strong>2. CONVERSATION:</strong> General chat - processed by LLM with RAG augmentation.</p>
-            <p><strong>3. QUERY:</strong> Questions about specific topics - uses RAG retrieval.</p>
-            <div class="code-block"><code>Risk Levels:
-  LOW: wave, shake_hand, hug → Immediate execution
-  MEDIUM: forward, backward, turn → Requires confirmation
-  HIGH: init, standup, damp → Strict confirmation + timeout</code></div>
-            <p>The <strong>STOP fast-path</strong> bypasses all processing - keywords like "stop/halt/freeze/ruk/bas" trigger immediate DAMP state within 50ms through direct ROS2 topic publishing.</p>
+            <p>Unified <code>PlantInterface</code> protocol enables seamless switching between simulation and real hardware:</p>
+            <div class="code-block"><code>class PlantInterface(Protocol):
+    def send_command(positions: Dict[int, float]) -> bool
+    def get_measured_positions() -> Dict[int, float]
+    def is_connected() -> bool
+    def emergency_stop() -> None
+    def get_name() -> str  # 'simulation' or 'robot'
+
+SimPlantAdapter:
+  - Wraps MuJoCo widget (qpos read/write)
+  - set_active(False) → passive shadow mode
+  - No physics stepping when robot is active
+
+RobotPlantAdapter:
+  - Wraps arm_sdk via CycloneDDS (LowCmd/LowState)
+  - PD control: Kp=50, Kd=1.0 (arms), Kp=200, Kd=5.0 (waist)
+  - 29-DOF: arms (14) + waist (3) + legs (12, read-only)
+
+Switching: Sim → Robot
+  1. sim_adapter.set_active(False)  # passive shadow
+  2. orchestrator.use_robot_plant()
+  3. State transfer: current joints seed new plant</code></div>
           `
         },
         {
-          title: "Parallel TTS Pipeline",
+          title: "Safety-Critical Motion Control",
           content: `
-            <p>To minimize perceived latency, TTS generation and playback run in parallel threads with a producer-consumer queue:</p>
-            <div class="code-block"><code>┌─────────────────────┐     ┌─────────────────────┐
-│  TTSGenerator       │     │  AudioPlayer        │
-│  (Thread 1)         │     │  (Thread 2)         │
-│                     │     │                     │
-│  text → TTS → mp3 ────────→ queue.get() → play │
-│                     │     │                     │
-│  Generates chunk N+1│     │  Plays chunk N      │
-│  WHILE N plays      │     │  SIMULTANEOUSLY     │
-└─────────────────────┘     └─────────────────────┘</code></div>
-            <p>First chunk: 50 chars (quick response). Subsequent chunks: 150 chars (better prosody). Backend options: Edge TTS (neural), Chatterbox (custom voice), pyttsx3 (offline).</p>
+            <p>Multiple safety layers prevent unsafe motion on the 29-DOF humanoid:</p>
+            <div class="code-block"><code>Safety Stack:
+  1. Jump Detection: |target - current| > 1.5 rad → REJECT
+  2. Velocity Limiting: 500Hz pre-computed deltas
+     Manual: 1.0 rad/s → 0.002 rad/cycle
+     Policy: 2.0 rad/s → 0.004 rad/cycle
+  3. Position Error Monitor: |error| > 0.3 rad → auto-DAMP
+  4. Emergency DAMP Sequence:
+     a) Set _control_running = False (atomic)
+     b) Wait for control thread exit (timeout 1s)
+     c) Clear all pending commands
+     d) Release weight gradually over 1s (50 steps)
+     e) Send DAMP to high-level FSM
+
+Boot FSM (safe startup):
+  ZERO_TORQUE → [2s] → DAMP → [2s] → STAND_UP → [8s]
+  → READY → [3s] → 10s hold → ARM CONTROL ACTIVE
+
+Invariants (from RULEBOOK.md):
+  ✓ Single control loop (500Hz)
+  ✓ Single command writer (orchestrator only)
+  ✓ GUI cannot move hardware directly
+  ✓ Sim and robot never active simultaneously</code></div>
           `
         },
         {
-          title: "Robot Communication Layer",
+          title: "ArUco Vision-Guided Reaching",
           content: `
-            <p>Commands flow through a gatekeeper architecture before reaching the robot:</p>
-            <p><code>Brain (Python) → HTTP POST → Action Gatekeeper (C++/ROS2) → G1 Orchestrator → Unitree SDK2 (CycloneDDS)</code></p>
-            <p>The C++ gatekeeper maintains a <strong>whitelist</strong> of 22 approved actions and performs semantic veto (question words in input block action execution). Time-based locomotion commands auto-stop after configurable duration (2s forward/back, 1.5s turns).</p>
+            <p>End-to-end pipeline from camera detection to arm motion:</p>
+            <div class="code-block"><code>Pipeline:
+  G1 RealSense D435 → TCP socket (5555) → PC
+    ↓
+  ArUco 4x4_50 detection (15mm markers)
+    ↓
+  Camera → Robot frame transform
+  (uses pelvis height + cam_pitch for dynamic transform)
+    ↓
+  Target lock (remote A button press)
+    ↓
+  PPO policy IK (Phase 1: solve internally)
+    ↓
+  Smoothstep blend (Phase 2: smooth motion, 3s)
+    ↓
+  Orchestrator → arm_sdk → G1 motors
+
+Verified Results:
+  Final reaching error: ~2.8 cm
+  Tested with real RealSense on G1
+  MuJoCo visualization confirmed smooth motion</code></div>
           `
         }
       ],
       metrics: [
-        { value: "< 200ms", label: "Voice → Response" },
-        { value: "22", label: "Whitelisted Actions" },
-        { value: "50ms", label: "STOP Latency" },
-        { value: "384-dim", label: "Embedding Size" }
+        { value: "500 Hz", label: "Control Rate" },
+        { value: "2ms", label: "Loop Period" },
+        { value: "29-DOF", label: "Robot Joints" },
+        { value: "~3cm", label: "Reach Accuracy" }
       ],
       references: [
-        { title: "Silero VAD", url: "https://github.com/snakers4/silero-vad" },
-        { title: "LangChain RAG", url: "https://python.langchain.com/docs/tutorials/rag/" },
-        { title: "Ollama API", url: "https://ollama.ai/docs/api" },
-        { title: "Unitree SDK2", url: "https://github.com/unitreerobotics/unitree_sdk2" }
+        { title: "Unitree SDK2", url: "https://github.com/unitreerobotics/unitree_sdk2" },
+        { title: "MuJoCo Docs", url: "https://mujoco.readthedocs.io/en/stable/" },
+        { title: "Stable-Baselines3", url: "https://stable-baselines3.readthedocs.io/" },
+        { title: "ArUco OpenCV", url: "https://docs.opencv.org/4.x/d5/dae/tutorial_aruco_detection.html" }
       ]
     }
   },
   {
     id: 'asap',
-    title: 'Bipedal Motion Learning with ASAP Framework',
+    title: 'ASAP: Whole-Body Agile Skills via Sim-to-Real Transfer',
     shortTitle: 'ASAP Motion RL',
     category: 'Reinforcement Learning',
-    problem: 'Training locomotion policies in simulation that actually transfer to real robots',
-    outcome: 'Deployed walking, kicking, and gesture policies with <5% sim-to-real performance gap',
-    oneLiner: 'Sim2Real locomotion using PPO in 4096 parallel Isaac Gym environments',
+    flagship: true,
+    problem: 'Training locomotion and whole-body motion policies in simulation that transfer to real 29-DOF humanoid hardware',
+    outcome: 'Deployed CR7 celebration, kicks, jumps, and locomotion policies on Unitree G1 with delta action model for motor dynamics',
+    oneLiner: 'PPO + SMPL retargeting in 4096 IsaacGym envs → ONNX export → 50Hz Sim2Real on G1',
     description: `
-      Deployed whole-body agile motion policies on a 23-DOF bipedal humanoid robot using the
-      open-source ASAP (Aligning Simulation And real-world Physics) framework. Achieved successful
-      sim-to-real transfer of dynamic locomotion and expressive gesture skills.
-
-      <strong>Training Pipeline:</strong>
-      • Multi-simulator setup: IsaacGym (4096 parallel envs), MuJoCo, Genesis
-      • PPO with GAE (λ=0.95) and adaptive learning rate scheduling
-      • Phase-based motion tracking with delta action residual learning
-      • Domain randomization: mass (±15%), friction (0.5-1.2), motor strength (±10%)
-
-      <strong>Motion Retargeting:</strong>
-      • SMPL human mesh → robot joint mapping via inverse kinematics
-      • AMASS motion capture dataset (40+ hours of human motion)
-      • Temporal alignment with DTW for motion synchronization
-      • Joint limit constraints and self-collision avoidance
-
-      <strong>Sim2Real Transfer:</strong>
-      • ONNX model export for 500Hz inference on robot
-      • Actuator network for motor dynamics compensation
-      • State estimation with EKF for base velocity
-      • Real-time policy deployment via Unitree SDK2 (CycloneDDS)
-
-      <strong>Results:</strong> Successfully deployed kicks, jumps, expressive gestures,
-      and stable locomotion gaits on physical hardware with <5% performance degradation.
+      Whole-body agile skills on the Unitree G1 via the ASAP framework (RSS 2025). PPO trained across 4096 IsaacGym envs with SMPL motion retargeting, domain randomization, and a delta action model for sim-to-real bridging. Deployed CR7 celebrations, kicks, jumps, and locomotion at 50Hz on real hardware.
     `,
-    tags: ['Sim2Real', 'IsaacGym', 'PPO', 'Motion Retargeting', 'PyTorch', 'ONNX'],
-    images: [],
+    tags: ['Sim2Real', 'IsaacGym', 'PPO', 'SMPL', 'PyTorch', 'ONNX', 'Hydra'],
+    images: [
+      'assets/projects/asap/img1.gif',
+      'assets/projects/asap/img2.gif',
+      'assets/projects/asap/img3.gif',
+      'assets/projects/asap/img4.gif'
+    ],
     videos: [
-      { src: 'assets/projects/asap/img1.gif', title: 'Trained Action 1' },
-      { src: 'assets/projects/asap/img2.gif', title: 'Trained Action 2' },
-      { src: 'assets/projects/asap/img3.gif', title: 'Trained Action 3' },
-      { src: 'assets/projects/asap/img4.gif', title: 'Trained Action 4' },
       { src: 'assets/projects/asap/video1.mp4', title: 'Initial Training Stage' },
       { src: 'assets/projects/asap/video2.mp4', title: 'Intermediate' }
     ],
     thumbnail: 'assets/projects/asap/img1.gif',
-    hideGallery: true,
     technicalDeepDive: {
       sections: [
         {
-          title: "Massively Parallel Simulation",
+          title: "HumanoidVerse Multi-Simulator Training",
           content: `
-            <p>Training leverages <strong>NVIDIA Isaac Gym</strong> to simulate 4096 robot instances in parallel on a single GPU. Each environment runs independently with its own physics state, terrain, and randomization parameters.</p>
-            <div class="code-block"><code>IsaacGym Config:
+            <p>Training uses the <strong>HumanoidVerse</strong> framework supporting multiple GPU-accelerated simulators. Primary training runs on IsaacGym Preview 4 with 4096 parallel environments:</p>
+            <div class="code-block"><code>Simulator Support:
+  IsaacGym Preview 4: Primary (4096 envs, PhysX GPU)
+  IsaacSim 4.2:       Alternative backend
+  Genesis 0.2.1:      Experimental support
+
+IsaacGym Config (from Hydra):
   num_envs: 4096
   sim_device: cuda:0
-  physics_engine: PhysX (GPU)
+  physics_engine: PhysX (GPU pipeline)
   dt: 0.005s (200Hz physics)
   substeps: 2
-  decimation: 4 (50Hz policy)</code></div>
-            <p>GPU-accelerated PhysX handles rigid body dynamics, contact resolution, and joint constraints. Batch tensor operations via PyTorch eliminate CPU-GPU data transfer bottlenecks.</p>
+  decimation: 4 → 50Hz policy output
+
+Observation (~453-dim actor):
+  Phase-based motion tracking with 4-frame history
+  DOF positions (29) + velocities (29) per frame
+  Base ang_vel (3) + projected gravity (3)
+  Target motion: root_pos, root_rot, DOF targets</code></div>
+            <p>Hydra config system (OmegaConf) enables composable experiment management — mix robot, task, motion, and training configs via YAML overrides.</p>
           `
         },
         {
-          title: "PPO with Asymmetric Actor-Critic",
+          title: "SMPL Motion Retargeting Pipeline",
           content: `
-            <p>Policy optimization uses <strong>Proximal Policy Optimization (PPO)</strong> with Generalized Advantage Estimation (GAE). The architecture employs asymmetric observations:</p>
-            <div class="formula">Actor obs (47-dim): joint pos/vel, base orientation, commands, phase
-Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height)</div>
-            <p>The critic has access to ground-truth simulation state unavailable on real hardware, enabling better value estimation during training while the actor learns from realistic observations only.</p>
-            <div class="code-block"><code>PPO Hyperparameters:
+            <p>Human motions from the AMASS dataset are retargeted to G1 joint space via a two-stage SMPL fitting pipeline:</p>
+            <div class="code-block"><code>Stage 1 — Shape Fitting (fit_smpl_shape.py):
+  SMPL body model → Optimize β shape params
+  Loss: ‖skeleton_lengths(SMPL) - skeleton_lengths(G1)‖²
+  Output: G1-proportioned SMPL template
+
+Stage 2 — Motion Fitting (fit_smpl_motion.py):
+  AMASS .npz → SMPL pose sequence
+  Per-frame: Optimize G1 joint angles to match
+    SMPL joint positions (position matching)
+    SMPL joint rotations (orientation matching)
+  Output: .pkl with pose_quat_global, DOF positions/velocities
+
+Retargeted Motions:
+  CR7 Siuuu celebration, side jumps, forward jumps
+  Kicks (soccer), basketball dribble, walking gaits
+  From CMU, KIT, ACCAD motion capture subsets</code></div>
+            <p>29-DOF G1 is annealed to 23-DOF during training by locking wrist/finger joints, reducing action space while preserving whole-body expressiveness.</p>
+          `
+        },
+        {
+          title: "PPO Training with Domain Randomization",
+          content: `
+            <p><strong>PPO with GAE</strong> (λ=0.95) optimizes motion tracking reward across 4096 environments simultaneously:</p>
+            <div class="code-block"><code>PPO Config:
   γ (discount): 0.99
   λ (GAE): 0.95
   clip_range: 0.2
   entropy_coef: 0.01
-  learning_rate: 1e-3 → 1e-5 (cosine decay)
-  batch_size: 4096 * 24 steps</code></div>
+  learning_rate: adaptive (KL target 0.01)
+  epochs_per_rollout: 5
+  horizon: 24 steps/env
+  batch_size: 4096 × 24 = 98304 transitions
+
+Domain Randomization:
+  Link mass: ±20%
+  PD gains: ±25% (Kp and Kd)
+  Friction: 0.5–1.25 (ground contact)
+  Push perturbations: every 5–10s, up to 1.0 m/s
+  Base COM offset: ±10cm (XYZ)
+  Control delay: 0–2 steps (0–90ms)
+  Torque RFI: randomization limit 0.1</code></div>
+            <p>Reward combines motion tracking (joint pos/vel matching), energy penalty, and alive bonus. Phase variable synchronizes policy output with reference motion timing.</p>
           `
         },
         {
-          title: "Domain Randomization",
+          title: "Delta Action Model (Sim2Real Bridge)",
           content: `
-            <p>To bridge the sim-to-real gap, extensive randomization is applied during training:</p>
-            <p><strong>Dynamics:</strong> Base mass (±3kg), friction coefficients (0.1-1.25), motor strength scaling (±10%), joint damping variation.</p>
-            <p><strong>Observations:</strong> Gaussian noise on joint encoders, IMU bias drift, latency injection (0-40ms).</p>
-            <p><strong>External Forces:</strong> Random pushes every 5s with up to 1.5 m/s velocity perturbation to train recovery behaviors.</p>
-            <p>The policy learns a robust manifold that generalizes across the randomization distribution, making it resilient to real-world modeling errors.</p>
+            <p>A supervised neural network learns motor command corrections to bridge the sim-to-real gap, compensating for effects not captured in simulation:</p>
+            <div class="code-block"><code>Delta Action Model Architecture:
+  Input: target joint commands (from policy)
+  Network: Linear(in, 256) → ELU → Linear(256, 256) → ELU → Linear(256, out)
+  Output: corrected motor commands
+
+Training:
+  Data: Open-loop motor trajectories on real G1
+  5000 parallel envs for data collection
+  Supervised loss: ‖predicted_pos - measured_pos‖²
+  Compensates for:
+    - Motor friction & backlash
+    - Thermal drift
+    - Cable stiffness
+    - Gearbox nonlinearities</code></div>
+            <p>The delta model runs inline during deployment, sitting between the policy output and the motor commands — adding learned corrections at each timestep.</p>
           `
         },
         {
-          title: "Reward Engineering",
+          title: "Sim2Real Deployment (50Hz)",
           content: `
-            <p>Multi-objective reward function balances task performance with motion quality:</p>
-            <div class="code-block"><code>Reward Components:
-  tracking_lin_vel: 1.0   # Match commanded velocity
-  tracking_ang_vel: 0.5   # Match commanded yaw rate
-  lin_vel_z: -2.0         # Penalize vertical bounce
-  orientation: -1.0       # Keep torso upright
-  base_height: -10.0      # Maintain target height (0.78m)
-  dof_acc: -2.5e-7        # Smooth joint motion
-  action_rate: -0.01      # Penalize jerky commands
-  alive: 0.15             # Survival bonus</code></div>
-            <p>Curriculum learning progressively increases terrain difficulty and command ranges as the policy improves.</p>
-          `
-        },
-        {
-          title: "Sim2Real Deployment",
-          content: `
-            <p>Trained policies export to ONNX format for deployment on the robot's onboard computer. The inference pipeline runs at 500Hz:</p>
-            <div class="code-block"><code>Real Robot Loop (2ms):
+            <p>Trained policies export to ONNX for deployment on the G1's onboard computer. The inference pipeline runs at <strong>50Hz</strong> (20ms loop):</p>
+            <div class="code-block"><code>Deployment (newton_controller.py):
   1. Read joint encoders + IMU → state vector
-  2. ONNX Runtime inference → action (12-dim)
-  3. action_scale * action + default_angles → target positions
-  4. PD controller → torque commands
-  5. Send to motor drivers via CycloneDDS</code></div>
-            <p><strong>Actuator Network:</strong> A learned model compensates for motor dynamics (friction, backlash, thermal effects) not captured in simulation.</p>
+  2. Construct observation (with 4-frame history)
+  3. ONNX Runtime inference → action (23-dim)
+  4. Delta action model correction
+  5. action_scale × action + default_angles → targets
+  6. PD control: Kp/Kd per-joint → torque
+  7. Send via Unitree SDK2 / CycloneDDS
+
+Deployed Skills:
+  - CR7 Siuuu celebration (full body)
+  - Forward/side jumps
+  - Soccer kicks (left/right)
+  - Walking locomotion (decoupled lower body)
+
+Validation:
+  MuJoCo sim2sim check before real deployment
+  deploy_mujoco.py → visual gait verification</code></div>
+            <p>Decoupled architecture: lower body runs locomotion policy independently while upper body executes motion imitation skills. Keyboard/joystick triggers skill selection.</p>
           `
         }
       ],
       metrics: [
         { value: "4096", label: "Parallel Envs" },
-        { value: "500Hz", label: "Control Rate" },
-        { value: "< 5%", label: "Sim2Real Gap" },
-        { value: "2ms", label: "Inference Time" }
+        { value: "50Hz", label: "Control Rate" },
+        { value: "23-DOF", label: "Action Space" },
+        { value: "~453-dim", label: "Actor Obs" }
       ],
       references: [
-        { title: "Isaac Gym Paper", url: "https://arxiv.org/abs/2108.10470" },
-        { title: "PPO Algorithm", url: "https://arxiv.org/abs/1707.06347" },
-        { title: "Unitree RL Gym", url: "https://github.com/unitreerobotics/unitree_rl_gym" },
-        { title: "ASAP Framework", url: "https://agility.csail.mit.edu/asap/" }
+        { title: "ASAP Framework (RSS 2025)", url: "https://agility.csail.mit.edu/asap/" },
+        { title: "IsaacGym Preview 4", url: "https://arxiv.org/abs/2108.10470" },
+        { title: "SMPL Body Model", url: "https://smpl.is.tue.mpg.de/" },
+        { title: "AMASS Motion Database", url: "https://amass.is.tue.mpg.de/" },
+        { title: "PPO Algorithm", url: "https://arxiv.org/abs/1707.06347" }
       ]
     }
   },
@@ -356,25 +650,7 @@ Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height
     outcome: 'Successful flight tests for both fixed-wing and quadcopter platforms',
     oneLiner: 'Custom fixed-wing aircraft and FPV quadcopter with tuned flight controllers',
     description: `
-      Designed and built multiple unmanned aerial vehicles from scratch, including fixed-wing aircraft
-      and multi-rotor quadcopters. Projects span from concept design to successful flight testing.
-
-      <strong>Fixed-Wing Aircraft:</strong>
-      • Custom foam-board airframe with optimized aerodynamic profile
-      • SG90 servo actuators for aileron, elevator, and rudder control surfaces
-      • 2212 brushless outrunner motor with 30A ESC for propulsion
-      • 2.4GHz RC transmitter with 6-channel receiver integration
-      • Successful flight tests with stable handling characteristics
-
-      <strong>FPV Racing Quadcopter:</strong>
-      • Carbon fiber frame (250mm class) for high strength-to-weight ratio
-      • F4 flight controller running Betaflight firmware with PID tuning
-      • GPS module for position hold and return-to-home functionality
-      • 4S LiPo battery with XT60 connector for high discharge rates
-      • FPV camera system with 5.8GHz video transmitter
-
-      <strong>Technical Stack:</strong> Betaflight, Arduino, ESC calibration, PID tuning,
-      LiPo battery management, radio protocol configuration, thrust-to-weight optimization.
+      Custom-built fixed-wing RC aircraft and FPV racing quadcopter, from airframe design through successful flight testing. Fixed-wing uses foam-board construction with 3-axis servo control; quadcopter runs Betaflight on an F4 FC with GPS position hold and 5.8GHz FPV.
     `,
     tags: ['UAV', 'Aerodynamics', 'Betaflight', 'FPV', 'Arduino', 'RC'],
     images: [
@@ -389,47 +665,104 @@ Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height
       { src: 'assets/projects/rc-uav/video1.mp4', title: 'Ground Maneuvering Test' },
       { src: 'assets/projects/rc-uav/video2.mp4', title: 'Flight Test' }
     ],
-    thumbnail: 'assets/projects/rc-uav/img5.jpg'
+    thumbnail: 'assets/projects/rc-uav/img5.jpg',
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "Fixed-Wing Aircraft Design",
+          content: `
+            <p>Custom-designed RC aircraft built from scratch with hand-cut foam board construction:</p>
+            <div class="code-block"><code>Airframe Specs:
+  Material: Foam board (5mm depron)
+  Wingspan: ~1200mm
+  Wing type: Flat-bottom airfoil (beginner-friendly)
+  Control: 3-channel (aileron, elevator, rudder)
+
+Propulsion:
+  Motor: 2212 1000KV brushless outrunner
+  ESC: 30A BLHeli
+  Propeller: 10×4.7 (10" diameter, 4.7" pitch)
+  Battery: 3S LiPo 2200mAh (11.1V)
+  Thrust-to-weight ratio: >1.3
+
+Servos: SG90 9g micro servos × 3
+  Aileron: ±20° deflection
+  Elevator: ±25° deflection
+  Rudder: ±30° deflection</code></div>
+          `
+        },
+        {
+          title: "FPV Quadcopter Build",
+          content: `
+            <p>Carbon fiber racing quadcopter with GPS and FPV camera system:</p>
+            <div class="code-block"><code>Frame: 250mm carbon fiber (X configuration)
+  Weight: ~450g all-up
+
+Electronics:
+  FC: STM32 F4 running Betaflight 4.x
+  ESC: 4-in-1 30A BLHeli_S
+  Motors: 2205 2300KV brushless
+  Props: 5×4.5 tri-blade
+
+FPV System:
+  Camera: CMOS 1200TVL (2.1mm lens, 150° FOV)
+  VTX: 5.8GHz 600mW (48 channels)
+  Antenna: RHCP cloverleaf (Tx) + patch (Rx)
+
+GPS Module:
+  Ublox M8N with compass
+  Position hold mode
+  Return-to-home failsafe
+  Battery: 4S LiPo 1500mAh (14.8V)</code></div>
+          `
+        },
+        {
+          title: "Flight Controller & PID Tuning",
+          content: `
+            <p>Betaflight firmware configuration and PID tuning process for stable flight:</p>
+            <div class="code-block"><code>Betaflight Configuration:
+  Firmware: 4.x (STM32 F405)
+  PID Loop: 8kHz gyro, 4kHz PID
+  ESC Protocol: DShot600
+
+PID Tuning (per axis):
+  Roll:  P=45, I=80, D=30
+  Pitch: P=47, I=85, D=32
+  Yaw:   P=35, I=90, D=0
+
+Flight Modes:
+  Acro: Full manual (rate mode)
+  Angle: Self-leveling (for beginners)
+  GPS Hold: Position lock (M8N)
+  RTH: Return-to-home on signal loss
+
+Safety:
+  Failsafe: RTH at 500m, land at 1km
+  Low voltage alarm: 3.5V/cell
+  ESC calibration: all-at-once method</code></div>
+          `
+        }
+      ],
+      metrics: [
+        { value: "1200mm", label: "Fixed-Wing Span" },
+        { value: "250mm", label: "Quad Frame" },
+        { value: "8kHz", label: "Gyro Rate" },
+        { value: "5.8GHz", label: "FPV Video" }
+      ]
+    }
   },
   {
     id: 'arm-control-gui',
-    title: 'Robot Arm Control GUI with MuJoCo',
+    title: 'Humanoid Arm Control GUI with MuJoCo & PPO IK',
     shortTitle: 'Arm Control GUI',
     category: 'Robotics Integration',
-    problem: 'Need unified interface to test arm policies in simulation before deploying to real robot',
-    outcome: 'Hot-swappable sim/real backend with 30fps MuJoCo viz and 2ms policy inference',
-    oneLiner: 'PyQt6 interface with MuJoCo visualization and real-time arm control',
+    problem: 'Need unified interface to test arm policies in simulation before deploying to real robot hardware',
+    outcome: 'Hot-swappable sim/real backend with 500Hz orchestrator, PPO-based IK, and 30fps MuJoCo viz',
+    oneLiner: 'PyQt6 GUI → 500Hz orchestrator → PPO IK solver → PlantAdapter (MuJoCo ↔ arm_sdk/DDS)',
     description: `
-      Real-time control interface for bipedal humanoid robot arm manipulation. Integrates MuJoCo physics
-      simulation, RL-based policy inference, and live camera feedback in a unified PyQt6 application.
-
-      <strong>Architecture:</strong>
-      • PyQt6 GUI with QThread-based async orchestration
-      • MuJoCo renderer at 30Hz with double-buffered QImage pipeline
-      • ROS2 bridge for robot state subscription (500Hz joint feedback)
-      • Modular plant abstraction: simulation ↔ real hardware hot-swap
-
-      <strong>Control Modes:</strong>
-      • Direct joint control: 14-DOF arms (7 per arm) with real-time slider feedback
-      • Policy inference: PPO-trained ONNX model for end-effector tracking
-      • Hand target IK: 6-DOF pose input → joint trajectory via damped least-squares
-      • Gesture playback: Pre-recorded motion sequences with interpolation
-
-      <strong>Simulation Stack:</strong>
-      • MuJoCo 3.x with 60-DOF humanoid model (floating base + 29 actuated joints)
-      • Thread-safe qpos access with RLock for render/control synchronization
-      • Camera orbit controls: azimuth/elevation drag, scroll zoom, pan
-
-      <strong>Policy Controller:</strong>
-      • Stable-Baselines3 PPO with MLP policy (256×256 hidden layers)
-      • Observation: joint positions + velocities + target pose (41-dim)
-      • Action: delta joint positions normalized to [-1, 1]
-      • Inference: ~2ms latency on CPU (ONNX Runtime)
-
-      <strong>Integration:</strong> Unitree SDK2 via CycloneDDS for real robot deployment,
-      RealSense D435 depth camera for visual feedback, config-driven joint limits and gains.
+      Unified PyQt6 interface for Unitree G1 dual-arm manipulation. 500Hz single-authority orchestrator with PPO-based IK, direct joint control, ArUco vision targeting, and hot-swappable MuJoCo sim / real robot backends via PlantAdapter abstraction.
     `,
-    tags: ['PyQt6', 'MuJoCo', 'PPO', 'ROS2', 'IK', 'Unitree SDK'],
+    tags: ['PyQt6', 'MuJoCo', 'PPO', 'arm_sdk', 'DDS', 'ArUco'],
     images: [
       'assets/projects/arm-control-gui/screenshot1.png',
       'assets/projects/arm-control-gui/screenshot2.png',
@@ -443,31 +776,33 @@ Critic obs (50-dim): Actor obs + privileged info (contact forces, terrain height
     technicalDeepDive: {
       sections: [
         {
-          title: "PyQt6 Application Architecture",
+          title: "Single-Authority Orchestrator",
           content: `
-            <p>Multi-threaded GUI application with clear separation between UI, control logic, and hardware interfaces:</p>
+            <p>Strict <strong>single-writer rule</strong>: only the <code>ControlOrchestrator</code> issues motor commands. GUI, policies, and cameras are advisory only:</p>
             <div class="code-block"><code>Architecture:
-MainWindow (PyQt6)
-├── MuJoCoWidget      # 3D visualization
-├── RobotPanel        # Joint sliders & status
-├── CameraWidget      # RealSense feed
-└── Orchestrator      # Control logic (QThread)
-    ├── SimPlantAdapter   # MuJoCo backend
-    └── RealPlantAdapter  # Hardware backend
+MainWindow (PyQt6) ─── signals ──→ ControlOrchestrator (500Hz)
+PolicyController ──── callbacks ──→      │
+ArUco Camera ──────── targets ───→      │
+                                         ↓
+                              ┌─── PlantAdapter ───┐
+                              │                    │
+                         SimPlant              RobotPlant
+                         (MuJoCo)             (arm_sdk/DDS)
 
 Threading Model:
-  - Main thread: UI rendering
-  - Control loop: 50Hz QThread
-  - Camera feed: Async callback
-  - MuJoCo render: Timer-based (30Hz)</code></div>
+  Main thread: Qt event loop (display only)
+  Control thread: 500Hz deterministic loop (2ms)
+  Policy thread: PPO inference (~50Hz)
+  Render thread: MuJoCo 30 FPS offscreen</code></div>
+            <p>Mode exclusivity: exactly one mode active. Emergency stop overrides from any thread.</p>
           `
         },
         {
           title: "MuJoCo Visualization Pipeline",
           content: `
-            <p>Real-time physics visualization using MuJoCo's offscreen rendering:</p>
+            <p>Real-time physics visualization using MuJoCo 3.x offscreen rendering with double-buffered anti-flicker:</p>
             <div class="code-block"><code>Render Pipeline (30Hz):
-1. Acquire qpos_lock (thread safety)
+1. Acquire qpos_lock (thread safety via RLock)
 2. renderer.update_scene(data, camera)
 3. pixels = renderer.render() → numpy RGB
 4. np.copy(pixels) inside lock (isolation)
@@ -479,122 +814,104 @@ Anti-Flickering:
   - Double-buffering via pixel copy
   - Re-entrant render prevention
   - Pending render flag for batching
-  - Last-good-frame fallback on error</code></div>
-            <p>Camera controls: left-drag (orbit), right-drag (pan), scroll (zoom), 'R' key (reset view).</p>
+  - Last-good-frame fallback on error
+
+Camera: orbit (drag), pan (right-drag), zoom (scroll)</code></div>
           `
         },
         {
-          title: "Plant Abstraction Layer",
+          title: "PlantAdapter Hot-Swap",
           content: `
-            <p>Unified interface allows hot-swapping between simulation and real hardware:</p>
-            <div class="code-block"><code>class PlantAdapter(ABC):
-    @abstractmethod
-    def get_joint_positions(self) -> Dict[int, float]
+            <p>Unified <code>PlantInterface</code> protocol enables seamless switching between simulation and real hardware:</p>
+            <div class="code-block"><code>class PlantInterface(Protocol):
+    def send_command(positions: Dict[int, float]) -> bool
+    def get_measured_positions() -> Dict[int, float]
+    def is_connected() -> bool
+    def emergency_stop() -> None
 
-    @abstractmethod
-    def set_joint_positions(self, positions: Dict[int, float])
+SimPlantAdapter:
+  - MuJoCo data.qpos read/write
+  - set_active(False) → passive shadow mode
+  - No physics stepping when robot is active
 
-    @abstractmethod
-    def get_end_effector_pose(self, arm: str) -> Tuple[np.ndarray, np.ndarray]
+RobotPlantAdapter:
+  - arm_sdk via CycloneDDS (LowCmd/LowState)
+  - PD control: Kp=50, Kd=1.0 (arms)
+  - 29-DOF: arms (14) + waist (3) + legs (12, read-only)
 
-Implementations:
-  SimPlantAdapter:  MuJoCo data.qpos read/write
-  RealPlantAdapter: ROS2 joint_states + SDK commands</code></div>
-            <p>Switching plant triggers state transfer - current joint positions seed the new plant for seamless transition.</p>
+Switching Sim → Robot:
+  1. sim_adapter.set_active(False)  # passive
+  2. orchestrator.use_robot_plant()
+  3. State transfer: joints seed new plant</code></div>
           `
         },
         {
-          title: "Policy Controller Integration",
+          title: "PPO Policy as IK Solver",
           content: `
-            <p>PPO-trained reaching policies loaded via ONNX for end-effector control:</p>
-            <div class="code-block"><code>Policy Inference Loop:
-1. target_pose = camera_tracker.get_target()
-2. current_state = plant.get_observation()
-   - joint_pos (7): normalized
-   - joint_vel (7): scaled
-   - ee_pos (3): current end-effector
-   - target_pos (3): goal position
+            <p>Arm reaching uses a <strong>trained PPO neural network</strong> instead of analytical IK or Jacobian methods:</p>
+            <div class="code-block"><code>Phase 1 — Internal IK Solve (no robot motion):
+  1. Seed MuJoCo env with current joint state
+  2. Set target position in environment
+  3. Run policy.predict(obs) for up to 200 steps
+  4. Check convergence: ‖hand - target‖ < 3cm
+  5. Extract final joint positions as IK solution
 
-3. obs = concatenate([current_state, target_pose])
-4. action = onnx_session.run(obs)  # 7-dim
-5. target_joints = action * scale + default
-6. plant.set_joint_positions(target_joints)
+Phase 2 — Smoothstep Blend (robot moves):
+  Duration: 3.0s at 50Hz (150 steps)
+  Interpolation: t² × (3 - 2t) ease-in-out
 
-Inference: ~2ms CPU (ONNX Runtime)</code></div>
+Observation (41-dim):
+  joint_pos (7) + joint_vel (7) + hand_xyz (3)
+  + goal_xyz (3) + delta (3) + step_frac (1)
+
+Action: 7-dim delta angles, clipped [-0.05, 0.05]
+Model: ppo_ftp_LEFT/RIGHT_HAND_final.zip (173KB)</code></div>
           `
         },
         {
-          title: "Thread Safety & Synchronization",
+          title: "Safety & Thread Synchronization",
           content: `
-            <p>Critical sections protected by <code>threading.RLock</code> to prevent race conditions:</p>
-            <div class="code-block"><code>Protected Resources:
-  qpos_lock: MuJoCo data.qpos array
-    - Read: get_joint_positions()
-    - Write: set_joint_positions()
-    - Render: update_scene() + render()
+            <p>Multiple safety layers prevent unsafe motion. Critical sections protected by <code>threading.RLock</code>:</p>
+            <div class="code-block"><code>Safety Stack:
+  1. Jump Detection: |target - current| > 1.5 rad → REJECT
+  2. Velocity Limiting: 500Hz pre-computed deltas
+     Manual: 1.0 rad/s → 0.002 rad/cycle
+     Policy: 2.0 rad/s → 0.004 rad/cycle
+  3. Position Error Monitor: |error| > 0.3 rad → auto-DAMP
+  4. Emergency DAMP: gradual weight release over 1s
 
-Lock Acquisition Order:
-  1. Control loop acquires for state read
-  2. Sets new targets
-  3. Releases before sleep
-  4. Render acquires during paint event
-
-RLock (reentrant): Same thread can acquire
-multiple times without deadlock.</code></div>
-            <p>Non-blocking render: If lock held, sets <code>_pending_render = True</code> and returns immediately.</p>
+Thread Safety (RLock):
+  qpos_lock protects MuJoCo data.qpos array
+  Non-blocking render: _pending_render flag
+  Lock order: control → render (no deadlock)</code></div>
           `
         }
       ],
       metrics: [
+        { value: "500Hz", label: "Control Loop" },
         { value: "30 FPS", label: "Render Rate" },
-        { value: "50Hz", label: "Control Loop" },
-        { value: "60-DOF", label: "Robot Model" },
-        { value: "2ms", label: "Policy Inference" }
+        { value: "29-DOF", label: "Robot Model" },
+        { value: "~3cm", label: "IK Accuracy" }
       ],
       references: [
         { title: "MuJoCo Python", url: "https://mujoco.readthedocs.io/en/stable/python.html" },
-        { title: "PyQt6 Threading", url: "https://doc.qt.io/qtforpython-6/overviews/thread-basics.html" },
-        { title: "ONNX Runtime", url: "https://onnxruntime.ai/docs/" }
+        { title: "Stable-Baselines3", url: "https://stable-baselines3.readthedocs.io/" },
+        { title: "Unitree SDK2", url: "https://github.com/unitreerobotics/unitree_sdk2" }
       ]
     }
   },
   {
     id: 'hand-target',
-    title: '6-DOF Object Pose Estimation for Robot Manipulation',
-    shortTitle: 'Pose Estimation',
+    title: 'Multi-Method Object Detection & 6-DOF Pose Estimation',
+    shortTitle: 'Hand Target',
     category: 'Computer Vision',
-    problem: 'Robot arms need stable, accurate 6-DOF target poses for manipulation tasks',
-    outcome: 'Sub-centimeter position accuracy at 1m range with 30fps processing',
-    oneLiner: 'RealSense RGB-D with ArUco markers and quaternion averaging',
+    problem: 'Robot arms need stable, accurate 6-DOF target poses for manipulation — single detection method insufficient',
+    outcome: 'Sub-centimeter accuracy with 3 detection methods (ArUco + HSV + YOLOv8), median+Kalman temporal smoothing',
+    oneLiner: 'RealSense RGB-D → ArUco / HSV / YOLOv8 detection → Median + Kalman smoothing → TCP socket to robot',
     description: `
-      Real-time 3D pose estimation pipeline for robot manipulation tasks. Combines ArUco marker
-      tracking with point cloud processing to provide stable 6-DOF target poses for arm control.
-
-      <strong>Detection Pipeline:</strong>
-      • Intel RealSense D435 RGB-D streaming (640×480 @ 30fps)
-      • Aligned depth + color frames for accurate 3D reconstruction
-      • Multi-method detection: HSV color segmentation, contour analysis, ArUco markers
-      • Statistical outlier removal + voxel downsampling for point cloud cleanup
-
-      <strong>Pose Estimation:</strong>
-      • Position: Point cloud centroid in camera frame (meters)
-      • Orientation: PCA-based principal axis extraction (rotation matrix)
-      • Multi-marker fusion: Quaternion averaging for robust rotation
-      • Temporal smoothing: Exponential moving average for robot-friendly trajectories
-
-      <strong>ArUco Marker System:</strong>
-      • 4×4 dictionary (50 markers), 15mm marker size
-      • Strip layout for cylindrical object wrapping
-      • Custom A4 printable marker strip generator
-      • Sub-centimeter position accuracy at 1m range
-
-      <strong>Integration:</strong>
-      • TCP socket streaming to robot controller
-      • JSON pose output: position, euler angles, confidence
-      • Headless mode for embedded deployment
-      • 50+ FPS processing on laptop GPU
+      Real-time 6-DOF pose estimation for robot arm manipulation with three interchangeable detection backends: ArUco markers, HSV color segmentation, and custom-trained YOLOv8. Median + Kalman temporal smoothing produces jitter-free trajectories streamed via TCP to the robot controller.
     `,
-    tags: ['RealSense', 'ArUco', 'Point Cloud', 'PCA', 'OpenCV', 'Python'],
+    tags: ['RealSense', 'ArUco', 'YOLOv8', 'Kalman Filter', 'OpenCV', 'Python'],
     images: [],
     videos: [],
     thumbnail: null,
@@ -602,110 +919,130 @@ multiple times without deadlock.</code></div>
     technicalDeepDive: {
       sections: [
         {
-          title: "RGB-D Stream Processing",
+          title: "Multi-Method Detection Architecture",
           content: `
-            <p>Intel RealSense D435 provides synchronized RGB (640×480) and depth frames at 30fps. The pipeline uses <strong>aligned depth</strong> - depth pixels are reprojected to match RGB pixel coordinates using camera intrinsics.</p>
-            <div class="code-block"><code>RealSense Config:
-  color: 640x480 @ 30fps (RGB8)
-  depth: 640x480 @ 30fps (Z16)
-  depth_units: 0.001m (1mm precision)
-  align_to: color
+            <p>Three interchangeable detection backends share a common output interface — position + optional orientation in camera frame:</p>
+            <div class="code-block"><code>Detection Methods:
+  1. ArUco (aruco_detector.py):
+     cv2.aruco.detectMarkers() → corners, ids
+     cv2.aruco.estimatePoseSingleMarkers() → rvec, tvec
+     Full 6-DOF pose from marker geometry
 
-Camera Intrinsics (D435):
-  fx, fy: 607.0, 606.8
-  cx, cy: 320.0, 240.0</code></div>
-            <p>Frames arrive via <code>pyrealsense2</code> in a callback-based pipeline. Temporal filtering with persistence smooths depth noise.</p>
+  2. HSV Color (color_detector.py):
+     cv2.cvtColor(BGR→HSV) → inRange threshold
+     cv2.findContours() → largest contour centroid
+     Depth lookup → 3D position (no orientation)
+
+  3. YOLOv8 (yolo_detector.py):
+     Ultralytics YOLOv8 inference on RGB frame
+     Bounding box center → depth lookup → 3D position
+     Custom trained on 200+ labeled images
+
+Common Output:
+  { position: [x, y, z], orientation: [qw, qx, qy, qz],
+    confidence: float, method: str }</code></div>
           `
         },
         {
-          title: "Multi-Marker ArUco Detection",
+          title: "ArUco Marker System",
           content: `
-            <p>For robust pose estimation on cylindrical objects, multiple 15mm ArUco markers (4×4 dictionary) are arranged in a strip pattern. The detection pipeline:</p>
-            <div class="code-block"><code>1. cv2.aruco.detectMarkers() → corners, ids
-2. For each marker:
-   - cv2.aruco.estimatePoseSingleMarkers() → rvec, tvec
-   - Convert rvec to rotation matrix (Rodrigues)
-   - Convert rotation to quaternion
-3. Position: Centroid of all marker tvecs
-4. Rotation: Quaternion averaging (SLERP-based)</code></div>
-            <p>Quaternion averaging prevents gimbal lock and handles the discontinuity when markers wrap around the cylinder. Outlier rejection filters markers with inconsistent poses.</p>
+            <p>Primary detection for precise 6-DOF pose. Multiple 15mm ArUco markers (4×4_50 dictionary) arranged in strip patterns for cylindrical objects:</p>
+            <div class="code-block"><code>ArUco Pipeline:
+  1. detectMarkers() → corners, ids
+  2. For each marker:
+     - estimatePoseSingleMarkers(15mm) → rvec, tvec
+     - Rodrigues(rvec) → rotation matrix → quaternion
+  3. Position: centroid of all marker tvecs
+  4. Rotation: quaternion averaging (SLERP-based)
+
+Strip Generator (strip_generator.py):
+  Input: marker IDs, count, spacing
+  Output: A4-printable PDF strip for wrapping
+  Marker size: 15mm (configurable)
+
+Outlier Rejection:
+  Markers with ‖tvec - median_tvec‖ > 2σ discarded
+  Quaternion dot product < 0.9 → inconsistent → reject</code></div>
           `
         },
         {
-          title: "Temporal Smoothing for Robot Control",
+          title: "Temporal Smoothing: Median + Kalman Filter",
           content: `
-            <p>Raw pose estimates are noisy due to marker detection jitter. Heavy smoothing makes the output suitable for robot arm control:</p>
-            <div class="formula">Position: EMA with α=0.15, history=30 frames
-Rotation: Quaternion SLERP, history=25 frames
-Output rate: 30Hz (matches camera)</div>
-            <p><strong>Quaternion Flip Prevention:</strong> Quaternions q and -q represent the same rotation. The algorithm tracks the previous quaternion and flips the sign if the dot product is negative, ensuring smooth interpolation.</p>
-            <div class="code-block"><code>if np.dot(q_new, q_prev) < 0:
-    q_new = -q_new  # Flip to shorter path</code></div>
+            <p>Raw detections are noisy. The pipeline uses <strong>median filter + Kalman filter</strong> (NOT exponential moving average) for stable robot-friendly output:</p>
+            <div class="code-block"><code>Smoothing Pipeline:
+  Raw detection → Median filter (window=5)
+                → Kalman filter (state estimation)
+                → Output to robot controller
+
+Median Filter:
+  Sliding window of last 5 detections
+  Removes outlier spikes (robust to noise)
+  Applied independently to x, y, z
+
+Kalman Filter:
+  State: [x, y, z, vx, vy, vz]
+  Prediction: constant velocity model
+  Measurement: median-filtered position
+  Benefits: velocity prediction fills dropped frames
+
+Quaternion Flip Prevention:
+  if np.dot(q_new, q_prev) < 0:
+      q_new = -q_new  # Shorter SLERP path</code></div>
+            <p>Output rate: 30Hz (matching camera). Kalman prediction bridges gaps when detection momentarily fails.</p>
           `
         },
         {
-          title: "Point Cloud Pose Estimation",
+          title: "YOLOv8 Custom Training",
           content: `
-            <p>Alternative method using depth-based 3D reconstruction for textureless objects:</p>
-            <p><strong>1. Segmentation:</strong> HSV color thresholding or largest contour detection to create binary mask.</p>
-            <p><strong>2. Deprojection:</strong> Masked pixels → 3D points using camera intrinsics: <code>X = (u - cx) * Z / fx</code></p>
-            <p><strong>3. Filtering:</strong> Statistical outlier removal (mean + 2σ), voxel downsampling (5mm grid).</p>
-            <p><strong>4. PCA:</strong> Principal Component Analysis extracts orientation - largest eigenvector = object's primary axis (stem direction for bouquet).</p>
-            <div class="formula">Position = centroid(point_cloud)
-Orientation = eigenvectors(covariance_matrix)</div>
+            <p>For objects without markers, a custom-trained YOLOv8 model provides bounding-box detection with depth-based 3D position:</p>
+            <div class="code-block"><code>Dataset:
+  200+ labeled images of target objects
+  Annotations: bounding boxes (YOLO format)
+  Augmentation: flip, rotate, brightness, blur
+  Split: 80% train, 20% val
+
+Training:
+  Model: YOLOv8n (nano — fast inference)
+  Framework: Ultralytics
+  Epochs: 100
+  Input: 640×640 RGB
+
+Inference Pipeline:
+  1. YOLO predict on RGB frame → bbox + confidence
+  2. bbox center → pixel coordinates (u, v)
+  3. depth_frame.get_distance(u, v) → Z meters
+  4. Deproject: X = (u - cx) * Z / fx
+  5. Output: 3D position (no orientation)</code></div>
+            <p>Fallback chain: ArUco (best) → YOLOv8 (good) → HSV color (basic). Automatic method selection based on detection confidence.</p>
           `
         }
       ],
       metrics: [
         { value: "30 FPS", label: "Processing Rate" },
         { value: "< 1cm", label: "Position Accuracy" },
-        { value: "15mm", label: "Marker Size" },
-        { value: "1m", label: "Working Range" }
+        { value: "3", label: "Detection Methods" },
+        { value: "200+", label: "YOLO Training Images" }
       ],
       references: [
         { title: "ArUco Library", url: "https://docs.opencv.org/4.x/d5/dae/tutorial_aruco_detection.html" },
         { title: "RealSense SDK", url: "https://github.com/IntelRealSense/librealsense" },
-        { title: "Quaternion Averaging", url: "https://www.acsu.buffalo.edu/~johnc/ave_quat07.pdf" }
+        { title: "Ultralytics YOLOv8", url: "https://docs.ultralytics.com/" },
+        { title: "Kalman Filtering", url: "https://www.kalmanfilter.net/" }
       ]
     }
   },
   {
     id: 'g1-isaac-training',
-    title: 'Legged Robot RL Training in Isaac Gym',
-    shortTitle: 'Isaac Gym RL',
-    category: 'Reinforcement Learning',
-    problem: 'Training robust locomotion policies that generalize across terrain and disturbances',
-    outcome: 'Stable walking at 1.5 m/s with automatic recovery from perturbations',
-    oneLiner: 'Custom RL environment with terrain curriculum and domain randomization',
+    title: 'Isaac Lab Teleoperation & Data Collection for G1',
+    shortTitle: 'Isaac Lab Teleop',
+    category: 'Simulation & Teleoperation',
+    problem: 'Need high-fidelity simulation environment for G1 teleoperation testing and imitation learning data collection',
+    outcome: 'Isaac Lab environment with multi-modal observation (87-dim joints + camera + IMU), DDS teleoperation, and episode recording',
+    oneLiner: 'Isaac Lab (Isaac Sim) → G1 articulation model → DDS teleoperation → HDF5 episode recording',
     description: `
-      Custom reinforcement learning environment for training locomotion and manipulation policies
-      on Unitree G1 humanoid robot using NVIDIA Isaac Gym massively parallel simulation.
-
-      <strong>Environment Setup:</strong>
-      • Isaac Gym with 4096 parallel environments on single GPU
-      • Custom G1 URDF with accurate joint limits and collision meshes
-      • Terrain curriculum: flat → slopes → stairs → rough
-      • Domain randomization: mass, friction, motor strength, latency
-
-      <strong>Policy Training:</strong>
-      • PPO with GAE (λ=0.95) and clipped surrogate objective
-      • Asymmetric actor-critic: privileged critic with ground truth state
-      • Action space: target joint positions (delta from default pose)
-      • Observation: joint pos/vel, base orientation, commands, phase
-
-      <strong>Reward Design:</strong>
-      • Tracking rewards: linear/angular velocity matching
-      • Regularization: action smoothness, joint limits, torque penalty
-      • Survival bonus with early termination on fall
-      • Curriculum-based difficulty scaling
-
-      <strong>Sim2Real:</strong>
-      • ONNX export for 500Hz inference on robot
-      • Actuator network for motor dynamics compensation
-      • EKF-based state estimation for base velocity
-      • Tested gaits: walk, trot, pace, bound
+      Isaac Lab (Isaac Sim 4.x) environment for the Unitree G1, built for teleoperation testing and imitation learning data collection. Multi-modal observations (87-dim joints + camera + IMU), DDS-based teleop using the same topics as the real robot, and HDF5 episode recording for downstream learning.
     `,
-    tags: ['Isaac Gym', 'PPO', 'Sim2Real', 'URDF', 'PyTorch', 'ONNX'],
+    tags: ['Isaac Lab', 'Isaac Sim', 'CycloneDDS', 'Teleoperation', 'PyTorch', 'HDF5'],
     images: [],
     videos: [],
     thumbnail: null,
@@ -714,103 +1051,113 @@ Orientation = eigenvectors(covariance_matrix)</div>
     technicalDeepDive: {
       sections: [
         {
-          title: "G1 Robot Model Configuration",
+          title: "Isaac Lab Environment Architecture",
           content: `
-            <p>The G1 humanoid is modeled as a 12-DOF system for locomotion training (legs only, excluding arms). URDF defines the kinematic chain, collision meshes, and joint limits.</p>
-            <div class="code-block"><code>Joint Configuration (12 DOF):
-Left Leg:  hip_yaw, hip_roll, hip_pitch, knee, ankle_pitch, ankle_roll
-Right Leg: hip_yaw, hip_roll, hip_pitch, knee, ankle_pitch, ankle_roll
+            <p>Built on <strong>Isaac Lab</strong> (omni.isaac.lab) — the successor to Isaac Gym. Uses articulation-based physics with GPU pipeline, NOT the deprecated Isaac Gym task framework:</p>
+            <div class="code-block"><code>Environment Config:
+  Framework: Isaac Lab (Isaac Sim 4.x)
+  Physics: PhysX GPU (articulation-based)
+  num_envs: 1 (teleoperation mode)
+  Robot: G1 URDF → USD articulation
+  Step: dt=0.005s (200Hz physics)
 
-Default Pose (radians):
-  hip_pitch: -0.1
-  knee: 0.3
-  ankle_pitch: -0.2
-  others: 0.0
+Key Difference from Isaac Gym:
+  Isaac Gym: 4096 parallel envs, RL-focused
+  Isaac Lab: Manager-based, modular, sim+real
+  This project: Single-env teleoperation + data collection
 
-Standing Height: 0.8m</code></div>
-            <p>Joint PD gains are tuned per-joint: hips use Kp=100, knees Kp=150, ankles Kp=40. Action scale of 0.25 limits maximum deviation from default pose.</p>
+Manager Architecture:
+  ObservationManager → multi-modal obs
+  ActionManager → joint position targets
+  EventManager → reset, recording triggers
+  TerminationManager → episode boundaries</code></div>
           `
         },
         {
-          title: "Observation & Action Spaces",
+          title: "Multi-Modal Observation Space",
           content: `
-            <p>The policy observes a 47-dimensional state vector and outputs 12-dimensional joint position targets:</p>
-            <div class="code-block"><code>Observations (47-dim):
-  - Joint positions (12): normalized by limits
-  - Joint velocities (12): scaled
-  - Base angular velocity (3): from IMU
-  - Projected gravity (3): orientation reference
-  - Commands (3): vx, vy, yaw_rate
-  - Last actions (12): for smoothness
-  - Phase variables (2): sin/cos gait phase
+            <p>Rich observation combining proprioception, vision, and vestibular data:</p>
+            <div class="code-block"><code>Joint States (87-dim):
+  - Joint positions (29): all actuated DOFs
+  - Joint velocities (29): angular rates
+  - Joint efforts (29): torque feedback
 
-Privileged Obs (critic only, +3):
-  - Contact forces
-  - Terrain height samples
+Camera Observations:
+  - RGB: 640×480 @ 30Hz
+  - Depth: 640×480 @ 30Hz (aligned)
+  - Camera intrinsics: fx, fy, cx, cy
 
-Actions (12-dim):
-  target_pos = action * 0.25 + default_angles</code></div>
+IMU Data:
+  - Angular velocity (3): gyroscope
+  - Linear acceleration (3): accelerometer
+  - Orientation quaternion (4): from filter
+
+Total: 87 (joints) + image tensors + 10 (IMU)</code></div>
+            <p>Observations mirror what's available on the real G1 — ensuring policies trained in sim can directly transfer.</p>
           `
         },
         {
-          title: "Reward Function Design",
+          title: "DDS Teleoperation Interface",
           content: `
-            <p>Multi-objective reward balances velocity tracking, stability, and energy efficiency:</p>
-            <div class="code-block"><code>Positive Rewards:
-  tracking_lin_vel (1.0): exp(-||v_cmd - v_actual||²)
-  tracking_ang_vel (0.5): exp(-|ω_cmd - ω_actual|²)
-  alive (0.15): survival bonus per step
-  contact (0.18): reward proper foot contacts
+            <p>Same CycloneDDS topics as the real robot, enabling seamless switching between sim and hardware:</p>
+            <div class="code-block"><code>DDS Topics (shared with real robot):
+  rt/lowcmd   → Joint position commands (input)
+  rt/lowstate → Joint state feedback (output)
+  rt/inspire/cmd → Hand commands (optional)
 
-Penalty Terms:
-  lin_vel_z (-2.0): vertical velocity = bouncing
-  orientation (-1.0): torso tilt from upright
-  base_height (-10.0): deviation from 0.78m target
-  dof_acc (-2.5e-7): joint acceleration smoothness
-  action_rate (-0.01): jerky command changes
-  hip_pos (-1.0): discourage splayed hips</code></div>
-            <p>Termination occurs on pelvis contact (fall) or after 1000 steps. Early termination accelerates learning of stable behaviors.</p>
+Domain Isolation:
+  Domain 0: Physical robot (production)
+  Domain 1: Isaac Lab simulation (testing)
+
+Teleoperation Flow:
+  XR Headset → teleop_hand_and_arm.py
+    → CycloneDDS (Domain 1) → Isaac Lab env
+    → Render + physics step
+    → State feedback → DDS → teleop display
+
+Benefits:
+  - Test teleop code without real robot
+  - Validate IK solutions in physics sim
+  - Record demonstrations for imitation learning</code></div>
           `
         },
         {
-          title: "Training Pipeline",
+          title: "Episode Recording for Imitation Learning",
           content: `
-            <p>Training runs for 1000-3000 iterations using the PPO implementation from <code>rsl_rl</code>:</p>
-            <div class="code-block"><code>python legged_gym/scripts/train.py --task=g1 \\
-  --num_envs=4096 \\
-  --headless \\
-  --max_iterations=2000
+            <p>HDF5-based episode recording captures multi-modal demonstrations for downstream learning:</p>
+            <div class="code-block"><code>Recording Format (HDF5):
+episode_0/
+├── observations/
+│   ├── joint_positions    [T × 29]
+│   ├── joint_velocities   [T × 29]
+│   ├── camera_rgb         [T × 480 × 640 × 3]
+│   └── camera_depth       [T × 480 × 640]
+├── actions/               [T × action_dim]
+├── timestamps/            [T]
+└── metadata/
+    ├── robot_type: "g1_29dof"
+    ├── task: "reaching" / "manipulation"
+    └── success: bool
 
-Output: logs/g1/&lt;timestamp&gt;/model_&lt;iter&gt;.pt</code></div>
-            <p><strong>Curriculum:</strong> Command ranges expand as policy improves. Initial: vx∈[-0.5,0.5]. Final: vx∈[-1.5,1.5] m/s.</p>
-            <p><strong>Checkpointing:</strong> Models saved every 50 iterations. Best model selected by average reward over 100 episodes.</p>
-          `
-        },
-        {
-          title: "Sim2Sim Validation (MuJoCo)",
-          content: `
-            <p>Before real deployment, policies are validated in MuJoCo to ensure they're not overfitting to Isaac Gym's physics:</p>
-            <div class="code-block"><code>python deploy/deploy_mujoco/deploy_mujoco.py g1
-
-# Loads exported policy and runs in MuJoCo viewer
-# Checks for:
-# - Gait stability on flat ground
-# - Velocity tracking accuracy
-# - Recovery from perturbations</code></div>
-            <p>Policies that fail Sim2Sim typically have issues with contact dynamics or exploit PhysX-specific artifacts.</p>
+Controls:
+  's' = start/stop recording
+  'r' = reset episode
+  'q' = quit and save</code></div>
+            <p>Downstream use: behavior cloning, GAIL, or DAgger-style iterative refinement. HDF5 format supports efficient random access for training dataloaders.</p>
           `
         }
       ],
       metrics: [
-        { value: "12 DOF", label: "Action Space" },
-        { value: "47-dim", label: "Observation" },
-        { value: "~2hr", label: "Training Time" },
-        { value: "1.5 m/s", label: "Max Velocity" }
+        { value: "87-dim", label: "Joint Obs" },
+        { value: "200Hz", label: "Physics Rate" },
+        { value: "1", label: "Num Envs" },
+        { value: "HDF5", label: "Recording Format" }
       ],
       references: [
-        { title: "Unitree RL Gym", url: "https://github.com/unitreerobotics/unitree_rl_gym" },
-        { title: "RSL RL Library", url: "https://github.com/leggedrobotics/rsl_rl" },
-        { title: "Legged Gym", url: "https://github.com/leggedrobotics/legged_gym" }
+        { title: "Isaac Lab Docs", url: "https://isaac-sim.github.io/IsaacLab/" },
+        { title: "Isaac Sim", url: "https://developer.nvidia.com/isaac-sim" },
+        { title: "CycloneDDS", url: "https://cyclonedds.io/" },
+        { title: "Unitree SDK2", url: "https://github.com/unitreerobotics/unitree_sdk2" }
       ]
     }
   },
@@ -823,32 +1170,7 @@ Output: logs/g1/&lt;timestamp&gt;/model_&lt;iter&gt;.pt</code></div>
     outcome: '95% accuracy gesture classification at 30+ fps on CPU',
     oneLiner: 'MediaPipe 21-landmark tracking with MLP classifier for robot control',
     description: `
-      Deep learning-based hand gesture recognition for human-robot interaction. Enables intuitive
-      control of robotic systems through natural hand gestures captured via RGB camera.
-
-      <strong>Detection Pipeline:</strong>
-      • MediaPipe Hands for 21-point hand landmark detection
-      • Real-time tracking at 30+ FPS on CPU
-      • Multi-hand support with handedness classification
-      • Robust to partial occlusion and varying lighting
-
-      <strong>Gesture Classification:</strong>
-      • Custom gesture vocabulary: point, grab, release, wave, thumbs up/down
-      • Feature extraction: finger angles, palm orientation, landmark distances
-      • Lightweight MLP classifier trained on collected dataset
-      • Temporal smoothing to filter spurious predictions
-
-      <strong>Robot Integration:</strong>
-      • ROS2 topic publishing for gesture commands
-      • Configurable gesture-to-action mapping
-      • Cooldown timer to prevent repeated triggers
-      • Visual feedback overlay on camera stream
-
-      <strong>Applications:</strong>
-      • Humanoid robot control via gestures
-      • Touchless UI interaction
-      • Sign language recognition prototype
-      • Safety stop gesture for emergency halt
+      Real-time hand gesture recognition for human-robot interaction using MediaPipe 21-landmark tracking and a custom MLP classifier. Achieves 95% accuracy at 30+ FPS on CPU with 8 gesture classes, published as ROS2 commands for robot control.
     `,
     tags: ['MediaPipe', 'Gesture Recognition', 'Deep Learning', 'ROS2', 'OpenCV'],
     images: [],
@@ -968,33 +1290,7 @@ Gesture → Action Mapping (configurable):
     outcome: 'Full-stack app with sub-second booking and 95%+ location accuracy',
     oneLiner: 'React Native + Node.js with real-time Socket.io tracking',
     description: `
-      Full-stack mobile application for booking and managing household maintenance services.
-      Connects users with verified service providers for plumbing, electrical, cleaning, and more.
-
-      <strong>User Features:</strong>
-      • Service catalog with categories and search
-      • Real-time booking with slot availability
-      • Live tracking of service provider location
-      • In-app cost estimation before booking
-      • Rating and review system
-
-      <strong>Service Provider Features:</strong>
-      • Job request notifications and acceptance
-      • Route optimization for multiple bookings
-      • Earnings dashboard and payout tracking
-      • Profile verification and badge system
-
-      <strong>Technical Stack:</strong>
-      • Frontend: React Native (iOS + Android)
-      • Backend: Node.js + Express REST API
-      • Database: MongoDB with geospatial indexing
-      • Real-time: Socket.io for live tracking
-      • Maps: Google Maps API for routing and ETA
-
-      <strong>Key Metrics:</strong>
-      • Sub-second booking confirmation
-      • 95%+ location accuracy for tracking
-      • Offline-first architecture with sync queue
+      Full-stack home services booking app built with React Native and Node.js. Features real-time provider tracking via Socket.io, MongoDB geospatial queries for nearby matches, and offline-first architecture with sync queue.
     `,
     tags: ['React Native', 'Node.js', 'MongoDB', 'Socket.io', 'Google Maps'],
     images: [],
@@ -1115,142 +1411,144 @@ Queue: Pending API calls (synced on reconnect)</div>
   },
   {
     id: 'xr-teleop',
-    title: 'XR Teleoperation for Robot Arms',
+    title: 'XR Teleoperation for Humanoid Robots',
     shortTitle: 'XR Teleop',
     category: 'Robotics Integration',
-    problem: 'Intuitive robot arm control through immersive hand tracking',
-    outcome: 'Sub-50ms end-to-end latency with 6-DOF hand-to-robot mapping',
-    oneLiner: 'Quest 3 hand tracking to robot IK via CycloneDDS',
+    protected: true,
+    problem: 'Real-time bilateral teleoperation of 29-DOF humanoid with dexterous manipulation',
+    outcome: '30Hz control loop, <50ms LAN latency, dual-arm IK + 5 end-effector types',
+    oneLiner: 'Quest 3 → Pinocchio IK → CycloneDDS → Unitree G1/H1 with dexterous hands',
     description: `
-      Immersive teleoperation system enabling real-time control of bipedal humanoid robots through
-      Extended Reality (XR) devices. Operator hand/head tracking mapped to robot end-effectors
-      with sub-100ms latency for intuitive manipulation tasks.
-
-      <strong>XR Integration:</strong>
-      • Meta Quest 3 / Apple Vision Pro / PICO 4 Ultra support
-      • 6-DOF hand tracking via controller or hand-tracking SDK
-      • Head pose streaming for robot head/torso orientation
-      • Passthrough AR mode for immersive operator view
-
-      <strong>Robot Control Pipeline:</strong>
-      • Unitree SDK2 (CycloneDDS) for low-latency command streaming
-      • Inverse kinematics solver for Cartesian → joint space mapping
-      • Configurable workspace scaling and dead-zone filtering
-      • Support for G1 (23/29 DOF), H1, H1_2 humanoid variants
-
-      <strong>Dexterous Manipulation:</strong>
-      • Multi-finger hand support: Dex3-1, Inspire, BrainCo hands
-      • Per-finger joint mapping from XR hand skeleton
-      • Grasp detection and force feedback visualization
-      • Custom wrist/ring mount for hand tracker attachment
-
-      <strong>Hardware Setup:</strong>
-      • RealSense head-mounted camera for operator FPV stream
-      • WiFi 6 router for high-bandwidth XR ↔ robot communication
-      • ArUco marker-based workspace calibration
-      • Custom 3D-printed mounts for camera and trackers
+      Production XR teleoperation for Unitree G1/H1 humanoids using Quest 3 and other headsets. Real-time dual-arm IK via Pinocchio + CasADi + IPOPT, DexPilot hand retargeting for 5 end-effector types, and a safety state machine — all at 30Hz with <50ms LAN latency over CycloneDDS.
     `,
-    tags: ['XR', 'Quest 3', 'Teleoperation', 'IK', 'CycloneDDS', 'RealSense'],
+    tags: ['Pinocchio', 'CasADi', 'Quest 3', 'CycloneDDS', 'DexPilot', 'Isaac Lab'],
     images: [],
-    videos: [],
+    videos: [
+      { src: 'assets/projects/xr-teleop/demo.mp4', title: 'XR Teleoperation Demo' }
+    ],
     thumbnail: null,
-    hideGallery: true,
+    hideGallery: false,
     technicalDeepDive: {
       sections: [
         {
-          title: "XR Device Integration",
+          title: "System Architecture",
           content: `
-            <p>The system supports multiple XR headsets through their respective SDKs:</p>
-            <div class="code-block"><code>Supported Devices:
-  - Meta Quest 3: OpenXR + Hand Tracking API
-  - Apple Vision Pro: ARKit + visionOS SDK
-  - PICO 4 Ultra: PICO SDK (Enterprise)
+            <p>Three-tier architecture: XR headset → Host PC → Robot, connected via WebSocket + DDS:</p>
+            <div class="code-block"><code>Quest 3 (OpenXR)          Host PC (Python)              Robot (G1/H1)
+  Hand/Head Tracking    teleop_hand_and_arm.py         DDS Domain 0/1
+    ↓ Vuer.js             ├─ Arm IK (Pinocchio+CasADi)   ├─ rt/lowcmd (arms)
+  WebSocket :8012         ├─ Hand Retarget (DexPilot)     ├─ rt/inspire/cmd (hands)
+    ↓ HTTPS/WSS           ├─ Safe Teleop (state machine)  ├─ rt/lowstate (feedback)
+  LocalTunnel/ngrok       └─ Camera (teleimager)          └─ Motor Controllers
 
-Tracking Data (per hand):
-  - Wrist pose: position (m) + quaternion
-  - 21 finger joints: relative transforms
-  - Pinch strength: 0-1 per finger
-  - Hand confidence: tracking quality</code></div>
-            <p>Quest 3 hand tracking runs at 60Hz with sub-centimeter accuracy. Controller fallback available for precise manipulation.</p>
+Submodules:
+  televuer   → XR input capture (WebSocket/WebRTC)
+  teleimager → Camera streaming (ZMQ/WebRTC)
+  dex-retargeting → DexPilot finger IK library</code></div>
+            <p>119 Python source files. Entry point: <code>teleop_hand_and_arm.py</code>. Supports 4 robot variants (G1 29/23-DOF, H1, H1_2) and 5 end-effector types.</p>
           `
         },
         {
-          title: "Coordinate Frame Transforms",
+          title: "Dual-Arm Inverse Kinematics",
           content: `
-            <p>XR tracking coordinates must be transformed to robot frame:</p>
-            <div class="formula">T_robot = T_calibration × T_scale × T_xr_hand
+            <p>Real-time nonlinear IK using Pinocchio for kinematics, CasADi for symbolic autodiff, and IPOPT as the NLP solver:</p>
+            <div class="code-block"><code>Optimization Problem (per arm, 7-DOF):
+  minimize: 50·‖p_target - FK(q)‖² + ‖R_target - R(q)‖²
+            + 0.02·‖q - q_neutral‖² + 0.1·‖q - q_prev‖²
+  subject to: q_min ≤ q ≤ q_max
 
-Where:
-  T_calibration: Workspace alignment (set via ArUco)
-  T_scale: Motion scaling (2:1 to 5:1)
-  T_xr_hand: Raw XR tracking pose</div>
-            <p><strong>Workspace Mapping:</strong> Operator's reachable volume maps to robot's workspace. Configurable dead-zone at boundaries prevents accidental limit violations.</p>
+IPOPT Config:
+  max_iter: 30, tol: 1e-4, warm_start: enabled
+  Solve time: 5-10ms (warm-started)
+
+Model: g1_29_model_cache.pkl (Pinocchio binary)
+  Locks 27 joints (legs, waist, fingers) → reduced 14-DOF arm problem
+  Frame targets: L_ee, R_ee (wrist + 0.05m offset)</code></div>
+            <p>Weighted moving filter (α = [0.4, 0.3, 0.2, 0.1]) smooths joint trajectories. Null-space biases toward elbow-down configurations.</p>
           `
         },
         {
-          title: "Inverse Kinematics Solver",
+          title: "DexPilot Hand Retargeting",
           content: `
-            <p>Cartesian end-effector targets converted to joint positions via damped least-squares IK:</p>
-            <div class="code-block"><code>IK Algorithm (Damped Least Squares):
-  Δq = J^T × (J × J^T + λ²I)^(-1) × Δx
+            <p>Maps 25-DOF OpenXR hand skeleton to robot finger commands via optimization-based retargeting:</p>
+            <div class="code-block"><code>Pipeline:
+  OpenXR 25 joints/hand → Extract fingertip positions
+    ↓ DexPilot Optimizer
+  Constraints: Robot URDF model, joint limits, collision avoidance
+    ↓ Output: joint commands per hand
+  Low-pass filter (α=0.2) → Normalize to motor range
+    ↓ Publish via DDS (rt/inspire/cmd)
 
-  J: Jacobian matrix (6×7 for 7-DOF arm)
-  λ: Damping factor (0.1) - prevents singularities
-  Δx: Task-space error (position + orientation)
-  Δq: Joint-space update
+End-Effector Support:
+  Inspire DFX/FTP: 6 motors/hand (4 proximal + 2 thumb)
+  Dex3:            7 motors/hand (3 per finger: prox/mid/dist)
+  Dex1:            2 motors/hand (simple gripper, linear map)
+  BrainCo:         6 motors/hand
 
-Iteration: 5-10 steps to converge
-Rate: 100Hz IK solve → 50Hz command output</code></div>
-            <p>Null-space optimization biases solutions toward comfortable joint configurations (elbow down, wrist neutral).</p>
+Config (YAML):
+  type: DexPilot | vector
+  scaling_factor: 1.20
+  low_pass_alpha: 0.2</code></div>
+            <p>Resolves 25 human DOF → 6-7 robot DOF via constrained optimization with collision avoidance.</p>
           `
         },
         {
-          title: "Dexterous Hand Mapping",
+          title: "Control Loop & Latency",
           content: `
-            <p>XR finger skeleton maps to robot dexterous hands (Dex3-1, Inspire):</p>
-            <div class="code-block"><code>Finger Mapping (per finger):
-  XR MCP angle → Robot proximal joint
-  XR PIP angle → Robot intermediate joint
-  XR DIP angle → Robot distal joint
+            <p>30Hz main loop (~33ms per iteration) with warm-started IK:</p>
+            <div class="code-block"><code>Loop Cycle (33ms budget):
+  1. Receive XR pose from Vuer (WebSocket)        ~2ms
+  2. Transform OpenXR → Robot frame                ~1ms
+  3. Scale arms (human 0.60m → robot 0.75m)        ~1ms
+  4. Solve dual-arm IK via IPOPT (warm-start)    5-10ms
+  5. Check collision + joint limits                ~1ms
+  6. Publish LowCmd to DDS (rt/lowcmd)             ~1ms
+  7. Retarget hands via DexPilot                  1-2ms
+  8. Publish hand commands (rt/inspire/cmd)         ~1ms
+  9. Encode + send camera frame                   5-8ms
 
-Special Handling:
-  - Thumb opposition: Separate abduction channel
-  - Grasp detection: All fingertips within threshold
-  - Force feedback: Vibration on contact (Quest)</code></div>
-            <p>Retargeting accounts for different hand proportions between human operator and robot end-effector.</p>
+Total Latency:
+  LAN:      30-50ms  (direct WiFi 6)
+  Internet: 100-250ms (via LocalTunnel/ngrok)</code></div>
+            <p>Camera: RealSense D435I @ 480×640, JPEG quality 60%, streamed via ZMQ (tcp://172.16.2.242:55555) or WebRTC (port 60001).</p>
           `
         },
         {
-          title: "Communication Pipeline",
+          title: "Safety & Deployment",
           content: `
-            <p>Low-latency data flow from XR headset to robot actuators:</p>
-            <div class="code-block"><code>XR App (Quest)
-    ↓ UDP (WiFi 6, 5GHz)
-Control PC (Python)
-    ↓ CycloneDDS (Unitree SDK2)
-Robot (G1/H1)
-    ↓ EtherCAT
-Motor Drivers
+            <p>Safety state machine prevents unsafe transitions. DDS domain isolation separates real robot from simulation:</p>
+            <div class="code-block"><code>State Machine (safe_teleop.py):
+  IDLE → ALIGNING (5s timeout) → TRACKING ↔ FAULT
+                                    ↓          ↓
+                                 EXITING ← RECOVERING
 
-Latency Budget:
-  XR tracking: 10ms
-  Network: 5-20ms
-  IK solve: 5ms
-  Robot control: 2ms
-  Total: < 50ms end-to-end</code></div>
-            <p>UDP preferred over TCP for lower latency. Packet loss handled by predictor extrapolating from velocity.</p>
+Safety Parameters:
+  Alignment threshold: 0.05 rad (~3°)
+  Fault trigger: 0.5 rad error sustained 30 frames
+  Joint limit scale: 80% of full range
+  Alignment velocity: 0.3 rad/s (slow ramp)
+
+DDS Domain Isolation:
+  Domain 0: Physical robot (G1, H1)
+  Domain 1: Isaac Lab simulation
+  Prevents accidental cross-contamination
+
+Keyboard Controls:
+  r = start tracking, q = exit, c = clear fault, s = record episode</code></div>
+            <p>Episode recording via HDF5 (h5py) for imitation learning data collection. Deployed on Ubuntu 22.04 with NVIDIA RTX A2000.</p>
           `
         }
       ],
       metrics: [
-        { value: "< 50ms", label: "End-to-End Latency" },
-        { value: "60Hz", label: "Tracking Rate" },
-        { value: "7-DOF", label: "Per Arm" },
-        { value: "21", label: "Finger Joints" }
+        { value: "30 Hz", label: "Control Loop" },
+        { value: "< 50ms", label: "LAN Latency" },
+        { value: "14-DOF", label: "Dual-Arm IK" },
+        { value: "5", label: "End-Effector Types" }
       ],
       references: [
-        { title: "OpenXR Spec", url: "https://www.khronos.org/openxr/" },
-        { title: "Quest Hand Tracking", url: "https://developer.oculus.com/documentation/native/android/mobile-hand-tracking/" },
+        { title: "Pinocchio Docs", url: "https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/" },
+        { title: "CasADi", url: "https://web.casadi.org/" },
+        { title: "DexPilot Paper", url: "https://arxiv.org/abs/1910.03135" },
         { title: "Unitree XR Teleop", url: "https://github.com/unitreerobotics/xr_teleoperate" }
       ]
     }
@@ -1264,55 +1562,236 @@ Latency Budget:
     outcome: '38kg frame with 2.1+ FOS, 25% cost reduction through DFM optimization',
     oneLiner: 'FEA-optimized 4130 chromoly space frame for BAJA SAE',
     description: `
-      Complete mechanical design and structural analysis of a high-performance ATV chassis
-      for the BAJA SAE competition. Optimized for durability, weight, and manufacturability.
-
-      <strong>Structural Design:</strong>
-      • Tubular space frame chassis with AISI 4130 chromoly steel tubing
-      • Roll cage geometry optimized for driver safety (FIA standards)
-      • Triangulated members for torsional rigidity (>3000 Nm/deg)
-      • Suspension mounting points with adjustable geometry
-
-      <strong>FEA Analysis (Ansys):</strong>
-      • Static analysis: 2.5G bump, 1.5G braking, 1.2G cornering loads
-      • Dynamic impact simulation for rollover scenarios
-      • Fatigue life prediction (>10⁶ cycles target)
-      • Stress concentrations identified and reinforced
-      • Final FOS: 2.1 (critical members), 3.0+ (non-critical)
-
-      <strong>Manufacturing:</strong>
-      • TIG welding with full-penetration joints
-      • Jig-based assembly for dimensional accuracy (±1mm)
-      • 25% cost reduction through DFM optimization
-      • Weight: 38kg bare frame (target: <40kg)
-
-      <strong>Tools:</strong> SolidWorks (CAD), Ansys Workbench (FEA), AutoCAD (drawings).
+      BAJA SAE ATV chassis design using AISI 4130 chromoly space frame. FEA-optimized in Ansys for 2.5G bump, braking, and cornering loads with 2.1+ FOS. 38kg bare frame weight achieved through DFM optimization with 25% cost reduction.
     `,
     tags: ['SolidWorks', 'FEA', 'Ansys', 'BAJA SAE', 'Manufacturing'],
     images: ['assets/projects/atv/img1.jpg', 'assets/projects/atv/img2.jpg', 'assets/projects/atv/img3.jpg', 'assets/projects/atv/img4.png'],
     video: 'assets/projects/atv/video.mp4',
-    thumbnail: 'assets/projects/atv/img1.jpg'
+    thumbnail: 'assets/projects/atv/img1.jpg',
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "Space Frame Design & Material Selection",
+          content: `
+            <p>Tubular space frame chassis designed to BAJA SAE rule specifications with AISI 4130 chromoly steel:</p>
+            <div class="code-block"><code>Chassis Specifications:
+  Material: AISI 4130 chromoly steel
+  Primary tubes: 1" OD × 0.065" wall
+  Secondary: 1" OD × 0.049" wall
+  Bracing: 3/4" OD × 0.049" wall
+  Weight: 38 kg bare frame
+
+Design Requirements (BAJA SAE):
+  - Roll cage: overhead protection with 6" clearance
+  - Side impact: lateral members at hip height
+  - Front impact: energy-absorbing crumple zone
+  - Rear firewall: engine compartment isolation
+  - Driver ergonomics: 5th-95th percentile fit
+
+Triangulation:
+  All bays fully triangulated for torsional rigidity
+  Target: >3000 Nm/deg torsional stiffness
+  Node-to-node member connections (no floating joints)</code></div>
+          `
+        },
+        {
+          title: "FEA Analysis (Ansys Workbench)",
+          content: `
+            <p>Comprehensive structural analysis covering static, dynamic, and fatigue loading scenarios:</p>
+            <div class="code-block"><code>Load Cases:
+  1. Bump (2.5G vertical):
+     Max stress: 280 MPa (yield: 460 MPa)
+     FOS: 1.64 → reinforced to 2.1
+
+  2. Braking (1.5G longitudinal):
+     Critical: front suspension mounts
+     FOS: 2.3 (after reinforcement)
+
+  3. Cornering (1.2G lateral):
+     Critical: roll cage / side impact members
+     FOS: 2.5
+
+  4. Rollover (combined 2G):
+     Dynamic impact simulation
+     Energy absorption in crumple zones
+     Roll cage deformation < 25mm
+
+  5. Fatigue (10⁶ cycles):
+     Stress concentration at weld toes
+     Reinforcement gussets added where needed
+
+Mesh: BEAM188 elements, 2mm element size
+Solver: Ansys Mechanical APDL</code></div>
+          `
+        },
+        {
+          title: "Manufacturing & Assembly",
+          content: `
+            <p>Production process optimized for dimensional accuracy and cost reduction:</p>
+            <div class="code-block"><code>Fabrication:
+  Cutting: Tube notcher + band saw
+  Bending: Manual tube bender (schedule)
+  Welding: TIG (GTAW) with ER80S-D2 filler
+  Joint type: Full-penetration butt welds
+
+Assembly Jig:
+  Steel fixture table (leveled ±0.5mm)
+  Locating pins at all node points
+  Dimensional tolerance: ±1mm
+  Assembly sequence: RHD → LHD → cross
+
+DFM Optimization (25% cost reduction):
+  - Standardized tube sizes (3 diameters only)
+  - Minimized bend count (straight members preferred)
+  - Common notch angles (30°, 45°, 60°, 90°)
+  - Batch cutting schedule for tube efficiency
+
+QC: CMM measurement of critical dimensions
+    Weld inspection: visual + dye penetrant</code></div>
+          `
+        }
+      ],
+      metrics: [
+        { value: "38 kg", label: "Frame Weight" },
+        { value: "2.1+", label: "Min FOS" },
+        { value: "25%", label: "Cost Reduction" },
+        { value: "±1mm", label: "Tolerance" }
+      ]
+    }
   },
   {
     id: 'surgical-robot',
-    title: 'Surgical Robotics Assistant',
-    shortTitle: 'Surgical Robot',
-    category: 'Medical Robotics',
-    problem: 'Precision manipulation for minimally invasive surgical procedures',
-    outcome: 'Sub-millimeter accuracy with redundant safety interlocks',
-    oneLiner: 'Precision manipulator with redundant safety systems',
+    title: 'ASAP Sim2Real Deployment & Skill Execution on G1',
+    shortTitle: 'Sim2Real Deploy',
+    category: 'Robotics Deployment',
+    protected: true,
+    problem: 'Deploying RL-trained whole-body skills from simulation to real Unitree G1 hardware with stable execution',
+    outcome: 'Real-time 50Hz skill execution on G1: CR7 celebration, kicks, jumps, and locomotion via ONNX + delta action model',
+    oneLiner: 'ONNX policy + delta action model → 50Hz newton controller → Unitree SDK2 → G1 whole-body skills',
     description: `
-      Developed modular robotic systems for precision surgical applications. The project focused on
-      creating reliable, accurate robotic assistance for minimally invasive procedures.
-
-      Features include advanced motion control with sub-millimeter precision, real-time feedback
-      systems for surgeon guidance, and intuitive operator interfaces. The system was designed with
-      safety as the primary concern, incorporating multiple redundant safety mechanisms.
+      Sim-to-real deployment framework for ASAP-trained policies on the Unitree G1. Newton controller runs ONNX policies at 50Hz with inline delta action model correction via Unitree SDK2. Deploys CR7 celebrations, kicks, jumps, and locomotion after MuJoCo sim2sim validation.
     `,
-    tags: ['Robotics', 'Medical', 'Control Systems', 'Python'],
-    images: ['assets/projects/surgical-robot/img1.jpg', 'assets/projects/surgical-robot/img2.jpg'],
-    video: 'assets/projects/surgical-robot/video.mp4',
-    thumbnail: 'assets/projects/surgical-robot/img1.jpg'
+    tags: ['Sim2Real', 'ONNX', 'Unitree SDK2', 'CycloneDDS', 'MuJoCo', 'Python'],
+    images: [],
+    videos: [],
+    thumbnail: null,
+    hideGallery: true,
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "Newton Controller Architecture",
+          content: `
+            <p>The deployment controller (<code>newton_controller.py</code>) runs the trained policy on real hardware at 50Hz:</p>
+            <div class="code-block"><code>Deployment Loop (20ms / 50Hz):
+  1. Read joint encoders + IMU from G1
+  2. Construct observation vector:
+     - joint_positions (23): current DOF angles
+     - joint_velocities (23): angular rates
+     - base_ang_vel (3): from IMU gyroscope
+     - projected_gravity (3): orientation ref
+     - target_motion: from skill reference
+     - 4-frame history (~453-dim total)
+  3. ONNX Runtime inference → action (23-dim)
+  4. Delta action model correction
+  5. target = action_scale × action + default_angles
+  6. PD torque: τ = Kp(target - q) - Kd(dq)
+  7. Send torques via Unitree SDK2 / CycloneDDS
+
+Timing:
+  Policy inference: ~5ms (ONNX Runtime, CPU)
+  Delta model: ~1ms
+  Total loop: <15ms (within 20ms budget)</code></div>
+          `
+        },
+        {
+          title: "Delta Action Model Integration",
+          content: `
+            <p>The delta action model corrects policy outputs to compensate for motor dynamics not captured in simulation:</p>
+            <div class="code-block"><code>Delta Model:
+  Input: raw policy action (23-dim)
+  Network: Linear(23, 256) → ELU
+           → Linear(256, 256) → ELU
+           → Linear(256, 23)
+  Output: corrected motor commands
+
+Compensates for:
+  - Motor friction & backlash
+  - Gearbox nonlinearities
+  - Cable routing stiffness
+  - Thermal drift
+
+corrected_action = raw_action + delta_model(raw_action)
+The model adds learned corrections at each timestep.</code></div>
+            <p>Trained offline on open-loop motor trajectory data collected from the real G1. Supervised loss minimizes position prediction error.</p>
+          `
+        },
+        {
+          title: "Sim2Sim Validation Pipeline",
+          content: `
+            <p>Before deploying to real hardware, every policy must pass sim2sim validation in MuJoCo:</p>
+            <div class="code-block"><code>Validation (deploy_mujoco.py):
+  1. Load exported policy (ONNX or .pt)
+  2. Initialize MuJoCo with G1 model
+  3. Run policy in MuJoCo viewer
+  4. Visual checks:
+     - Gait stability on flat ground
+     - Motion quality matches training
+     - No PhysX-specific artifacts
+     - Recovery from small perturbations
+
+MuJoCo Viewer Controls:
+  Arrow keys: velocity commands
+  Space: trigger skill
+  R: reset to default pose
+  Q: quit
+
+Catches:
+  - Policies exploiting PhysX contact bugs
+  - Unstable standing after skill execution
+  - Excessive joint velocities or torques</code></div>
+          `
+        },
+        {
+          title: "Skill Execution & Triggering",
+          content: `
+            <p>Multiple whole-body skills deployed as separate ONNX policies with keyboard/joystick triggering:</p>
+            <div class="code-block"><code>Deployed Skills:
+  CR7 Siuuu:     Full-body celebration (jump + arms up)
+  Forward Jump:  Bipedal forward leap (~30cm)
+  Side Jump:     Lateral hop (left/right)
+  Soccer Kick:   Single-leg kick (L/R selectable)
+  Walk:          Velocity-commanded locomotion
+
+Execution Architecture:
+  Locomotion policy: always-on (lower body)
+  Skill policy: triggered overlay (full body)
+
+  When skill triggered:
+    1. Blend from locomotion → skill (5 frames)
+    2. Execute skill motion (variable duration)
+    3. Blend back to locomotion (10 frames)
+    4. Recovery: stand stabilization phase
+
+Input: Keyboard mapping or joystick buttons
+  W/A/S/D: velocity commands
+  1-5: trigger skills
+  ESC: emergency stop</code></div>
+          `
+        }
+      ],
+      metrics: [
+        { value: "50Hz", label: "Control Rate" },
+        { value: "23-DOF", label: "Action Space" },
+        { value: "~5ms", label: "Inference Time" },
+        { value: "5+", label: "Deployed Skills" }
+      ],
+      references: [
+        { title: "ASAP Framework", url: "https://agility.csail.mit.edu/asap/" },
+        { title: "Unitree SDK2", url: "https://github.com/unitreerobotics/unitree_sdk2" },
+        { title: "ONNX Runtime", url: "https://onnxruntime.ai/" },
+        { title: "MuJoCo Viewer", url: "https://mujoco.readthedocs.io/en/stable/python.html#viewer" }
+      ]
+    }
   },
   {
     id: 'chess-board',
@@ -1330,10 +1809,93 @@ Latency Budget:
       system with electromagnets to physically move chess pieces, Reed switches for piece detection,
       and a custom chess engine for AI gameplay.
     `,
-    tags: ['Automation', 'Computer Vision', 'IoT', 'Arduino'],
-    images: ['assets/projects/chess-board/img1.jpg', 'assets/projects/chess-board/img2.jpg', 'assets/projects/chess-board/img3.jpg'],
-    video: 'assets/projects/chess-board/video.mp4',
-    thumbnail: 'assets/projects/chess-board/img1.jpg'
+    tags: ['Arduino', 'Stepper Motors', 'Reed Switches', 'Chess Engine'],
+    images: [],
+    videos: [],
+    thumbnail: null,
+    hideGallery: true,
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "XY Gantry & Electromagnetic Actuation",
+          content: `
+            <p>Pieces are moved physically using an XY gantry system beneath the board with electromagnetic piece capture:</p>
+            <div class="code-block"><code>Mechanical System:
+  Motion: CoreXY belt-driven gantry
+  Motors: NEMA 17 stepper × 2 (X, Y axes)
+  Driver: A4988 stepper driver (1/16 microstepping)
+  Resolution: 0.1mm per microstep
+  Speed: ~50mm/s max travel
+
+Piece Capture:
+  Electromagnet: 12V DC, 5kg holding force
+  Mounted on gantry carriage (below board)
+  Pieces: steel base inserts for magnetic grip
+  Sequence: engage → lift → translate → lower → release
+
+Board Surface:
+  Material: 3mm MDF with vinyl overlay
+  Square size: 50mm × 50mm
+  Total board: 400mm × 400mm</code></div>
+          `
+        },
+        {
+          title: "Piece Detection with Reed Switches",
+          content: `
+            <p>64 reed switches (one per square) detect piece presence for move validation:</p>
+            <div class="code-block"><code>Detection Grid:
+  Sensors: Reed switch × 64 (normally open)
+  Scanning: 8×8 matrix with row/column multiplexing
+  Controller: Arduino Mega (enough digital pins)
+  Scan rate: Full board read in ~5ms
+
+Move Detection:
+  1. Scan board → 8×8 binary occupancy matrix
+  2. Compare to previous state
+  3. Detect: piece lifted (1→0) → piece placed (0→1)
+  4. Validate against legal moves
+  5. If illegal: LED indicator + buzzer alert
+
+Multiplexing:
+  8 row lines (output) + 8 column lines (input)
+  Sequential row activation with column read
+  Pull-down resistors on column inputs</code></div>
+          `
+        },
+        {
+          title: "Chess Engine & Network Play",
+          content: `
+            <p>Integrated chess engine for AI gameplay with optional network connectivity for remote matches:</p>
+            <div class="code-block"><code>Chess Engine:
+  Algorithm: Minimax with alpha-beta pruning
+  Depth: 4-6 ply (adjustable difficulty)
+  Evaluation: Material + position tables
+  Opening book: 500+ common openings
+
+Game Modes:
+  Human vs Human (local): Reed switch detection
+  Human vs AI: Engine calculates + gantry moves
+  Human vs Human (remote): WiFi/Bluetooth
+
+Communication:
+  Protocol: Serial (Arduino ↔ PC) or WiFi (ESP32)
+  Move format: UCI notation (e.g., e2e4)
+  State sync: FEN string broadcast
+
+Display:
+  LCD screen: move history, clock, player info
+  LED ring per square: highlight legal moves
+  Buzzer: check/checkmate/illegal move alerts</code></div>
+          `
+        }
+      ],
+      metrics: [
+        { value: "64", label: "Reed Switches" },
+        { value: "0.1mm", label: "Gantry Resolution" },
+        { value: "6-ply", label: "AI Depth" },
+        { value: "5ms", label: "Board Scan Time" }
+      ]
+    }
   },
   {
     id: 'ir-remote',
@@ -1350,10 +1912,90 @@ Latency Budget:
       Features intelligent protocol detection that can learn and replicate IR signals from any
       device. Includes a centralized home automation management system with smartphone app control.
     `,
-    tags: ['Arduino', 'IoT', 'Home Automation', 'ESP32'],
-    images: ['assets/projects/ir-remote/img1.jpg', 'assets/projects/ir-remote/img2.jpg'],
-    video: 'assets/projects/ir-remote/video.mp4',
-    thumbnail: 'assets/projects/ir-remote/img1.jpg'
+    tags: ['ESP32', 'IR Protocols', 'MQTT', 'Arduino', 'Smartphone App'],
+    images: [],
+    videos: [],
+    thumbnail: null,
+    hideGallery: true,
+    technicalDeepDive: {
+      sections: [
+        {
+          title: "IR Protocol Detection & Learning",
+          content: `
+            <p>Automatic protocol identification and signal learning from any IR remote control:</p>
+            <div class="code-block"><code>Supported Protocols:
+  NEC: 32-bit (most common — TVs, set-top boxes)
+  RC5/RC6: Philips protocol (toggle bit handling)
+  Sony SIRC: 12/15/20-bit variants
+  Samsung: 32-bit proprietary
+  Raw: Timing capture for unknown protocols
+
+Learning Process:
+  1. IR receiver (TSOP38238, 38kHz) captures signal
+  2. Timing analysis: mark/space durations
+  3. Protocol auto-detection from timing patterns
+  4. Decode to command code (address + data)
+  5. Store in EEPROM/Flash (persistent)
+
+Raw Capture (fallback for unknown protocols):
+  Records exact timing sequence (µs precision)
+  Replay via IR LED with same timing
+  Handles protocols not in library</code></div>
+          `
+        },
+        {
+          title: "ESP32 Hardware Architecture",
+          content: `
+            <p>Microcontroller-based hub with WiFi connectivity for smartphone control:</p>
+            <div class="code-block"><code>Hardware:
+  MCU: ESP32 (dual-core, WiFi + BLE)
+  IR Receiver: TSOP38238 (38kHz, AGC)
+  IR Transmitter: 940nm LED × 3 (wide coverage)
+  Transistor: NPN driver for LED current
+  Range: ~8m (multi-LED array, 120° spread)
+
+Memory:
+  Flash: Learned commands (up to 200 codes)
+  SPIFFS: Device profiles and configuration
+  NVS: WiFi credentials and pairing data
+
+Power:
+  USB 5V input or 3.7V LiPo battery
+  Deep sleep: <10µA (wake on BLE/button)
+  Active: ~120mA (WiFi connected)</code></div>
+          `
+        },
+        {
+          title: "Smartphone App & Home Automation",
+          content: `
+            <p>Centralized control interface replacing all physical remotes:</p>
+            <div class="code-block"><code>App Features:
+  Device management: Add/remove/rename devices
+  Room-based grouping: Living room, bedroom, etc.
+  Custom buttons: Map any learned code to UI button
+  Scenes: "Movie mode" = dim lights + TV on + soundbar
+  Scheduling: Timer-based automation (e.g., AC off at 2AM)
+
+Communication:
+  Local: ESP32 WiFi AP or mDNS discovery
+  Protocol: HTTP REST API or MQTT
+  Latency: <100ms button press to IR emission
+
+MQTT Integration (optional):
+  Broker: Mosquitto (local Raspberry Pi)
+  Topics: home/{room}/{device}/command
+  Enables: Google Home / Alexa voice control
+  Payload: JSON { "action": "power", "device": "tv" }</code></div>
+          `
+        }
+      ],
+      metrics: [
+        { value: "5+", label: "IR Protocols" },
+        { value: "200+", label: "Stored Codes" },
+        { value: "8m", label: "IR Range" },
+        { value: "<100ms", label: "Response Time" }
+      ]
+    }
   }
 ];
 
@@ -1669,8 +2311,9 @@ function renderProjectsCatalog() {
     'Robotics Integration',
     'Reinforcement Learning',
     'Computer Vision',
+    'Simulation & Teleoperation',
+    'Robotics Deployment',
     'Aerial Systems',
-    'Medical Robotics',
     'Mechanical Design',
     'Embedded Systems',
     'Software Development'
@@ -1692,12 +2335,12 @@ function renderProjectsCatalog() {
         </button>
         <div class="category-projects">
           ${categories[name].map(project => `
-            <a href="#" class="project-card ${project.flagship ? 'flagship' : ''}" data-project-id="${project.id}">
+            <a href="#" class="project-card ${project.flagship ? 'flagship' : ''} ${isProjectProtected(project.id) ? 'protected' : ''}" data-project-id="${project.id}">
               ${project.flagship ? '<span class="flagship-badge">Featured</span>' : ''}
+              ${isProjectProtected(project.id) ? '<span class="protected-badge">Confidential</span>' : ''}
               <div class="project-card-content">
                 <h4 class="project-card-title">${project.shortTitle}</h4>
-                <p class="project-card-problem"><span class="label">Problem:</span> ${project.problem || ''}</p>
-                <p class="project-card-outcome"><span class="label">Outcome:</span> ${project.outcome || ''}</p>
+                <p class="project-card-oneliner">${project.oneLiner || ''}</p>
                 <div class="project-card-tags">
                   ${project.tags.slice(0, 3).map(tag => `<span class="card-tag">${tag}</span>`).join('')}
                 </div>
@@ -1783,6 +2426,12 @@ function renderOngoingProjects() {
 function showOngoingProjectDetail(projectId) {
   const project = ongoingProjects.find(p => p.id === projectId);
   if (!project) return;
+
+  // Password protection check
+  if (isProjectProtected(projectId)) {
+    showPasswordModal(() => showOngoingProjectDetail(projectId));
+    return;
+  }
 
   savedScrollPosition = window.scrollY;
   currentProject = project;
@@ -1901,7 +2550,19 @@ function renderShowcase() {
     const showSlideshow = !hasVideo && mediaItems.length > 1;
 
     return `
-      <article class="showcase-card ${isOngoing ? 'ongoing' : ''}" data-project-id="${project.id}" tabindex="0" role="button" aria-label="View ${project.shortTitle || project.title} project">
+      <article class="showcase-card ${isOngoing ? 'ongoing' : ''} ${isProjectProtected(project.id) ? 'protected' : ''}" data-project-id="${project.id}" tabindex="0" role="button" aria-label="View ${project.shortTitle || project.title} project">
+        ${isProjectProtected(project.id) ? `
+          <div class="showcase-confidential-overlay">
+            <div class="confidential-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <span class="confidential-label">Confidential</span>
+            <span class="confidential-sub">Requires permission to view</span>
+          </div>
+        ` : ''}
         <div class="showcase-card-media" data-media='${JSON.stringify(mediaItems)}' data-interval="${slideInterval}" data-slideshow="${showSlideshow}">
           ${hasVideo ? `
             <video
@@ -2152,6 +2813,12 @@ function showProjectDetail(projectId) {
   }
   if (!project) return;
 
+  // Password protection check
+  if (isProjectProtected(projectId)) {
+    showPasswordModal(() => showProjectDetail(projectId));
+    return;
+  }
+
   currentProject = project;
   closeSidebar();
 
@@ -2174,6 +2841,7 @@ function showProjectDetail(projectId) {
           </button>
         ` : ''}
       </div>
+      ${project.oneLiner ? `<p class="project-detail-oneliner">${project.oneLiner}</p>` : ''}
       <div class="project-detail-tags">
         ${project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
       </div>
@@ -2182,7 +2850,6 @@ function showProjectDetail(projectId) {
     <div class="project-detail-description">
       ${project.description.trim().split('\n\n').map(p => {
         const trimmed = p.trim();
-        // Check if paragraph contains bullet points
         if (trimmed.includes('•')) {
           const lines = trimmed.split('\n').map(l => l.trim());
           const items = lines.filter(l => l.startsWith('•')).map(l => `<li>${l.substring(1).trim()}</li>`).join('');
@@ -2192,6 +2859,17 @@ function showProjectDetail(projectId) {
         return `<p>${trimmed}</p>`;
       }).join('')}
     </div>
+
+    ${project.technicalDeepDive?.metrics ? `
+      <div class="project-metrics-grid">
+        ${project.technicalDeepDive.metrics.map(m => `
+          <div class="project-metric-card">
+            <span class="metric-value">${m.value}</span>
+            <span class="metric-label">${m.label}</span>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
 
     ${project.images?.length && !project.hideGallery ? `
       <div class="project-gallery">
@@ -2259,17 +2937,6 @@ function showProjectDetail(projectId) {
               </div>
             </div>
           `).join('')}
-
-          ${project.technicalDeepDive.metrics ? `
-            <div class="metrics-grid">
-              ${project.technicalDeepDive.metrics.map(m => `
-                <div class="metric-card">
-                  <div class="metric-value">${m.value}</div>
-                  <div class="metric-label">${m.label}</div>
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
 
           ${project.technicalDeepDive.references ? `
             <div class="tech-references">
