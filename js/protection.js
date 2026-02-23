@@ -2,7 +2,7 @@
 // recruiter access system for confidential projects
 
 const DEFAULT_PROTECTED_IDS = ['naamika', 'xr-teleop', 'sim2real-deploy'];
-const PROTECTED_HASH = '9f2feb701519cf3605ae8075e865857b97b17927bbd5045e33e3fb498a43b040';
+const PROTECTED_HASH = 'e8d3ec2efb6aa81f6b3418a4d288230626b09f175e863717af62bb4de1d28ef3';
 
 let PROTECTED_PROJECT_IDS = JSON.parse(localStorage.getItem('protectedProjectIds')) || [...DEFAULT_PROTECTED_IDS];
 let protectedUnlocked = false;
