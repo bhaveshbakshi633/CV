@@ -35,9 +35,9 @@ export function initPIDTuner() {
   let errorHistory = [];
 
   // PID gains — default values, sliders se change honge
-  let Kp = 1.5;
-  let Ki = 0.1;
-  let Kd = 0.8;
+  let Kp = 8.0;
+  let Ki = 0.3;
+  let Kd = 2.5;
 
   // animation state
   let animationId = null;
@@ -135,18 +135,18 @@ export function initPIDTuner() {
     return { slider, valueEl };
   }
 
-  // teen sliders — Kp, Ki, Kd
-  const kpSlider = createSlider('Kp', 0, 5, 0.01, Kp, (v) => { Kp = v; });
-  const kiSlider = createSlider('Ki', 0, 2, 0.01, Ki, (v) => { Ki = v; });
-  const kdSlider = createSlider('Kd', 0, 3, 0.01, Kd, (v) => { Kd = v; });
+  // teen sliders — Kp, Ki, Kd (ranges badha diye hain)
+  const kpSlider = createSlider('Kp', 0, 15, 0.1, Kp, (v) => { Kp = v; });
+  const kiSlider = createSlider('Ki', 0, 5, 0.01, Ki, (v) => { Ki = v; });
+  const kdSlider = createSlider('Kd', 0, 8, 0.1, Kd, (v) => { Kd = v; });
 
   // --- Preset buttons ---
   // har preset mein Kp, Ki, Kd ki values set hain
   const presets = [
-    { name: 'Well-tuned', kp: 1.5, ki: 0.1, kd: 0.8 },
-    { name: 'Underdamped', kp: 4.5, ki: 0.3, kd: 0.2 },
-    { name: 'Overdamped', kp: 0.4, ki: 0.05, kd: 2.8 },
-    { name: 'Unstable', kp: 5.0, ki: 2.0, kd: 0.0 },
+    { name: 'Well-tuned', kp: 8.0, ki: 0.3, kd: 2.5 },
+    { name: 'Underdamped', kp: 14.0, ki: 0.5, kd: 0.3 },
+    { name: 'Overdamped', kp: 2.0, ki: 0.05, kd: 7.0 },
+    { name: 'Unstable', kp: 15.0, ki: 5.0, kd: 0.0 },
   ];
 
   // preset button click pe sliders update karo aur state reset karo
@@ -234,10 +234,12 @@ export function initPIDTuner() {
   }
   initBallPosition();
 
-  // --- Mouse/touch events — cursor ki position track karo ---
+  // --- Mouse/touch events ---
+  // hover se sirf preview crosshair dikhao, CLICK se target set karo
+  let previewX = -100, previewY = -100;
+
   function getCanvasPos(e) {
     const rect = mainCanvas.getBoundingClientRect();
-    // touch event ho ya mouse, dono handle kar
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     return {
@@ -246,28 +248,47 @@ export function initPIDTuner() {
     };
   }
 
+  // mousemove — sirf preview position update, target NAHI
   mainCanvas.addEventListener('mousemove', (e) => {
     const pos = getCanvasPos(e);
-    targetX = pos.x;
-    targetY = pos.y;
+    previewX = pos.x;
+    previewY = pos.y;
     mouseInCanvas = true;
   });
 
   mainCanvas.addEventListener('mouseleave', () => {
-    // mouse bahar gaya toh target wahi rehne do — ball bhatakti nahi rahegi
     mouseInCanvas = false;
+    previewX = -100;
+    previewY = -100;
   });
 
-  // touch support — mobile pe bhi kaam kare
-  mainCanvas.addEventListener('touchmove', (e) => {
+  // CLICK — yahan pe target set hota hai
+  mainCanvas.addEventListener('click', (e) => {
+    const pos = getCanvasPos(e);
+    targetX = pos.x;
+    targetY = pos.y;
+    // integral reset karo — naye target pe purana integral gadbad karega
+    integralX = 0;
+    integralY = 0;
+    prevErrorX = 0;
+    prevErrorY = 0;
+    mouseInCanvas = true;
+  });
+
+  // touch support — touchstart se target set, touchmove se drag
+  mainCanvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
     const pos = getCanvasPos(e);
     targetX = pos.x;
     targetY = pos.y;
+    integralX = 0;
+    integralY = 0;
+    prevErrorX = 0;
+    prevErrorY = 0;
     mouseInCanvas = true;
   }, { passive: false });
 
-  mainCanvas.addEventListener('touchstart', (e) => {
+  mainCanvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
     const pos = getCanvasPos(e);
     targetX = pos.x;
@@ -364,25 +385,41 @@ export function initPIDTuner() {
       ctx.fill();
     }
 
-    // error vector line — ball se cursor tak patli dashed line
-    if (mouseInCanvas) {
-      ctx.beginPath();
-      ctx.moveTo(ballX, ballY);
-      ctx.lineTo(targetX, targetY);
-      ctx.strokeStyle = 'rgba(249,158,11,0.25)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.stroke();
-      ctx.setLineDash([]);
+    // error vector line — ball se target tak patli dashed line
+    ctx.beginPath();
+    ctx.moveTo(ballX, ballY);
+    ctx.lineTo(targetX, targetY);
+    ctx.strokeStyle = 'rgba(249,158,11,0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-      // target crosshair — cursor ki position pe chhota cross dikhao
-      const crossSize = 6;
+    // target marker — solid crosshair jahan click kiya tha
+    const crossSize = 8;
+    ctx.beginPath();
+    ctx.moveTo(targetX - crossSize, targetY);
+    ctx.lineTo(targetX + crossSize, targetY);
+    ctx.moveTo(targetX, targetY - crossSize);
+    ctx.lineTo(targetX, targetY + crossSize);
+    ctx.strokeStyle = 'rgba(249,158,11,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // target ke around chhota circle
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, 4, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(249,158,11,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // hover preview — faint crosshair cursor ke neeche (sirf jab hover ho)
+    if (mouseInCanvas && previewX > 0) {
       ctx.beginPath();
-      ctx.moveTo(targetX - crossSize, targetY);
-      ctx.lineTo(targetX + crossSize, targetY);
-      ctx.moveTo(targetX, targetY - crossSize);
-      ctx.lineTo(targetX, targetY + crossSize);
-      ctx.strokeStyle = 'rgba(249,158,11,0.4)';
+      ctx.moveTo(previewX - 5, previewY);
+      ctx.lineTo(previewX + 5, previewY);
+      ctx.moveTo(previewX, previewY - 5);
+      ctx.lineTo(previewX, previewY + 5);
+      ctx.strokeStyle = 'rgba(249,158,11,0.2)';
       ctx.lineWidth = 1;
       ctx.stroke();
     }
@@ -411,12 +448,12 @@ export function initPIDTuner() {
     ctx.textAlign = 'right';
     ctx.fillText('error: ' + errorMag.toFixed(1) + 'px', w - 10, 20);
 
-    // agar mouse canvas ke andar nahi hai toh hint dikhao
+    // hint dikhao — click to set target
     if (!mouseInCanvas) {
       ctx.font = '13px monospace';
       ctx.fillStyle = 'rgba(176,176,176,0.4)';
       ctx.textAlign = 'center';
-      ctx.fillText('move cursor here', w / 2, h / 2 + 40);
+      ctx.fillText('click to set target', w / 2, h / 2 + 40);
     }
   }
 

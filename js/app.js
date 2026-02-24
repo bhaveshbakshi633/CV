@@ -14,7 +14,6 @@ import { initEasterEggs } from './easter-eggs.js';
 import { initGridworld } from './games/gridworld.js';
 import { initPIDTuner } from './games/pid-tuner.js';
 import { initCartPole } from './games/cartpole.js';
-import { initBandit } from './games/bandit.js';
 import { initMaze } from './games/maze.js';
 import { initRobotNav } from './games/robot-nav.js';
 import { initProjectile } from './games/projectile.js';
@@ -65,7 +64,6 @@ function init() {
   // learning systems
   initGridworld();
   initCartPole();
-  initBandit();
   initMaze();
   // human-robot interaction
   initRobotNav();

@@ -2267,7 +2267,7 @@ ul, ol {
   padding: var(--space-md) var(--space-lg) var(--space-sm);
   margin-bottom: var(--space-xl);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .game-standalone {

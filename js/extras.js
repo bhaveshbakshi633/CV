@@ -166,39 +166,44 @@ export function initSectionBeams() {
     const capability = sectionEl.getAttribute('data-capability');
     const color = BEAM_COLORS[capability] || DEFAULT_BEAM_COLOR;
 
-    // beam element banao — temporary div
+    // section ko position: relative banao taaki beam uske andar rahe
+    const pos = getComputedStyle(sectionEl).position;
+    if (pos === 'static') sectionEl.style.position = 'relative';
+
+    // beam element banao — section ke andar absolute position
+    // ab scroll karte waqt section ke saath move karega, overlay nahi hoga
     const beam = document.createElement('div');
     beam.style.cssText = [
-      'position: fixed',
-      'top: ' + sectionEl.getBoundingClientRect().top + 'px',
+      'position: absolute',
+      'top: 0',
       'left: 0',
-      'width: 100vw',
+      'width: 100%',
       'height: 2px',
       'background: linear-gradient(90deg, ' + color + ', ' + color + '88, transparent)',
-      'z-index: 9991',
+      'z-index: 2',
       'pointer-events: none',
       'transform: scaleX(0)',
       'transform-origin: left center',
       'opacity: 1'
     ].join(';');
-    document.body.appendChild(beam);
+    sectionEl.appendChild(beam);
 
-    // sweep animation — left se right 0.4s mein
+    // sweep animation — left se right 0.3s mein
     requestAnimationFrame(() => {
-      beam.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+      beam.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
       beam.style.transform = 'scaleX(1)';
     });
 
     // sweep complete hone ke baad fade out karo
     setTimeout(() => {
-      beam.style.transition = 'opacity 0.3s ease-out';
+      beam.style.transition = 'opacity 0.25s ease-out';
       beam.style.opacity = '0';
-    }, 400);
+    }, 300);
 
     // cleanup — DOM se hata do
     setTimeout(() => {
       beam.remove();
-    }, 750);
+    }, 600);
   }
 
   // IntersectionObserver lagao capability + flagships sections pe

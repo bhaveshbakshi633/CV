@@ -20,11 +20,14 @@ export function initCartPole() {
   const TOTAL_MASS = CART_MASS + POLE_MASS;
   const POLE_HALF_LEN = 0.5; // actual physics length
   const POLE_MASS_LENGTH = POLE_MASS * POLE_HALF_LEN;
-  const FORCE_MAG = 10.0; // push force magnitude
+  const FORCE_MAG = 20.0; // push force magnitude (RL ke liye — zyada force = zyada authority)
+  const MANUAL_FORCE_MIN = 6.0; // manual mode: minimum force (tap/initial)
+  const MANUAL_FORCE_MAX = 25.0; // manual mode: max force (hold karne pe ramp up)
+  const MANUAL_RAMP_MS = 400; // itne ms mein min se max force tak pahunchega
   const DT = 0.02; // euler integration timestep
-  const MAX_STEPS = 500; // ek episode mein max steps — pehle 200 tha, ab zyada seekhne dete hain
-  const TRACK_LIMIT = 2.4; // cart itna door ja sakta hai
-  const ANGLE_LIMIT = 15 * Math.PI / 180; // 15 degrees — pehle 12 tha, thoda zyada margin
+  const MAX_STEPS = 750; // 15 seconds at DT=0.02 — ye objective hai, 15 sec balance = solved
+  const TRACK_LIMIT = 4.0; // cart itna door ja sakta hai (pehle 2.4 tha — ab zyada space)
+  const ANGLE_LIMIT = 45 * Math.PI / 180; // 45 degrees — bahut margin, human playable
 
   // --- Canvas dimensions (CSS pixels mein, DPR se multiply nahi) ---
   const MAIN_HEIGHT = 300;
@@ -33,9 +36,9 @@ export function initCartPole() {
   // --- Neural Network parameters ---
   // tanh activation, 4 inputs, 16 hidden (pehle 8 tha — too small), 2 outputs
   const INPUT_SIZE = 4;
-  const HIDDEN_SIZE = 16;
+  const HIDDEN_SIZE = 32; // 16 se badhaaya — wider state space handle karne ke liye
   const OUTPUT_SIZE = 2;
-  const LEARNING_RATE = 0.02; // pehle 0.01 tha — bahut slow seekhta tha
+  const LEARNING_RATE = 0.005; // batch gradient + shaped reward ke saath 0.005 stable hai
 
   // --- Training state ---
   let episode = 0;
@@ -54,9 +57,11 @@ export function initCartPole() {
   // speed control — 1x, 5x, 20x steps per frame
   let speedMultiplier = 1;
   let manualMode = false;
-  // manual action: 0 = left, 1 = right — default last direction yaad rakhenge
-  // pehle -1 tha default jo hamesha right push karta tha (bug #2)
-  let manualAction = 0; // default left, jab tak koi key na dabaaye
+  // real-time control: track which keys are currently HELD
+  // -1 = no key held (no force), 0 = left held, 1 = right held
+  let manualAction = -1;
+  let leftHeld = false, rightHeld = false;
+  let holdStartTime = 0; // variable acceleration — jab se key hold kiya
 
   // animation state — properly managed with IntersectionObserver
   let animationId = null;
@@ -142,23 +147,36 @@ export function initCartPole() {
     return { action, logProb, hidden, probs };
   }
 
-  // --- REINFORCE update — episode khatam hone pe weights update kar ---
-  // proper discounted returns with baseline normalization
+  // --- State normalization — sabko [-1, 1] range mein laao ---
+  // bina normalize ke cartX (~4) aur poleAngle (~0.7) mein 5x scale difference hai
+  // gradient unbalanced ho jaata hai — network ek feature zyada sunega
+  function normalizeState(state) {
+    return [
+      state[0] / TRACK_LIMIT,     // cartX: [-4, 4] → [-1, 1]
+      state[1] / 5.0,             // cartVel: roughly [-5, 5] → [-1, 1]
+      state[2] / ANGLE_LIMIT,     // poleAngle: [-0.785, 0.785] → [-1, 1]
+      state[3] / 5.0              // poleAngVel: roughly [-5, 5] → [-1, 1]
+    ];
+  }
+
+  // --- REINFORCE update — BATCH gradient accumulation ---
+  // PEHLE KAISE THA (GALAT): har timestep pe weights update kar rahe the LOOP ke andar
+  //   → t=0 pe weights change → t=1 pe forward pass GALAT weights se → gradient noise
+  //   → 2000 steps mein weights completely destroy ho jaate the
+  // AB KAISE HAI (SAHI): saare gradients pehle accumulate karo, fir EK BAAR apply karo
   function updatePolicy() {
     if (savedLogProbs.length === 0) return;
 
-    // returns calculate kar — discount factor 0.99
     const gamma = 0.99;
     const T = savedLogProbs.length;
     const returns = new Array(T);
     let R = 0;
-    // ulta loop — future rewards discount karke add kar
     for (let t = T - 1; t >= 0; t--) {
       R = savedRewards[t] + gamma * R;
       returns[t] = R;
     }
 
-    // normalize kar returns ko — training stable rehti hai
+    // normalize returns — mean=0, std=1
     const mean = returns.reduce((a, b) => a + b, 0) / T;
     const variance = returns.reduce((a, b) => a + (b - mean) ** 2, 0) / T;
     const std = Math.sqrt(variance) + 1e-8;
@@ -166,63 +184,90 @@ export function initCartPole() {
       returns[i] = (returns[i] - mean) / std;
     }
 
-    // ab har step ke liye gradient calculate kar aur weights update kar
-    // REINFORCE: delta_W = lr * return_t * grad(log_pi(a|s))
+    // gradient accumulators — ZERO initialize
+    const gW1 = Array.from({ length: INPUT_SIZE }, () => new Array(HIDDEN_SIZE).fill(0));
+    const gb1 = new Array(HIDDEN_SIZE).fill(0);
+    const gW2 = Array.from({ length: HIDDEN_SIZE }, () => new Array(OUTPUT_SIZE).fill(0));
+    const gb2a = new Array(OUTPUT_SIZE).fill(0);
+
+    // SAARE timesteps ka gradient accumulate kar — weights TOUCH NAHI KARNA
     for (let t = 0; t < T; t++) {
       const state = episodeLog[t].state;
       const action = episodeLog[t].action;
       const advantage = returns[t];
 
-      // forward pass fir se kar — hidden activations chahiye gradient ke liye
+      // forward pass — weights UNCHANGED hain, sab consistent hai
       const { hidden, probs } = forward(state);
-
-      // gradient of log probability w.r.t. logits
-      // softmax + cross entropy ka gradient: (one_hot - probs)
       const dLogits = probs.map((p, i) => (i === action ? 1 - p : -p));
 
-      const lr = LEARNING_RATE;
-
-      // W2 update: hidden^T * dLogits * advantage
+      // W2 gradient accumulate
       for (let i = 0; i < HIDDEN_SIZE; i++) {
         for (let j = 0; j < OUTPUT_SIZE; j++) {
-          W2[i][j] += lr * advantage * hidden[i] * dLogits[j];
+          gW2[i][j] += advantage * hidden[i] * dLogits[j];
         }
       }
-      // b2 update
       for (let j = 0; j < OUTPUT_SIZE; j++) {
-        b2[j] += lr * advantage * dLogits[j];
+        gb2a[j] += advantage * dLogits[j];
       }
 
-      // backprop to hidden layer — tanh derivative: 1 - h^2
+      // backprop to hidden — tanh derivative: 1 - h^2
       const dHidden = new Array(HIDDEN_SIZE).fill(0);
       for (let i = 0; i < HIDDEN_SIZE; i++) {
         for (let j = 0; j < OUTPUT_SIZE; j++) {
           dHidden[i] += dLogits[j] * W2[i][j];
         }
-        // tanh derivative: (1 - h^2) — sigmoid wala h*(1-h) hataya (bug #3)
         dHidden[i] *= (1 - hidden[i] * hidden[i]);
       }
 
-      // W1 update
+      // W1 gradient accumulate
       for (let i = 0; i < INPUT_SIZE; i++) {
         for (let j = 0; j < HIDDEN_SIZE; j++) {
-          W1[i][j] += lr * advantage * state[i] * dHidden[j];
+          gW1[i][j] += advantage * state[i] * dHidden[j];
         }
       }
-      // b1 update
       for (let j = 0; j < HIDDEN_SIZE; j++) {
-        b1[j] += lr * advantage * dHidden[j];
+        gb1[j] += advantage * dHidden[j];
       }
     }
+
+    // gradient clipping — norm bahut bada ho toh clip kar, nahi toh weights explode karenge
+    let gradNorm = 0;
+    for (let i = 0; i < INPUT_SIZE; i++)
+      for (let j = 0; j < HIDDEN_SIZE; j++) gradNorm += gW1[i][j] * gW1[i][j];
+    for (let j = 0; j < HIDDEN_SIZE; j++) gradNorm += gb1[j] * gb1[j];
+    for (let i = 0; i < HIDDEN_SIZE; i++)
+      for (let j = 0; j < OUTPUT_SIZE; j++) gradNorm += gW2[i][j] * gW2[i][j];
+    for (let j = 0; j < OUTPUT_SIZE; j++) gradNorm += gb2a[j] * gb2a[j];
+    gradNorm = Math.sqrt(gradNorm);
+
+    const maxNorm = 5.0;
+    const clipScale = gradNorm > maxNorm ? maxNorm / gradNorm : 1.0;
+
+    // EK SINGLE BATCH UPDATE — yahi sahi tarika hai REINFORCE ka
+    const lr = LEARNING_RATE * clipScale;
+    for (let i = 0; i < INPUT_SIZE; i++)
+      for (let j = 0; j < HIDDEN_SIZE; j++) W1[i][j] += lr * gW1[i][j];
+    for (let j = 0; j < HIDDEN_SIZE; j++) b1[j] += lr * gb1[j];
+    for (let i = 0; i < HIDDEN_SIZE; i++)
+      for (let j = 0; j < OUTPUT_SIZE; j++) W2[i][j] += lr * gW2[i][j];
+    for (let j = 0; j < OUTPUT_SIZE; j++) b2[j] += lr * gb2a[j];
   }
 
   // --- Environment reset ---
   function resetEnv() {
-    // chhoti random initial conditions — bilkul center se shuru nahi karna
-    cartX = (Math.random() - 0.5) * 0.1;
-    cartVel = (Math.random() - 0.5) * 0.1;
-    poleAngle = (Math.random() - 0.5) * 0.1;
-    poleAngVel = (Math.random() - 0.5) * 0.1;
+    if (manualMode) {
+      // manual mode — thoda zyada tilt se shuru, interesting ho
+      cartX = (Math.random() - 0.5) * 0.3;
+      cartVel = (Math.random() - 0.5) * 0.2;
+      poleAngle = (Math.random() - 0.5) * 0.4; // ~±11.5 degrees
+      poleAngVel = (Math.random() - 0.5) * 0.3;
+    } else {
+      // RL mode — chhoti initial conditions, nahi toh seekh nahi paayega
+      cartX = (Math.random() - 0.5) * 0.1;
+      cartVel = (Math.random() - 0.5) * 0.1;
+      poleAngle = (Math.random() - 0.5) * 0.1; // ~±2.8 degrees
+      poleAngVel = (Math.random() - 0.5) * 0.1;
+    }
     stepCount = 0;
     episodeDone = false;
     // ye sirf episode ke shuru mein clear hote hain
@@ -232,8 +277,18 @@ export function initCartPole() {
   }
 
   // --- Physics step — Euler integration ---
-  function physicsStep(action) {
-    const force = action === 1 ? FORCE_MAG : -FORCE_MAG;
+  // action: 0 = left, 1 = right, -1 = no force (manual mode mein)
+  // forceOverride: manual mode mein variable force pass karte hain
+  function physicsStep(action, forceOverride) {
+    let force;
+    if (action === -1) {
+      force = 0; // no key held — koi force nahi
+    } else if (forceOverride !== undefined) {
+      force = action === 1 ? forceOverride : -forceOverride;
+    } else {
+      force = action === 1 ? FORCE_MAG : -FORCE_MAG;
+    }
+
     const cosA = Math.cos(poleAngle);
     const sinA = Math.sin(poleAngle);
 
@@ -243,7 +298,7 @@ export function initCartPole() {
       (POLE_HALF_LEN * (4.0 / 3.0 - POLE_MASS * cosA * cosA / TOTAL_MASS));
     const cartAcc = temp - POLE_MASS_LENGTH * angAcc * cosA / TOTAL_MASS;
 
-    // Euler integration — simple but works for this
+    // Euler integration
     cartX += cartVel * DT;
     cartVel += cartAcc * DT;
     poleAngle += poleAngVel * DT;
@@ -256,7 +311,14 @@ export function initCartPole() {
       episodeDone = true;
     }
 
-    return episodeDone ? 0 : 1; // reward: 1 har step alive rehne pe
+    // SHAPED REWARD — sirf +1/0 se REINFORCE bahut slow seekhta hai
+    // angle upright + position center = high reward, marne pe penalty
+    if (episodeDone && stepCount < MAX_STEPS) {
+      return -2.0; // penalty for dying — strong signal "ye galat tha"
+    }
+    const angleReward = 1.0 - Math.abs(poleAngle) / ANGLE_LIMIT;
+    const posReward = 1.0 - Math.abs(cartX) / TRACK_LIMIT;
+    return angleReward * 0.5 + posReward * 0.5;
   }
 
   // --- DOM structure banate hain ---
@@ -389,36 +451,55 @@ export function initCartPole() {
     if (manualMode) {
       manualBtn.style.borderColor = 'rgba(74,158,255,0.6)';
       manualBtn.style.color = '#4a9eff';
-      // manual mode start karte waqt current episode ka RL data saaf kar
-      // nahi toh array mismatch ho jaata (bug #6)
+      // reset held state — clean start
+      leftHeld = false;
+      rightHeld = false;
+      manualAction = -1;
+      holdStartTime = 0;
       savedLogProbs = [];
       savedRewards = [];
       episodeLog = [];
     } else {
       manualBtn.style.borderColor = 'rgba(74,158,255,0.25)';
       manualBtn.style.color = '#b0b0b0';
-      // RL mode mein wapas aaye toh fresh episode shuru kar
+      leftHeld = false;
+      rightHeld = false;
+      manualAction = -1;
       resetEnv();
     }
   });
 
-  // keyboard controls — manual mode ke liye arrow keys
-  // BUG #2 FIX: manualAction default 0 hai, aur last pressed direction yaad rakhte hain
-  // keyup pe -1 nahi karte — last direction hold hota hai
+  // keyboard controls — REAL-TIME hold: keydown start, keyup stop
+  // jab tak key dabaya tab tak force, chhodha toh zero force
+  function updateManualAction() {
+    const prevAction = manualAction;
+    if (leftHeld && !rightHeld) manualAction = 0;
+    else if (rightHeld && !leftHeld) manualAction = 1;
+    else manualAction = -1; // no key or both keys = no force
+    // agar direction badla toh hold timer reset kar
+    if (manualAction !== prevAction && manualAction !== -1) {
+      holdStartTime = performance.now();
+    }
+  }
+
   document.addEventListener('keydown', (e) => {
     if (!manualMode || !isVisible) return;
-    if (e.key === 'ArrowLeft') { manualAction = 0; e.preventDefault(); }
-    if (e.key === 'ArrowRight') { manualAction = 1; e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { leftHeld = true; e.preventDefault(); updateManualAction(); }
+    if (e.key === 'ArrowRight') { rightHeld = true; e.preventDefault(); updateManualAction(); }
   });
-  // keyup pe kuch nahi karna — last direction yaad rakhna hai
+  document.addEventListener('keyup', (e) => {
+    if (!manualMode) return;
+    if (e.key === 'ArrowLeft') { leftHeld = false; updateManualAction(); }
+    if (e.key === 'ArrowRight') { rightHeld = false; updateManualAction(); }
+  });
 
-  // --- Canvas pe touch/click buttons — mobile users ke liye ---
+  // --- Canvas pe touch/click — mobile users ke liye ---
   // left half = LEFT, right half = RIGHT
-  function handleCanvasInput(e) {
+  // mousedown/touchstart = start push, mouseup/touchend = stop push
+  function handleCanvasDown(e) {
     if (!manualMode) return;
     e.preventDefault();
     const rect = mainCanvas.getBoundingClientRect();
-    // touch ya mouse — dono handle kar
     let clientX;
     if (e.touches && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
@@ -426,11 +507,26 @@ export function initCartPole() {
       clientX = e.clientX;
     }
     const relX = clientX - rect.left;
-    // left half = action 0 (left push), right half = action 1 (right push)
-    manualAction = relX < rect.width / 2 ? 0 : 1;
+    if (relX < rect.width / 2) {
+      leftHeld = true;
+    } else {
+      rightHeld = true;
+    }
+    updateManualAction();
   }
-  mainCanvas.addEventListener('mousedown', handleCanvasInput);
-  mainCanvas.addEventListener('touchstart', handleCanvasInput, { passive: false });
+  function handleCanvasUp(e) {
+    if (!manualMode) return;
+    // sab release kar do
+    leftHeld = false;
+    rightHeld = false;
+    updateManualAction();
+  }
+  mainCanvas.addEventListener('mousedown', handleCanvasDown);
+  mainCanvas.addEventListener('mouseup', handleCanvasUp);
+  mainCanvas.addEventListener('mouseleave', handleCanvasUp);
+  mainCanvas.addEventListener('touchstart', handleCanvasDown, { passive: false });
+  mainCanvas.addEventListener('touchend', handleCanvasUp);
+  mainCanvas.addEventListener('touchcancel', handleCanvasUp);
 
   // --- Canvas resize handling ---
   // BUG #7 FIX: setTransform use karenge, har jagah manual dpr multiply nahi
@@ -556,9 +652,17 @@ export function initCartPole() {
     ctx.fillStyle = 'rgba(176,176,176,0.6)';
     ctx.textAlign = 'left';
     if (manualMode) {
-      ctx.fillText('Arrow keys / tap canvas to control', 10, 20);
+      ctx.fillText('Hold arrow keys / tap & hold to push', 10, 20);
+      // force indicator — dikhao kitni force lag rahi hai
+      if (manualAction !== -1) {
+        const holdDuration = performance.now() - holdStartTime;
+        const ramp = Math.min(1, holdDuration / MANUAL_RAMP_MS);
+        const forcePercent = Math.round((MANUAL_FORCE_MIN + (MANUAL_FORCE_MAX - MANUAL_FORCE_MIN) * ramp) / MANUAL_FORCE_MAX * 100);
+        ctx.fillStyle = 'rgba(74,158,255,0.5)';
+        ctx.fillText('Force: ' + forcePercent + '%', 10, 36);
+      }
     } else {
-      ctx.fillText('RL agent training...', 10, 20);
+      ctx.fillText('RL training — goal: 15s balance', 10, 20);
     }
 
     // on-canvas buttons — manual mode mein LEFT aur RIGHT buttons dikhao
@@ -570,29 +674,30 @@ export function initCartPole() {
       const btnLeftX = 15;
       const btnRightX = w - 15 - btnW;
 
-      // LEFT button
-      ctx.fillStyle = manualAction === 0 ? 'rgba(74,158,255,0.35)' : 'rgba(74,158,255,0.12)';
-      ctx.strokeStyle = 'rgba(74,158,255,0.4)';
-      ctx.lineWidth = 1;
+      // LEFT button — highlight jab held
+      ctx.fillStyle = leftHeld ? 'rgba(74,158,255,0.45)' : 'rgba(74,158,255,0.12)';
+      ctx.strokeStyle = leftHeld ? 'rgba(74,158,255,0.7)' : 'rgba(74,158,255,0.4)';
+      ctx.lineWidth = leftHeld ? 2 : 1;
       ctx.beginPath();
       ctx.roundRect(btnLeftX, btnY, btnW, btnH, 6);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = manualAction === 0 ? '#ffffff' : 'rgba(176,176,176,0.7)';
+      ctx.fillStyle = leftHeld ? '#ffffff' : 'rgba(176,176,176,0.7)';
       ctx.font = '12px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('\u2190 LEFT', btnLeftX + btnW / 2, btnY + btnH / 2 + 4);
 
       // RIGHT button
-      ctx.fillStyle = manualAction === 1 ? 'rgba(74,158,255,0.35)' : 'rgba(74,158,255,0.12)';
-      ctx.strokeStyle = 'rgba(74,158,255,0.4)';
+      ctx.fillStyle = rightHeld ? 'rgba(74,158,255,0.45)' : 'rgba(74,158,255,0.12)';
+      ctx.strokeStyle = rightHeld ? 'rgba(74,158,255,0.7)' : 'rgba(74,158,255,0.4)';
+      ctx.lineWidth = rightHeld ? 2 : 1;
       ctx.beginPath();
       ctx.roundRect(btnRightX, btnY, btnW, btnH, 6);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = manualAction === 1 ? '#ffffff' : 'rgba(176,176,176,0.7)';
+      ctx.fillStyle = rightHeld ? '#ffffff' : 'rgba(176,176,176,0.7)';
       ctx.textAlign = 'center';
       ctx.fillText('RIGHT \u2192', btnRightX + btnW / 2, btnY + btnH / 2 + 4);
     }
@@ -618,7 +723,7 @@ export function initCartPole() {
       ctx.font = '11px monospace';
       ctx.fillStyle = 'rgba(176,176,176,0.4)';
       ctx.textAlign = 'center';
-      ctx.fillText('Reward graph \u2014 training shuru hone do...', w / 2, h / 2);
+      ctx.fillText('Balance time \u2014 training shuru hone do...', w / 2, h / 2);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       return;
     }
@@ -644,13 +749,13 @@ export function initCartPole() {
       ctx.stroke();
     }
 
-    // y-axis labels — 500 max ke hisaab se labels
+    // y-axis labels — time in seconds
     ctx.font = '9px monospace';
     ctx.fillStyle = 'rgba(176,176,176,0.4)';
     ctx.textAlign = 'right';
-    [0, 125, 250, 375, 500].forEach(v => {
+    [0, 187, 375, 562, 750].forEach(v => {
       const yy = padT + plotH * (1 - v / maxReward);
-      ctx.fillText(v.toString(), padL - 5, yy + 3);
+      ctx.fillText((v * DT).toFixed(0) + 's', padL - 5, yy + 3);
     });
 
     // reward line draw kar
@@ -691,14 +796,16 @@ export function initCartPole() {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
-  // --- Stats update — DOM safe way, no innerHTML ---
-  function updateStats() {
-    const lastReward = rewardHistory.length > 0 ? rewardHistory[rewardHistory.length - 1] : 0;
+  // --- Stats update — time-based display ---
+  function stepsToTime(steps) {
+    return (steps * DT).toFixed(1) + 's';
+  }
 
-    // pehle saaf kar
+  function updateStats() {
+    const lastSteps = rewardHistory.length > 0 ? rewardHistory[rewardHistory.length - 1] : 0;
+
     while (statsDiv.firstChild) statsDiv.removeChild(statsDiv.firstChild);
 
-    // helper — label:value span pair bana
     function addStat(label, value, color) {
       const span = document.createElement('span');
       span.textContent = label;
@@ -710,15 +817,17 @@ export function initCartPole() {
     }
 
     addStat('Episode: ', episode, '#4a9eff');
-    addStat('Reward: ', lastReward, '#4a9eff');
-    addStat('Best: ', bestReward, '#4aff8f');
+    addStat('Time: ', stepsToTime(lastSteps), '#4a9eff');
+    addStat('Best: ', stepsToTime(bestReward), bestReward >= MAX_STEPS ? '#4aff8f' : '#4a9eff');
+    if (bestReward >= MAX_STEPS) {
+      addStat('', ' SOLVED!', '#4aff8f');
+    }
   }
 
   // --- Training loop — ek episode ka ek step ---
   function trainingStep() {
     if (episodeDone) {
-      // episode khatam — policy update kar aur naya episode shuru kar
-      // SIRF RL mode mein policy update karo (bug #6 — manual mode mein savedRewards accumulate hota tha)
+      // episode khatam — policy update aur naya episode
       if (!manualMode) {
         updatePolicy();
       }
@@ -734,31 +843,31 @@ export function initCartPole() {
       return;
     }
 
-    // current state bana — ye 4 values neural net ko milenge
-    const state = [cartX, cartVel, poleAngle, poleAngVel];
+    const rawState = [cartX, cartVel, poleAngle, poleAngVel];
+    const state = normalizeState(rawState);
 
-    let action;
     if (manualMode) {
-      // manual mode — arrow keys / touch se control
-      // BUG #2 FIX: manualAction ab hamesha 0 ya 1 hai (last pressed direction)
-      // pehle -1 default tha jo hamesha action=1 (right) deta tha
-      action = manualAction;
-      // manual mode mein RL arrays ko touch mat kar — clean isolation (bug #6)
+      // REAL-TIME manual control — hold key = push, release = no force
+      const action = manualAction; // -1 (none), 0 (left), 1 (right)
+      if (action === -1) {
+        // koi key nahi dabaya — zero force, pole apne physics pe depend karega
+        physicsStep(-1);
+      } else {
+        // variable acceleration — jitna zyada hold karo utna strong push
+        const holdDuration = performance.now() - holdStartTime;
+        const ramp = Math.min(1, holdDuration / MANUAL_RAMP_MS);
+        const currentForce = MANUAL_FORCE_MIN + (MANUAL_FORCE_MAX - MANUAL_FORCE_MIN) * ramp;
+        physicsStep(action, currentForce);
+      }
     } else {
-      // neural network se action lo
+      // RL mode — neural network se action lo
       const result = selectAction(state);
-      action = result.action;
+      const action = result.action;
 
-      // REINFORCE ke liye data store kar — SIRF RL mode mein
       savedLogProbs.push(result.logProb);
       episodeLog.push({ state: state.slice(), action });
-    }
 
-    // physics step chala — reward milega
-    const reward = physicsStep(action);
-
-    // reward SIRF RL mode mein save kar — manual mein nahi (bug #6)
-    if (!manualMode) {
+      const reward = physicsStep(action);
       savedRewards.push(reward);
     }
   }
