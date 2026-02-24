@@ -513,7 +513,7 @@ ul, ol {
 /* hero photo */
 .hero-photo-container {
   flex: 0 0 auto;
-  width: clamp(200px, 28vw, 320px);
+  width: clamp(160px, 20vw, 240px);
   aspect-ratio: 3 / 4;
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -1072,7 +1072,7 @@ ul, ol {
 }
 
 .about-photo {
-  width: clamp(140px, 18vw, 200px);
+  width: clamp(180px, 24vw, 280px);
   aspect-ratio: 1;
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -2428,7 +2428,7 @@ ul, ol {
   }
 
   .hero-photo-container {
-    width: clamp(180px, 50vw, 260px);
+    width: clamp(140px, 40vw, 200px);
     order: -1;
   }
 

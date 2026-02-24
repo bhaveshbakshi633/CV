@@ -347,12 +347,16 @@ export function initProjectile() {
     currentAngle = Math.max(ANGLE_MIN, Math.min(ANGLE_MAX, currentAngle));
     currentVel = Math.max(VEL_MIN, Math.min(VEL_MAX, currentVel));
 
-    const { points } = simulateTrajectory(currentAngle, currentVel);
-    trajectoryHistory.push({ points, loss: g.loss, angle: currentAngle, vel: currentVel });
+    // FIXED: simulate with NEW params aur ACTUAL loss compute karo
+    // pehle g.loss (purane params ka) store ho raha tha — trajectory naye params ki thi
+    // isse best selection galat hoti thi
+    const { points, landX } = simulateTrajectory(currentAngle, currentVel);
+    const actualLoss = Math.abs(landX - targetPhysX);
+    trajectoryHistory.push({ points, loss: actualLoss, angle: currentAngle, vel: currentVel });
 
-    // best track karo
-    if (g.loss < bestLoss) {
-      bestLoss = g.loss;
+    // best track karo — actual loss se compare
+    if (actualLoss < bestLoss) {
+      bestLoss = actualLoss;
       bestAngle = currentAngle;
       bestVel = currentVel;
     }
@@ -362,7 +366,7 @@ export function initProjectile() {
       hasConverged = true;
     }
 
-    gradientPath.push({ angle: currentAngle, vel: currentVel, loss: g.loss });
+    gradientPath.push({ angle: currentAngle, vel: currentVel, loss: actualLoss });
     iteration++;
     updateStats();
   }
