@@ -17,13 +17,8 @@ import { initCartPole } from './games/cartpole.js';
 import { initBandit } from './games/bandit.js';
 import { initMaze } from './games/maze.js';
 import { initRobotNav } from './games/robot-nav.js';
-import { initKalman } from './games/kalman.js';
-import { initIKPlayground } from './games/ik-playground.js';
 import { initProjectile } from './games/projectile.js';
 import { initNBody } from './games/nbody.js';
-import { initFFT } from './games/fft.js';
-import { initCircuit } from './games/circuit.js';
-import { initSensorFusion } from './games/sensor-fusion.js';
 import { initCursorTrail, initSectionBeams, initBootSequence, initAchievements } from './extras.js';
 
 function getAllProjects(data) {
@@ -67,8 +62,6 @@ function init() {
   // playable games — each finds its own container
   // real-time control
   initPIDTuner();
-  initKalman();
-  initSensorFusion();
   // learning systems
   initGridworld();
   initCartPole();
@@ -76,10 +69,6 @@ function init() {
   initMaze();
   // human-robot interaction
   initRobotNav();
-  initIKPlayground();
-  // hardware & signal processing
-  initCircuit();
-  initFFT();
   // standalone physics demos
   initProjectile();
   initNBody();
