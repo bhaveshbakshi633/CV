@@ -975,6 +975,8 @@ export function initFFT() {
 
   // --- Animation loop ---
   function animate() {
+    // lab pause: only active sim animates
+    if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
     if (!isVisible) return;
 
     // phase advance karo — waveform animate hoga
@@ -1032,6 +1034,7 @@ export function initFFT() {
   );
 
   observer.observe(container);
+  document.addEventListener('lab:resume', () => { if (isVisible && !animationId) animate(); });
 
   // tab switch pe pause
   document.addEventListener('visibilitychange', () => {

@@ -819,6 +819,8 @@ export function initCircuit() {
   // RENDERING — sab kuch canvas pe draw karo
   // ============================================================
   function draw(timestamp) {
+    // lab pause: only active sim animates
+    if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
     if (!isVisible) {
       animationId = null;
       return;
@@ -1278,6 +1280,7 @@ export function initCircuit() {
     { threshold: 0.1 }
   );
   observer.observe(container);
+  document.addEventListener('lab:resume', () => { if (isVisible && !animationId) draw(); });
 
   // --- Resize listener ---
   const resizeObs = new ResizeObserver(() => {

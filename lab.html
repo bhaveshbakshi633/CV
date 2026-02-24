@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive Learning Lab — 102 browser-based simulations covering physics, AI/ML, control theory, signal processing, and mathematics." />
+  <title>Interactive Lab | Bhavesh Bakshi</title>
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bhaveshbakshi633.github.io/CV/lab.html" />
+  <meta property="og:title" content="Interactive Learning Lab | Bhavesh Bakshi" />
+  <meta property="og:description" content="103 interactive simulations — physics, AI/ML, control theory, signal processing. All running in your browser." />
+  <meta property="og:image" content="https://bhaveshbakshi633.github.io/CV/profile_pic.jpg" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/lab.css" />
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="lab-topbar">
+    <a href="index.html" class="lab-topbar-name">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Bhavesh Bakshi
+    </a>
+    <span class="lab-topbar-divider">/</span>
+    <span class="lab-topbar-page">Interactive Lab</span>
+    <div class="lab-topbar-count">103 simulations</div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="lab-content">
+
+    <!-- Hero -->
+    <section class="lab-hero">
+      <span class="game-badge">INTERACTIVE LEARNING LAB</span>
+      <h1 class="lab-hero-title">Interactive Lab</h1>
+      <p class="lab-hero-subtitle">103 simulations across physics, AI/ML, control theory, signal processing, and math — all running live in your browser. No installs, no libraries, just pure JavaScript.</p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CATEGORY 1: Physics & Dynamics -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lab-category" data-accent="physics">
+      <div class="lab-category-header">
+        <div class="lab-category-accent"></div>
+        <div>
+          <h2>Physics & Dynamics</h2>
+          <p class="lab-category-desc">Classical mechanics, oscillations, waves, collisions, and soft-body physics simulated in real-time.</p>
+        </div>
+      </div>
+
+      <!-- Double Pendulum -->
+      <div class="game-container lab-sim" id="doublePendulumContainer">
+        <div class="game-header">
+          <span class="game-label">Double Pendulum</span>
+          <span class="game-badge">CHAOS</span>
+        </div>
+        <p class="game-desc">Lagrangian mechanics with RK4 integration. Drag to set initial angles, watch chaos unfold with rainbow trails.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A double pendulum is two pendulums attached end-to-end. Despite simple rules, it exhibits chaotic behavior — tiny changes in starting position lead to wildly different trajectories.</p></div>
+            <div><strong>Controls</strong><p>Click and drag either bob to set initial angles. Adjust mass (m1, m2), gravity, trail length, and damping with sliders. Hit Reset to start over.</p></div>
+            <div><strong>The Math</strong><p>Uses Lagrangian mechanics to derive equations of motion, solved with a 4th-order Runge-Kutta integrator. The rainbow trail tracks the second bob's path.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Spring-Mass-Damper -->
+      <div class="game-container lab-sim" id="springMassContainer">
+        <div class="game-header">
+          <span class="game-label">Spring-Mass-Damper</span>
+          <span class="game-badge">INTERACTIVE</span>
+        </div>
+        <p class="game-desc">Under/over/critically damped harmonic oscillator. Adjust mass, spring constant, and damping to see the time response.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A mass on a spring with damping. The damping ratio (ζ) determines behavior: underdamped oscillates, critically damped returns fastest without overshoot, overdamped is sluggish.</p></div>
+            <div><strong>Controls</strong><p>Drag the mass block to displace it, release to simulate. Sliders for mass, spring constant (k), and damping (c). Presets show each regime. Bottom plot shows x(t) over time.</p></div>
+            <div><strong>The Math</strong><p>Solves m·x'' + c·x' + k·x = 0. The damping ratio ζ = c/(2√(mk)) classifies the response. Uses RK4 integration.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Wave Equation -->
+      <div class="game-container lab-sim" id="waveSimContainer">
+        <div class="game-header">
+          <span class="game-label">Wave Equation</span>
+          <span class="game-badge">SIMULATION</span>
+        </div>
+        <p class="game-desc">1D string wave using finite differences. Click to create disturbances, toggle boundary conditions between fixed and free.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A vibrating string modeled by the wave equation u_tt = c²·u_xx. Disturbances propagate, reflect off boundaries, and interfere with each other.</p></div>
+            <div><strong>Controls</strong><p>Click and drag the string to deform it. Toggle boundary conditions: Fixed (reflects inverted), Free (reflects same), Absorbing (waves exit). Presets: Pulse, Sine, Gaussian, Pluck.</p></div>
+            <div><strong>The Math</strong><p>Central finite differences in space and time. Multiple substeps per frame for stability. Color maps displacement (blue=negative, red=positive).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Elastic Collisions -->
+      <div class="game-container lab-sim" id="collisionsContainer">
+        <div class="game-header">
+          <span class="game-label">Elastic Collisions</span>
+          <span class="game-badge">PHYSICS</span>
+        </div>
+        <p class="game-desc">2D elastic collisions with momentum and energy conservation. Drag to launch balls, adjust mass and restitution.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Balls collide and exchange momentum. With restitution=1 (elastic), kinetic energy is perfectly conserved. Lower values simulate inelastic collisions where energy is lost.</p></div>
+            <div><strong>Controls</strong><p>Click and drag to spawn a ball — hold time = mass, drag direction = velocity. Sliders for restitution and gravity. Presets: Pool Break, Newton's Cradle. Watch momentum/energy stats stay conserved.</p></div>
+            <div><strong>The Math</strong><p>Impulse-based collision response: j = -(1+e)·(v_rel·n)/(1/m_a + 1/m_b). Substep integration for accurate detection at high speeds.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Cloth Simulation -->
+      <div class="game-container lab-sim" id="clothContainer">
+        <div class="game-header">
+          <span class="game-label">Cloth Simulation</span>
+          <span class="game-badge">SOFT BODY</span>
+        </div>
+        <p class="game-desc">A grid of particles connected by distance constraints. Grab and drag the cloth, enable wind, pin/unpin corners.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Cloth is modeled as a grid of particles connected by springs (distance constraints). Verlet integration provides stable, realistic motion without explicit velocity tracking.</p></div>
+            <div><strong>Controls</strong><p>Click and drag to grab the cloth. Toggle wind on/off, adjust wind strength. Click corners to pin/unpin them. Right-click or shift+click to tear the cloth at that point.</p></div>
+            <div><strong>The Math</strong><p>Verlet integration: x_new = 2·x - x_old + a·dt². Distance constraints solved iteratively (Jakobsen method). Gravity + wind forces applied each frame.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Verlet Rope -->
+      <div class="game-container lab-sim" id="verletChainContainer">
+        <div class="game-header">
+          <span class="game-label">Verlet Rope</span>
+          <span class="game-badge">PHYSICS</span>
+        </div>
+        <p class="game-desc">Rope and chain physics using Verlet integration. Grab any point and swing it around. Add/remove segments.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A chain of particles connected by fixed-length constraints. Verlet integration naturally handles momentum and inertia, creating realistic rope/chain behavior.</p></div>
+            <div><strong>Controls</strong><p>Click and drag any point on the rope to move it. Toggle between rope (flexible) and bridge (horizontal) modes. Adjust segment count, gravity, and constraint iterations.</p></div>
+            <div><strong>The Math</strong><p>Same Verlet integration as cloth, but 1D chain. More constraint iterations = stiffer rope. Damping applied to prevent infinite oscillation.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Fluid Simulation -->
+      <div class="game-container lab-sim" id="fluidSimContainer">
+        <div class="game-header">
+          <span class="game-label">Fluid Simulation</span>
+          <span class="game-badge">NAVIER-STOKES</span>
+        </div>
+        <p class="game-desc">Interactive fluid dynamics — swirl colorful smoke with your mouse. Real-time Navier-Stokes solver with advection, diffusion, and pressure projection.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>The Navier-Stokes equations govern fluid motion. This solver simulates velocity and density fields on a grid — your mouse injects velocity and dye, creating swirling, turbulent patterns in real-time.</p></div>
+            <div><strong>Controls</strong><p>Move your mouse to inject dye and velocity. Adjust viscosity (fluid thickness), diffusion rate, and color mode. Toggle vorticity confinement for sharper swirls. Clear to reset the field.</p></div>
+            <div><strong>The Math</strong><p>Stam's stable fluid solver: advect → diffuse → project (pressure solve via Gauss-Seidel). Incompressibility enforced via Helmholtz-Hodge decomposition. Vorticity confinement adds curl back to prevent numerical damping.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Falling Sand -->
+      <div class="game-container lab-sim" id="fallingSandContainer">
+        <div class="game-header">
+          <span class="game-label">Falling Sand</span>
+          <span class="game-badge">SANDBOX</span>
+        </div>
+        <p class="game-desc">Paint with elements — sand, water, fire, oil, plant, stone — and watch them interact. Emergent physics from simple cellular automata rules.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Each pixel is an element with simple rules: sand falls and piles, water flows sideways, fire rises and burns, oil floats on water, plants grow toward light. Complex emergent behavior from simple local interactions.</p></div>
+            <div><strong>Controls</strong><p>Select an element from the palette. Click/drag to paint on the canvas. Adjust brush size. Elements interact: water extinguishes fire, fire burns oil and plants, sand displaces water. Clear to reset.</p></div>
+            <div><strong>The Math</strong><p>Cellular automaton with per-element update rules. Sand: swap with empty/water below. Water: flow to sides if can't fall. Fire: probabilistic spread + lifetime decay. Processed bottom-up with randomized horizontal scan to prevent directional bias.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Particle Life -->
+      <div class="game-container lab-sim" id="particleLifeContainer">
+        <div class="game-header">
+          <span class="game-label">Particle Life</span>
+          <span class="game-badge">EMERGENCE</span>
+        </div>
+        <p class="game-desc">Colored particles with simple attraction/repulsion rules create complex, lifelike emergent behavior. No intelligence, just physics.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Each color group has attraction/repulsion forces toward every other color. Simple rules create emergent patterns — clusters, chains, orbits, and cell-like structures appear spontaneously.</p></div>
+            <div><strong>Controls</strong><p>Click the matrix cells to randomize attraction rules. Adjust particle count, friction, and interaction radius. Preset rule sets create different "life" patterns. Click canvas to scatter particles.</p></div>
+            <div><strong>The Math</strong><p>Force between particles: F = attraction × ramp_function(distance/radius). Each color pair has its own attraction value (-1 to +1). Velocity damped by friction each frame.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Electric Field -->
+      <div class="game-container lab-sim" id="electricFieldContainer">
+        <div class="game-header">
+          <span class="game-label">Electric Field</span>
+          <span class="game-badge">E&M</span>
+        </div>
+        <p class="game-desc">Place positive and negative charges — watch electric field lines and equipotential contours form in real-time.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Electric charges create fields that exert forces on other charges. Field lines show direction, density shows strength. Equipotential lines show surfaces of constant voltage — always perpendicular to field lines.</p></div>
+            <div><strong>Controls</strong><p>Click to place positive charge, shift+click for negative. Drag charges to reposition. Toggle field lines, equipotentials, and vector field display. Adjust charge magnitude. Right-click to remove.</p></div>
+            <div><strong>The Math</strong><p>Coulomb's law: E = kQ/r². Superposition: total field = vector sum of all charges. Field lines traced via RK4 integration. Potential V = kQ/r, contours found by marching squares.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Gravity Sandbox -->
+      <div class="game-container lab-sim" id="gravityContainer">
+        <div class="game-header">
+          <span class="game-label">Gravity Sandbox</span>
+          <span class="game-badge">ORBITS</span>
+        </div>
+        <p class="game-desc">Place stars and planets — watch gravitational orbits form. Bodies merge on collision, creating solar systems from chaos.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Newton's law of gravitation: every mass attracts every other mass. From simple gravity emerges elegant orbital mechanics — ellipses, slingshots, binary stars, and chaotic multi-body dances.</p></div>
+            <div><strong>Controls</strong><p>Click and drag to place a body — drag length sets initial velocity. Hold shift for larger mass. Bodies merge on collision (conserving momentum). Presets: Binary Star, Solar System, Figure-8. Toggle trails.</p></div>
+            <div><strong>The Math</strong><p>F = G·m₁·m₂/r². Velocity Verlet integration for energy conservation. Collision: merge when distance < r₁+r₂, new mass = m₁+m₂, new velocity from momentum conservation.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Brownian Motion -->
+      <div class="game-container lab-sim" id="brownianContainer">
+        <div class="game-header">
+          <span class="game-label">Brownian Motion</span>
+          <span class="game-badge">STATISTICAL</span>
+        </div>
+        <p class="game-desc">Watch particles do random walks — the foundation of diffusion, stock prices, and statistical mechanics. Track mean squared displacement.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Brownian motion: particles buffeted by invisible molecules take random walks. Einstein showed this proves atoms exist. The mean squared displacement grows linearly with time — a fundamental result in physics.</p></div>
+            <div><strong>Controls</strong><p>Adjust particle count, step size, and temperature. Toggle trail rendering. Watch the MSD plot grow linearly. Click to add a large tracked particle that shows its full random walk path.</p></div>
+            <div><strong>The Math</strong><p>Each step: Δx = N(0,σ), Δy = N(0,σ) where σ ~ √(kT). Mean squared displacement: ⟨r²⟩ = 4Dt where D = kT/(6πηa). Einstein relation connects microscopic to macroscopic.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Soft Body Physics -->
+      <div class="game-container lab-sim" id="softBodyContainer">
+        <div class="game-header">
+          <span class="game-label">Soft Body Physics</span>
+          <span class="game-badge">DEFORMABLE</span>
+        </div>
+        <p class="game-desc">Pressure-based soft bodies — squishy, bouncy blobs that deform on impact, squeeze through gaps, and jiggle realistically. Throw them around!</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Soft bodies are modeled as spring-mass systems with internal pressure. Particles connected by springs form the surface, while pressure force pushes outward to maintain volume. The interplay creates realistic deformation.</p></div>
+            <div><strong>Controls</strong><p>Click to spawn new bodies, drag to throw. Adjust pressure, stiffness, and damping. Toggle gravity. Watch bodies bounce, squish, and interact with obstacles.</p></div>
+            <div><strong>The Math</strong><p>F_spring = -k(|x|-L)x̂ - bv. F_pressure = P·n·A/n_particles where P = nRT/V (ideal gas law). Volume computed via shoelace formula. Verlet integration for stability.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Rigid Body 2D -->
+      <div class="game-container lab-sim" id="rigidBodyContainer">
+        <div class="game-header">
+          <span class="game-label">Rigid Body 2D</span>
+          <span class="game-badge">COLLISION</span>
+        </div>
+        <p class="game-desc">Stack boxes, drop polygons, watch them tumble — full 2D rigid body physics with rotation, friction, and restitution. Build towers and knock them down.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Rigid body simulation with the Separating Axis Theorem (SAT) for collision detection between convex polygons. Impulse-based resolution handles bouncing and friction. Rotational inertia makes tumbling realistic.</p></div>
+            <div><strong>Controls</strong><p>Click to drop shapes (box, triangle, pentagon, hexagon). Drag to throw. Adjust gravity, restitution (bounciness), and friction. Clear all or spawn a tower preset.</p></div>
+            <div><strong>The Math</strong><p>SAT: project shapes onto every edge normal, find overlap. Impulse: j = -(1+e)v_rel·n / (1/m₁ + 1/m₂ + (r×n)²/I). Torque: τ = r × F. Angular: I = Σmr² for polygon.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Optics Bench -->
+      <div class="game-container lab-sim" id="opticsContainer">
+        <div class="game-header">
+          <span class="game-label">Optics Bench</span>
+          <span class="game-badge">LIGHT</span>
+        </div>
+        <p class="game-desc">A virtual optical bench — place mirrors, lenses, and prisms to bend light rays. See Snell's law in action, total internal reflection, and chromatic dispersion through prisms.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Geometric optics simulation with ray tracing. Light rays reflect off mirrors (angle in = angle out), refract through lenses (converging/diverging), and split through prisms (dispersion). Snell's law governs all refractions.</p></div>
+            <div><strong>Controls</strong><p>Place flat/curved mirrors, convex/concave lenses, and triangular prisms on the bench. Drag to reposition, rotate with handles. Adjust light source angle and number of rays. Toggle wavelength-dependent dispersion.</p></div>
+            <div><strong>The Math</strong><p>Snell's law: n₁sinθ₁ = n₂sinθ₂. Total internal reflection when sinθ > n₂/n₁. Thin lens: 1/f = 1/do + 1/di. Dispersion: n(λ) varies with wavelength — violet bends more than red.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Magnetic Field -->
+      <div class="game-container lab-sim" id="magneticFieldContainer">
+        <div class="game-header">
+          <span class="game-label">Magnetic Field</span>
+          <span class="game-badge">ELECTROMAGNETISM</span>
+        </div>
+        <p class="game-desc">Place bar magnets and watch field lines form — see attraction, repulsion, and how compass needles align. The invisible force made visible.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Magnetic dipole fields computed from first principles. Each magnet is a dipole with north/south poles. Field lines traced via RK4 integration from north to south. Compass needles show local field direction and strength.</p></div>
+            <div><strong>Controls</strong><p>Click to place magnets, drag to move. Rotate magnets with scroll wheel. Toggle field lines, compass grid, and field strength heatmap. Flip polarity with double-click. Presets: attraction, repulsion, quadrupole.</p></div>
+            <div><strong>The Math</strong><p>B = (μ₀/4π)(3(m·r̂)r̂ - m)/r³ for each dipole. Total field: superposition. Field lines: dr/ds = B(r)/|B(r)| integrated with RK4. Torque on compass: τ = m × B.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Ripple Tank -->
+      <div class="game-container lab-sim" id="rippleTankContainer">
+        <div class="game-header">
+          <span class="game-label">Ripple Tank</span>
+          <span class="game-badge">WAVE INTERFERENCE</span>
+        </div>
+        <p class="game-desc">Place wave sources and walls — watch interference patterns, double-slit diffraction, and the Doppler effect unfold in a 2D wave simulation.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Finite difference wave equation on a 2D grid. Point sources oscillate, walls enforce boundary conditions. Superposition creates interference.</p></div>
+            <div><strong>Controls</strong><p>Click to place sources, shift+drag to draw walls. Adjust frequency, wave speed, damping.</p></div>
+            <div><strong>The Math</strong><p>u_next = 2u - u_prev + c²dt²∇²u. Laplacian: u[x±1][y] + u[x][y±1] - 4u.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Magnetic Pendulum Fractal -->
+      <div class="game-container lab-sim" id="magneticPendulumContainer">
+        <div class="game-header">
+          <span class="game-label">Magnetic Pendulum Fractal</span>
+          <span class="game-badge">CHAOS</span>
+        </div>
+        <p class="game-desc">A pendulum swings over 3 colored magnets — the fractal basin map reveals which magnet captures each starting position.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Magnetic pendulum exhibits chaotic basins of attraction. Tiny changes in starting position lead to different endpoints.</p></div>
+            <div><strong>Controls</strong><p>Drag the pendulum to set starting position. Background map colors each pixel by which magnet captures it.</p></div>
+            <div><strong>The Math</strong><p>F_mag = k(r_i - r)/|r_i - r|³ per magnet. Gravity: -g/L × r. Friction: -b×v. RK4 integration.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Quantum Tunneling -->
+      <div class="game-container lab-sim" id="quantumTunnelingContainer">
+        <div class="game-header">
+          <span class="game-label">Quantum Tunneling</span>
+          <span class="game-badge">QUANTUM</span>
+        </div>
+        <p class="game-desc">A wave packet approaches a barrier — classically it should bounce back, but quantum mechanically part tunnels through.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Quantum tunneling: nonzero probability of passing through a classically forbidden barrier.</p></div>
+            <div><strong>Controls</strong><p>Adjust barrier width, height, and particle momentum. Watch the wave packet split.</p></div>
+            <div><strong>The Math</strong><p>∂ψ/∂t = -iĤψ/ℏ. Gaussian packet. Crank-Nicolson integration. T ≈ exp(-2κd).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Chladni Patterns -->
+      <div class="game-container lab-sim" id="chladniContainer">
+        <div class="game-header">
+          <span class="game-label">Chladni Patterns</span>
+          <span class="game-badge">RESONANCE</span>
+        </div>
+        <p class="game-desc">Vibrating plate with virtual sand — watch stunning geometric patterns form on nodal lines as you sweep through resonance frequencies.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Sand on a vibrating plate settles on nodal lines (zero-displacement points).</p></div>
+            <div><strong>Controls</strong><p>Sweep frequency slider to find resonance modes. Toggle square and circular plates.</p></div>
+            <div><strong>The Math</strong><p>z(x,y) = A·cos(nπx/L)·cos(mπy/L). Sand force: F = -∇|z|.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Galton Board -->
+      <div class="game-container lab-sim" id="galtonBoardContainer">
+        <div class="game-header">
+          <span class="game-label">Galton Board</span>
+          <span class="game-badge">STATISTICS</span>
+        </div>
+        <p class="game-desc">Balls cascade through pegs, bouncing left or right — watch the normal distribution emerge from pure randomness.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Each ball makes N independent left/right choices. By CLT, the sum approaches a Gaussian.</p></div>
+            <div><strong>Controls</strong><p>Adjust rows (5-20), ball drop rate, probability bias. Overlay normal curve.</p></div>
+            <div><strong>The Math</strong><p>P(left) = p. After N levels: Binomial(N,p). CLT in action.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Heat Equation -->
+      <div class="game-container lab-sim" id="heatEquationContainer">
+        <div class="game-header">
+          <span class="game-label">Heat Equation</span>
+          <span class="game-badge">DIFFUSION</span>
+        </div>
+        <p class="game-desc">Paint hot and cold regions on a 2D plate — watch heat spread in real-time following the diffusion equation.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Heat diffuses from hot to cold. Rate depends on thermal conductivity.</p></div>
+            <div><strong>Controls</strong><p>Paint hot (red) and cold (blue) with mouse. Draw insulating walls.</p></div>
+            <div><strong>The Math</strong><p>∂T/∂t = α∇²T. Explicit Euler: T_new = T + αdt(neighbors - 4T).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Ising Model -->
+      <div class="game-container lab-sim" id="isingModelContainer">
+        <div class="game-header">
+          <span class="game-label">Ising Model</span>
+          <span class="game-badge">PHASE TRANSITION</span>
+        </div>
+        <p class="game-desc">Magnetic spin lattice — drag temperature through the critical point and watch order emerge from chaos.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Lattice of +1/-1 spins. Below critical temp: spontaneous magnetization.</p></div>
+            <div><strong>Controls</strong><p>Temperature slider through critical point (~2.27). Apply magnetic field.</p></div>
+            <div><strong>The Math</strong><p>ΔE = 2J·s_i·Σs_j. Metropolis: P = min(1, exp(-ΔE/kT)). kT_c ≈ 2.269.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Brachistochrone Race -->
+      <div class="game-container lab-sim" id="brachistochroneContainer">
+        <div class="game-header">
+          <span class="game-label">Brachistochrone Race</span>
+          <span class="game-badge">VARIATIONAL</span>
+        </div>
+        <p class="game-desc">Race balls down different curves — the shortest time path is NOT the shortest distance!</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Find the curve of fastest descent under gravity. Answer: a cycloid.</p></div>
+            <div><strong>Controls</strong><p>Watch 4 preset curves race. Draw your own curve.</p></div>
+            <div><strong>The Math</strong><p>Cycloid: x = r(θ - sinθ), y = r(1 - cosθ). Euler-Lagrange solution.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Pendulum Wave -->
+      <div class="game-container lab-sim" id="pendulumWaveContainer">
+        <div class="game-header">
+          <span class="game-label">Pendulum Wave</span>
+          <span class="game-badge">OSCILLATION</span>
+        </div>
+        <p class="game-desc">15 pendulums of slightly different lengths create traveling waves, standing waves, and apparent chaos.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Independent pendulums with carefully chosen lengths create beating patterns.</p></div>
+            <div><strong>Controls</strong><p>Start/pause. Adjust count (10-25). Change cycle period.</p></div>
+            <div><strong>The Math</strong><p>T_k = T_cycle/(N_base + k). θ_k(t) = A·cos(2πt/T_k).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Doppler Effect -->
+      <div class="game-container lab-sim" id="dopplerContainer">
+        <div class="game-header">
+          <span class="game-label">Doppler Effect</span>
+          <span class="game-badge">WAVES</span>
+        </div>
+        <p class="game-desc">A moving source emits wavefronts — watch them compress ahead and stretch behind. See Mach cones.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Moving source: wavefronts bunch up in front and spread behind.</p></div>
+            <div><strong>Controls</strong><p>Drag source at different speeds. Toggle subsonic/supersonic.</p></div>
+            <div><strong>The Math</strong><p>f_obs = f_src × v_sound/(v_sound ∓ v_src). Mach cone: sin(θ) = 1/M.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Percolation -->
+      <div class="game-container lab-sim" id="percolationContainer">
+        <div class="game-header">
+          <span class="game-label">Percolation</span>
+          <span class="game-badge">PHASE TRANSITION</span>
+        </div>
+        <p class="game-desc">Randomly fill lattice sites — drag probability through the critical threshold and watch spanning clusters form.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Below p_c: isolated clusters. Above p_c: giant connected cluster spans system.</p></div>
+            <div><strong>Controls</strong><p>Probability slider (0 to 1). Spanning cluster highlighted.</p></div>
+            <div><strong>The Math</strong><p>p_c ≈ 0.5927 for square lattice. Union-find cluster detection.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Lorentz Transformation -->
+      <div class="game-container lab-sim" id="lorentzTransformContainer">
+        <div class="game-header">
+          <span class="game-label">Lorentz Transformation</span>
+          <span class="game-badge">RELATIVITY</span>
+        </div>
+        <p class="game-desc">Interactive Minkowski diagram — watch spacetime axes skew and simultaneity break.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Special relativity: space and time mix depending on velocity. Light cones invariant.</p></div>
+            <div><strong>Controls</strong><p>Velocity slider (0 to 0.99c). Place events. Light cones at 45°.</p></div>
+            <div><strong>The Math</strong><p>x′ = γ(x - vt), t′ = γ(t - vx/c²). γ = 1/√(1-v²/c²).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Joukowski Airfoil -->
+      <div class="game-container lab-sim" id="joukowskiContainer">
+        <div class="game-header">
+          <span class="game-label">Joukowski Airfoil</span>
+          <span class="game-badge">AERODYNAMICS</span>
+        </div>
+        <p class="game-desc">Conformal mapping transforms a circle into an airfoil — watch potential flow streamlines.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Joukowski map w = z + 1/z transforms circles into airfoil shapes.</p></div>
+            <div><strong>Controls</strong><p>Drag circle center and radius. Adjust angle of attack.</p></div>
+            <div><strong>The Math</strong><p>w = z + 1/z. Kutta-Joukowski: L = ρUΓ (lift per span).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Abelian Sandpile -->
+      <div class="game-container lab-sim" id="sandpileContainer">
+        <div class="game-header">
+          <span class="game-label">Abelian Sandpile</span>
+          <span class="game-badge">SELF-ORGANIZED</span>
+        </div>
+        <p class="game-desc">Drop millions of grains — watch self-organized criticality produce stunning fractal patterns.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Cell ≥ 4 grains → topple. Produces power-law avalanche distributions.</p></div>
+            <div><strong>Controls</strong><p>Click to drop grains. Speed slider. 4-color grain count.</p></div>
+            <div><strong>The Math</strong><p>z_i ≥ 4: z_i -= 4, z_neighbors += 1. Order-independent.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Chaos Game -->
+      <div class="game-container lab-sim" id="chaosGameContainer">
+        <div class="game-header">
+          <span class="game-label">Chaos Game</span>
+          <span class="game-badge">FRACTAL</span>
+        </div>
+        <p class="game-desc">Pick random vertices, jump a fraction toward them — watch Sierpinski triangles and other fractals emerge.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>N polygon vertices. Random pick, move fraction r toward it, plot.</p></div>
+            <div><strong>Controls</strong><p>Polygon sides (3-12), jump ratio (0.3-0.7). Restriction rules.</p></div>
+            <div><strong>The Math</strong><p>p_new = p_old + r(v_rand - p_old). N=3, r=0.5 → Sierpinski.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Hydraulic Erosion -->
+      <div class="game-container lab-sim" id="hydraulicErosionContainer">
+        <div class="game-header">
+          <span class="game-label">Hydraulic Erosion</span>
+          <span class="game-badge">GEOMORPHOLOGY</span>
+        </div>
+        <p class="game-desc">Rain carves rivers in procedural terrain — watch valleys and deltas form.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Water droplets flow downhill, eroding steep areas, depositing in flat.</p></div>
+            <div><strong>Controls</strong><p>Paint rain areas, raise/lower terrain. Adjust erosion rate.</p></div>
+            <div><strong>The Math</strong><p>Droplet follows -∇h. Erosion ∝ speed × slope × capacity.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Lattice Boltzmann Wind Tunnel -->
+      <div class="game-container lab-sim" id="windTunnelContainer">
+        <div class="game-header">
+          <span class="game-label">Lattice Boltzmann Wind Tunnel</span>
+          <span class="game-badge">FLUID DYNAMICS</span>
+        </div>
+        <p class="game-desc">Draw any shape — watch fluid flow with vortex streets and turbulence.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Lattice Boltzmann: discrete velocity particles. Collide + stream = Navier-Stokes.</p></div>
+            <div><strong>Controls</strong><p>Draw obstacles. Adjust speed and viscosity. View velocity or vorticity.</p></div>
+            <div><strong>The Math</strong><p>D2Q9 model. BGK collision: f_new = f - (f-f_eq)/τ. Re = UL/ν.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Harmonograph -->
+      <div class="game-container lab-sim" id="harmonographContainer">
+        <div class="game-header">
+          <span class="game-label">Harmonograph</span>
+          <span class="game-badge">SHM</span>
+        </div>
+        <p class="game-desc">Coupled damped pendulums trace intricate spiraling patterns — mathematical art.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Two damped oscillators create Lissajous-like spiraling figures.</p></div>
+            <div><strong>Controls</strong><p>Frequency ratios, phase, amplitude, damping sliders. Randomize.</p></div>
+            <div><strong>The Math</strong><p>x(t) = A₁sin(f₁t+φ₁)e^(-d₁t) + A₂sin(f₂t+φ₂)e^(-d₂t).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Orbital Slingshot -->
+      <div class="game-container lab-sim" id="orbitalSlingshotContainer">
+        <div class="game-header">
+          <span class="game-label">Orbital Slingshot</span>
+          <span class="game-badge">ORBITAL MECHANICS</span>
+        </div>
+        <p class="game-desc">Launch spacecraft, slingshot around planets — design gravitational assist trajectories.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Gravitational assists: spacecraft gains energy from planetary flyby.</p></div>
+            <div><strong>Controls</strong><p>Set launch angle and speed. Place planets. Trail colored by velocity.</p></div>
+            <div><strong>The Math</strong><p>a = -GM/r² per body. RK4 integration. ΔV ≈ 2v_planet × sin(θ/2).</p></div>
+          </div>
+        </details>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CATEGORY 2: AI & Machine Learning -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lab-category" data-accent="ai">
+      <div class="lab-category-header">
+        <div class="lab-category-accent"></div>
+        <div>
+          <h2>AI & Machine Learning</h2>
+          <p class="lab-category-desc">Neural networks, clustering, evolutionary algorithms, swarm intelligence, and reinforcement learning — all visualized step by step.</p>
+        </div>
+      </div>
+
+      <!-- Neural Network Playground -->
+      <div class="game-container lab-sim" id="neuralPlaygroundContainer">
+        <div class="game-header">
+          <span class="game-label">Neural Network Playground</span>
+          <span class="game-badge">LIVE TRAINING</span>
+        </div>
+        <p class="game-desc">2D classification with decision boundary heatmap. Add data points, adjust hidden layers and neurons, watch training live.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A feedforward neural network learns to classify 2D points into two classes. The colored heatmap shows the network's decision boundary — where it thinks each class belongs.</p></div>
+            <div><strong>Controls</strong><p>Left click = blue point, right/shift+click = orange point. Choose architecture (hidden layers/neurons). Hit Train to watch the boundary evolve. Presets: Circle, XOR, Spiral, Linear.</p></div>
+            <div><strong>The Math</strong><p>Backpropagation with SGD. Tanh hidden activations, sigmoid output. Binary cross-entropy loss. Heatmap renders network output at each pixel.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- K-Means Clustering -->
+      <div class="game-container lab-sim" id="kmeansContainer">
+        <div class="game-header">
+          <span class="game-label">K-Means Clustering</span>
+          <span class="game-badge">STEP-BY-STEP</span>
+        </div>
+        <p class="game-desc">Step through centroid assignment and update phases. Click to place data points, see Voronoi regions form.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>K-Means partitions data into K clusters. It alternates between assigning points to nearest centroid and moving centroids to cluster means until convergence.</p></div>
+            <div><strong>Controls</strong><p>Click to place points. Choose K (2-8). Step to advance one iteration, or Auto to animate. Presets: Blobs, Moons, Ring, Uniform. Voronoi regions show cluster boundaries.</p></div>
+            <div><strong>The Math</strong><p>Assignment: argmin ||x - μ_k||². Update: μ_k = mean(assigned points). Uses K-Means++ initialization for better starting centroids.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Perceptron + MLP -->
+      <div class="game-container lab-sim" id="perceptronContainer">
+        <div class="game-header">
+          <span class="game-label">Perceptron & MLP</span>
+          <span class="game-badge">INTERACTIVE</span>
+        </div>
+        <p class="game-desc">Single perceptron draws a linear boundary. XOR problem shows why you need hidden layers. Place +/- points to experiment.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A single perceptron can only learn linear boundaries. The XOR problem is non-linear — it proves you need at least one hidden layer (MLP) to solve it. This is a fundamental insight in ML history.</p></div>
+            <div><strong>Controls</strong><p>Click to place +/- points. Toggle Perceptron vs MLP mode. Load XOR preset with Perceptron to see it fail, then switch to MLP to see it succeed. Adjust learning rate and speed.</p></div>
+            <div><strong>The Math</strong><p>Perceptron: w·x + b, sign activation. MLP: input→hidden(tanh)→output(sigmoid) with full backpropagation. Heatmap shows decision boundary.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Backpropagation Visualizer -->
+      <div class="game-container lab-sim" id="backpropContainer">
+        <div class="game-header">
+          <span class="game-label">Backpropagation Visualizer</span>
+          <span class="game-badge">ANIMATED</span>
+        </div>
+        <p class="game-desc">Step through forward and backward passes on a small network. Watch gradients flow backwards and weights update.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Backpropagation is how neural networks learn. The forward pass computes predictions, the backward pass computes gradients (how much each weight contributed to the error), and weights are updated to reduce loss.</p></div>
+            <div><strong>Controls</strong><p>Step Forward → see activations flow left to right. Step Backward → see gradients flow right to left. Update Weights → apply gradient descent. Auto Train cycles through all XOR examples automatically.</p></div>
+            <div><strong>The Math</strong><p>Architecture: 2→3→1. Forward: z=Wx+b, a=activation(z). Backward: chain rule to compute ∂L/∂W. Update: W -= lr·∂L/∂W. Loss decreases over training.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Genetic Algorithm -->
+      <div class="game-container lab-sim" id="geneticContainer">
+        <div class="game-header">
+          <span class="game-label">Genetic Algorithm</span>
+          <span class="game-badge">EVOLUTION</span>
+        </div>
+        <p class="game-desc">Evolve solutions to the Travelling Salesman Problem. Watch generations improve through selection, crossover, and mutation.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Inspired by natural evolution. A population of candidate routes competes — the fittest (shortest) survive and breed. Over generations, routes get shorter through selection pressure.</p></div>
+            <div><strong>Controls</strong><p>Click to add cities. Choose presets (Random 15, Circle, Grid). Adjust mutation rate, population size, crossover rate. Start evolution and watch the best route improve. Speed slider for fast-forward.</p></div>
+            <div><strong>The Math</strong><p>Tournament selection picks parents. Ordered Crossover (OX) preserves city order. Swap mutation adds diversity. Elitism keeps best solutions. Fitness = 1/total_distance.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Multi-Armed Bandit -->
+      <div class="game-container lab-sim" id="banditContainer">
+        <div class="game-header">
+          <span class="game-label">Multi-Armed Bandit</span>
+          <span class="game-badge">ALGORITHMS</span>
+        </div>
+        <p class="game-desc">Compare ε-greedy, UCB1, and Thompson Sampling on slot machines. Watch cumulative regret and average reward over time.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>The explore-exploit dilemma: should you try new slot machines (explore) or stick with the best one found so far (exploit)? Three algorithms tackle this differently.</p></div>
+            <div><strong>Controls</strong><p>Adjust speed (pulls/sec). Toggle "Reveal Truth" to see actual probabilities. Compare how ε-greedy (random exploration), UCB1 (confidence bounds), and Thompson Sampling (Bayesian) perform.</p></div>
+            <div><strong>The Math</strong><p>ε-greedy: random with probability ε. UCB1: pick argmax(mean + √(2·ln(t)/n)). Thompson: sample from Beta(α,β) posterior for each arm.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Epidemic SIR Model -->
+      <div class="game-container lab-sim" id="epidemicContainer">
+        <div class="game-header">
+          <span class="game-label">Epidemic SIR Model</span>
+          <span class="game-badge">SIMULATION</span>
+        </div>
+        <p class="game-desc">Watch a disease spread through a population. Susceptible (blue) → Infected (red) → Recovered (green). Adjust transmission and recovery rates.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>The SIR model divides a population into Susceptible, Infected, and Recovered. Infected individuals spread the disease to nearby susceptible ones. The basic reproduction number R₀ determines if an epidemic grows or dies out.</p></div>
+            <div><strong>Controls</strong><p>Adjust infection radius, transmission probability, recovery time, and population size. Click to infect a specific person. Watch the epidemic curve (infections over time) flatten or spike. Vaccination slider immunizes a percentage of the population.</p></div>
+            <div><strong>The Math</strong><p>dS/dt = -βSI/N, dI/dt = βSI/N - γI, dR/dt = γI. R₀ = β/γ. When R₀ > 1, epidemic grows. Agent-based simulation shows individual interactions.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Boids Flocking -->
+      <div class="game-container lab-sim" id="boidsContainer">
+        <div class="game-header">
+          <span class="game-label">Boids Flocking</span>
+          <span class="game-badge">SWARM</span>
+        </div>
+        <p class="game-desc">Birds flock using three simple rules: separation, alignment, and cohesion. No leader, no central control — just emergence.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Craig Reynolds' Boids (1987): each bird follows 3 local rules — avoid crowding (separation), steer toward average heading (alignment), steer toward average position (cohesion). Flocking emerges from these simple rules alone.</p></div>
+            <div><strong>Controls</strong><p>Adjust sliders for separation, alignment, cohesion weights. Change flock size and visual range. Click to add an obstacle that birds avoid. Toggle predator mode — click to scare the flock.</p></div>
+            <div><strong>The Math</strong><p>Each boid computes steering vectors from nearby neighbors within visual range. Forces are weighted and summed. Speed is clamped. Wrap-around or wall-avoidance at boundaries.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Turing Machine -->
+      <div class="game-container lab-sim" id="turingMachineContainer">
+        <div class="game-header">
+          <span class="game-label">Turing Machine</span>
+          <span class="game-badge">COMPUTATION</span>
+        </div>
+        <p class="game-desc">A visual Turing machine — watch the read/write head traverse an infinite tape, executing simple rules that can compute anything.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Alan Turing's 1936 thought experiment: a machine with a tape, a head, and a finite set of rules. Despite its simplicity, it can compute anything any computer can. The foundation of all computer science.</p></div>
+            <div><strong>Controls</strong><p>Choose a program: Binary Counter, Busy Beaver (3/4-state), Binary Addition, Palindrome Checker. Step through one instruction at a time, or run automatically. Edit the tape and rules directly.</p></div>
+            <div><strong>The Math</strong><p>δ(state, symbol) → (new_symbol, direction, new_state). That's it — read symbol, write symbol, move left/right, change state. Halts when no rule matches. Church-Turing thesis: this is ALL of computation.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Flappy Bird RL -->
+      <div class="game-container lab-sim" id="flappyRLContainer">
+        <div class="game-header">
+          <span class="game-label">Flappy Bird RL</span>
+          <span class="game-badge">REINFORCEMENT LEARNING</span>
+        </div>
+        <p class="game-desc">Watch a REINFORCE agent learn to play Flappy Bird from scratch — see the neural network improve episode by episode until it masters the game.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Policy gradient RL: the agent observes bird position, velocity, and pipe gaps, then outputs a flap probability. After each episode, REINFORCE updates the policy using the reward signal. No Q-tables, just gradient ascent on expected return.</p></div>
+            <div><strong>Controls</strong><p>Watch training automatically, or play yourself with spacebar/click. Adjust learning rate, discount factor, and game speed. View reward plot over episodes. Toggle neural network visualization to see weights evolve.</p></div>
+            <div><strong>The Math</strong><p>∇J(θ) = E[Σ ∇log π(a|s;θ) · G_t]. Policy: π(a|s) = σ(Wx+b). Discount: G_t = Σγ^k r_{t+k}. Baseline subtraction reduces variance. Simple but powerful — this is how AlphaGo started.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- NEAT Neuroevolution -->
+      <div class="game-container lab-sim" id="neatContainer">
+        <div class="game-header">
+          <span class="game-label">NEAT Neuroevolution</span>
+          <span class="game-badge">EVOLUTIONARY AI</span>
+        </div>
+        <p class="game-desc">Evolving neural network topology — watch creatures develop brains from scratch. Networks grow connections and neurons through mutation and crossover.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>NEAT (NeuroEvolution of Augmenting Topologies) evolves both weights AND structure of neural networks. Starts with minimal networks, adds nodes/connections via mutation. Speciation protects innovation. Fitness = survival time avoiding obstacles.</p></div>
+            <div><strong>Controls</strong><p>Watch generations evolve. Adjust population size, mutation rates, and obstacle difficulty. View the champion's network topology in real-time. Species are color-coded. Fitness graph shows improvement.</p></div>
+            <div><strong>The Math</strong><p>Genome: list of node genes + connection genes with innovation numbers. Crossover aligns by innovation #. Distance: δ = c₁E/N + c₂D/N + c₃W̄. Speciation: δ < threshold → same species. Fitness sharing prevents premature convergence.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Ant Colony Optimization -->
+      <div class="game-container lab-sim" id="antColonyContainer">
+        <div class="game-header">
+          <span class="game-label">Ant Colony Optimization</span>
+          <span class="game-badge">SWARM INTELLIGENCE</span>
+        </div>
+        <p class="game-desc">Ants find the shortest path using pheromone trails — watch emergent intelligence as thousands of simple agents collectively solve complex routing problems.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Ant Colony Optimization (ACO): ants wander randomly, leaving pheromone trails. Shorter paths accumulate more pheromone (ants complete them faster). Other ants probabilistically follow stronger trails. Pheromone evaporates over time, preventing stagnation.</p></div>
+            <div><strong>Controls</strong><p>Place food sources and obstacles. Adjust ant count, pheromone strength, evaporation rate. Watch trails form and converge. Toggle pheromone heatmap. Compare with/without pheromone communication.</p></div>
+            <div><strong>The Math</strong><p>P(edge) = τ^α · η^β / Σ(τ^α · η^β) where τ = pheromone, η = 1/distance. Update: τ_new = (1-ρ)τ_old + Σ(Q/L_k). Evaporation rate ρ prevents local optima. Provably converges to optimal path.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Minimax Game Tree -->
+      <div class="game-container lab-sim" id="minimaxContainer">
+        <div class="game-header">
+          <span class="game-label">Minimax Game Tree</span>
+          <span class="game-badge">GAME AI</span>
+        </div>
+        <p class="game-desc">Play tic-tac-toe against a perfect AI — see the minimax game tree unfold with alpha-beta pruning. Watch how the AI evaluates every possible future.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Minimax: assume your opponent plays optimally. Build the full game tree, score leaves (+1 win, -1 loss, 0 draw), propagate scores up — maximizing player picks max, minimizing picks min. Alpha-beta pruning skips branches that can't affect the decision.</p></div>
+            <div><strong>Controls</strong><p>Play X against the AI. Watch the game tree expand in real-time showing all evaluated positions. Pruned branches shown in gray. Toggle alpha-beta pruning on/off to see the speedup. View node count comparison.</p></div>
+            <div><strong>The Math</strong><p>minimax(node) = max(minimax(children)) if maximizing, min otherwise. Alpha-beta: if α ≥ β, prune. Without pruning: O(b^d). With pruning: O(b^(d/2)) — square root speedup. Perfect play: tic-tac-toe always draws.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Snake AI -->
+      <div class="game-container lab-sim" id="snakeAIContainer">
+        <div class="game-header">
+          <span class="game-label">Snake AI</span>
+          <span class="game-badge">PATHFINDING AI</span>
+        </div>
+        <p class="game-desc">Watch an AI master Snake — using Hamiltonian cycles and A* pathfinding to eat every apple and fill the entire board without dying.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Three AI strategies: (1) Greedy A* — finds shortest path to food, fast but dies easily. (2) Hamiltonian cycle — follows a space-filling path, guaranteed to win but slow. (3) Hybrid — uses A* shortcuts on the Hamiltonian cycle, fast AND safe.</p></div>
+            <div><strong>Controls</strong><p>Choose AI strategy (Greedy, Hamiltonian, Hybrid). Adjust game speed. Play manually with arrow keys. Watch the Hamiltonian cycle overlay. Score and survival stats tracked. Grid size adjustable.</p></div>
+            <div><strong>The Math</strong><p>Hamiltonian cycle visits every cell exactly once. A*: f(n) = g(n) + h(n) with Manhattan distance heuristic. Hybrid: take A* shortcut only if it doesn't break the Hamiltonian ordering — guarantees the tail follows.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Convolution Visualizer -->
+      <div class="game-container lab-sim" id="convolutionContainer">
+        <div class="game-header">
+          <span class="game-label">Convolution Visualizer</span>
+          <span class="game-badge">CNN BASICS</span>
+        </div>
+        <p class="game-desc">See how CNNs see — apply convolution kernels to images and watch edges, blurs, and features emerge. The building block of all modern computer vision.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A convolution kernel (3×3 or 5×5 matrix) slides across an image, computing weighted sums at each position. Different kernels detect different features: edges, corners, textures. This is exactly what CNNs learn automatically during training.</p></div>
+            <div><strong>Controls</strong><p>Choose source image or draw your own. Select preset kernels (Sobel edge, Gaussian blur, sharpen, emboss) or edit kernel values manually. Apply multiple kernels in sequence to see feature pipelines. Animate the sliding window.</p></div>
+            <div><strong>The Math</strong><p>(f * k)(x,y) = ΣΣ f(x-i, y-j)·k(i,j). Sobel: detects gradients. Gaussian: weighted average (blur). Laplacian: second derivative (edges). Kernel values are exactly what CNN layers learn via backpropagation.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- GAN Lab -->
+      <div class="game-container lab-sim" id="ganLabContainer">
+        <div class="game-header">
+          <span class="game-label">GAN Lab</span>
+          <span class="game-badge">GENERATIVE AI</span>
+        </div>
+        <p class="game-desc">Generator vs Discriminator — watch a GAN learn to fake a 2D distribution.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Generator creates fakes, Discriminator classifies. They compete until equilibrium.</p></div>
+            <div><strong>Controls</strong><p>Choose target distribution. Step-by-step or auto train. View loss curves.</p></div>
+            <div><strong>The Math</strong><p>min_G max_D V(D,G) = E[log D(x)] + E[log(1-D(G(z)))].</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- MCMC Sampling -->
+      <div class="game-container lab-sim" id="mcmcContainer">
+        <div class="game-header">
+          <span class="game-label">MCMC Sampling</span>
+          <span class="game-badge">BAYESIAN</span>
+        </div>
+        <p class="game-desc">Watch a particle explore a probability landscape — MH vs HMC sampling.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>MCMC: random walks with accept/reject to sample complex distributions.</p></div>
+            <div><strong>Controls</strong><p>Choose distribution. Toggle MH vs HMC. Watch marginal histograms.</p></div>
+            <div><strong>The Math</strong><p>MH: α = min(1, p(x′)/p(x)). HMC: leapfrog integration.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Q-Learning Gridworld -->
+      <div class="game-container lab-sim" id="qLearningContainer">
+        <div class="game-header">
+          <span class="game-label">Q-Learning Gridworld</span>
+          <span class="game-badge">RL FUNDAMENTALS</span>
+        </div>
+        <p class="game-desc">Watch arrows grow as an RL agent learns — Q-Learning vs SARSA comparison.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Q-Learning: off-policy TD. SARSA: on-policy. Cliff-walking difference.</p></div>
+            <div><strong>Controls</strong><p>Design grid: walls, rewards, cliffs. Choose algorithm. ε slider.</p></div>
+            <div><strong>The Math</strong><p>Q(s,a) ← Q(s,a) + α[r + γ·max Q(s′,a′) - Q(s,a)].</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Self-Organizing Map -->
+      <div class="game-container lab-sim" id="somContainer">
+        <div class="game-header">
+          <span class="game-label">Self-Organizing Map</span>
+          <span class="game-badge">UNSUPERVISED</span>
+        </div>
+        <p class="game-desc">A 2D grid of neurons morphs to match data — topology preservation emerges.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Kohonen SOM: BMU and neighbors move toward input. Grid learns topology.</p></div>
+            <div><strong>Controls</strong><p>Choose dataset. Watch grid morph. Toggle color mode.</p></div>
+            <div><strong>The Math</strong><p>BMU: c = argmin ||x - w_i||. Update: w_i ← w_i + α·h(i,c)·(x - w_i).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Hopfield Network -->
+      <div class="game-container lab-sim" id="hopfieldContainer">
+        <div class="game-header">
+          <span class="game-label">Hopfield Network</span>
+          <span class="game-badge">ASSOCIATIVE MEMORY</span>
+        </div>
+        <p class="game-desc">Draw patterns, memorize — corrupt a pattern and watch the network reconstruct it.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Hebbian learning stores patterns as energy minima. Converges to nearest.</p></div>
+            <div><strong>Controls</strong><p>Draw patterns. Memorize. Add noise. Watch reconstruction.</p></div>
+            <div><strong>The Math</strong><p>W_ij = Σ p_i·p_j. s_i = sign(Σ W_ij·s_j). Capacity: ~0.138N.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- t-SNE / UMAP -->
+      <div class="game-container lab-sim" id="tsneContainer">
+        <div class="game-header">
+          <span class="game-label">t-SNE / UMAP</span>
+          <span class="game-badge">DIM REDUCTION</span>
+        </div>
+        <p class="game-desc">Watch high-dimensional clusters untangle in 2D — beautiful cluster structures.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>t-SNE preserves local structure by matching pairwise probabilities.</p></div>
+            <div><strong>Controls</strong><p>Choose dataset. Adjust perplexity. Toggle t-SNE vs UMAP.</p></div>
+            <div><strong>The Math</strong><p>KL: C = Σ p_ij log(p_ij/q_ij). Gradient descent on positions.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Diffusion Model -->
+      <div class="game-container lab-sim" id="diffusionModelContainer">
+        <div class="game-header">
+          <span class="game-label">Diffusion Model</span>
+          <span class="game-badge">GENERATIVE AI</span>
+        </div>
+        <p class="game-desc">See how Stable Diffusion works — data dissolves into noise, then denoises back.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Forward: add noise. Reverse: learned denoising. Score function guides recovery.</p></div>
+            <div><strong>Controls</strong><p>Watch forward + reverse. Step through timesteps. Score arrows.</p></div>
+            <div><strong>The Math</strong><p>x_t = √(α_t)x₀ + √(1-α_t)ε. Reverse learned denoising.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Attention Visualizer -->
+      <div class="game-container lab-sim" id="attentionVizContainer">
+        <div class="game-header">
+          <span class="game-label">Attention Visualizer</span>
+          <span class="game-badge">TRANSFORMERS</span>
+        </div>
+        <p class="game-desc">Type a sentence — see which words attend to which via arcs and heatmaps.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Self-attention: Q,K,V vectors. Weight = softmax(QK^T/√d).</p></div>
+            <div><strong>Controls</strong><p>Type sentence. View arcs or heatmap. Multi-head tabs.</p></div>
+            <div><strong>The Math</strong><p>Attention(Q,K,V) = softmax(QK^T/√d_k)V.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Evolutionary Creatures -->
+      <div class="game-container lab-sim" id="evolutionCreaturesContainer">
+        <div class="game-header">
+          <span class="game-label">Evolutionary Creatures</span>
+          <span class="game-badge">NEUROEVOLUTION</span>
+        </div>
+        <p class="game-desc">Creatures with bones and muscles evolve to walk — bizarre but effective gaits emerge.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Morphology + controller co-evolution. Genetic algorithm optimizes both.</p></div>
+            <div><strong>Controls</strong><p>Watch generations. View best creature. Fitness graph.</p></div>
+            <div><strong>The Math</strong><p>Fitness = distance. Verlet physics. Muscles: F = A·sin(ωt+φ).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Neural Cellular Automata -->
+      <div class="game-container lab-sim" id="neuralCAContainer">
+        <div class="game-header">
+          <span class="game-label">Neural Cellular Automata</span>
+          <span class="game-badge">MORPHOGENESIS</span>
+        </div>
+        <p class="game-desc">A single cell grows into a pattern — delete part and watch it REGENERATE.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Like GoL but LEARNED rules. Damage triggers self-repair.</p></div>
+            <div><strong>Controls</strong><p>Choose target. Watch growth. Click to damage and regenerate.</p></div>
+            <div><strong>The Math</strong><p>Per cell: Sobel perceive → NN update → stochastic apply.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Particle Swarm Optimization -->
+      <div class="game-container lab-sim" id="psoContainer">
+        <div class="game-header">
+          <span class="game-label">Particle Swarm Optimization</span>
+          <span class="game-badge">SWARM</span>
+        </div>
+        <p class="game-desc">Particles swarm across fitness landscape guided by personal and global bests.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Attracted to personal best and global best. Inertia prevents premature convergence.</p></div>
+            <div><strong>Controls</strong><p>Choose landscape. Adjust swarm size. Watch convergence.</p></div>
+            <div><strong>The Math</strong><p>v_i = w·v_i + c₁r₁(p_best - x_i) + c₂r₂(g_best - x_i).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Simulated Annealing -->
+      <div class="game-container lab-sim" id="simulatedAnnealingContainer">
+        <div class="game-header">
+          <span class="game-label">Simulated Annealing</span>
+          <span class="game-badge">OPTIMIZATION</span>
+        </div>
+        <p class="game-desc">Hot particle jumps wildly, cools down and settles — escapes local minima.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>High T: accept worse. Low T: improvements only. Cooling schedule controls.</p></div>
+            <div><strong>Controls</strong><p>Choose landscape. Temperature gauge. Compare with greedy.</p></div>
+            <div><strong>The Math</strong><p>Accept worse: P = exp(-ΔE/T). Cooling: T_new = α·T.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Monte Carlo Tree Search -->
+      <div class="game-container lab-sim" id="mctsContainer">
+        <div class="game-header">
+          <span class="game-label">Monte Carlo Tree Search</span>
+          <span class="game-badge">GAME AI</span>
+        </div>
+        <p class="game-desc">The algorithm behind AlphaGo — game tree grows via UCB1 selection.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Build tree incrementally. Random rollouts estimate value. No heuristic needed.</p></div>
+            <div><strong>Controls</strong><p>Play Connect-4 against MCTS. Watch tree grow. Adjust thinking time.</p></div>
+            <div><strong>The Math</strong><p>UCB1: Q/N + c√(ln N_parent/N). Select→Expand→Rollout→Backprop.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Bayesian Inference -->
+      <div class="game-container lab-sim" id="bayesianInferenceContainer">
+        <div class="game-header">
+          <span class="game-label">Bayesian Inference</span>
+          <span class="game-badge">PROBABILITY</span>
+        </div>
+        <p class="game-desc">Click to add data — watch prior morph into posterior. Bayes theorem live.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Prior × Likelihood = Posterior. Observations sharpen beliefs.</p></div>
+            <div><strong>Controls</strong><p>Click for coin flips. Watch Beta posterior. Adjust prior (α,β).</p></div>
+            <div><strong>The Math</strong><p>P(θ|data) ∝ P(data|θ)·P(θ). Beta(α+h, β+t).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- RRT Path Planner -->
+      <div class="game-container lab-sim" id="rrtContainer">
+        <div class="game-header">
+          <span class="game-label">RRT Path Planner</span>
+          <span class="game-badge">ROBOTICS</span>
+        </div>
+        <p class="game-desc">Fractal-like tree explosively grows through obstacles — robot motion planning.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Sample random, find nearest, extend. Tree fills space organically.</p></div>
+            <div><strong>Controls</strong><p>Place start, goal, obstacles. Toggle RRT vs RRT*. Adjust step size.</p></div>
+            <div><strong>The Math</strong><p>x_new = x_nearest + step toward x_rand. RRT* rewires for optimality.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Gaussian Mixture Model -->
+      <div class="game-container lab-sim" id="gmmContainer">
+        <div class="game-header">
+          <span class="game-label">Gaussian Mixture Model</span>
+          <span class="game-badge">CLUSTERING</span>
+        </div>
+        <p class="game-desc">Soft clustering — Gaussian ellipses breathe and shift as EM iterates.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>E: soft assignments. M: update means and covariances. Converges to MLE.</p></div>
+            <div><strong>Controls</strong><p>Click to place points. Choose K. Watch EM animate. Compare K-Means.</p></div>
+            <div><strong>The Math</strong><p>E: r_nk = π_k·N(x|μ_k,Σ_k)/Σ. M: update μ, Σ, π.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- DBSCAN Clustering -->
+      <div class="game-container lab-sim" id="dbscanContainer">
+        <div class="game-header">
+          <span class="game-label">DBSCAN Clustering</span>
+          <span class="game-badge">DENSITY</span>
+        </div>
+        <p class="game-desc">Find moons, spirals, rings that K-Means cannot — density-based clustering.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Core points: ≥ minPts neighbors within ε. Clusters expand through cores. No K needed.</p></div>
+            <div><strong>Controls</strong><p>Choose dataset. Adjust ε and minPts. Compare with K-Means.</p></div>
+            <div><strong>The Math</strong><p>Core: |N_ε(p)| ≥ minPts. Expand density-connected sets.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Decision Tree -->
+      <div class="game-container lab-sim" id="decisionTreeContainer">
+        <div class="game-header">
+          <span class="game-label">Decision Tree</span>
+          <span class="game-badge">CLASSIFICATION</span>
+        </div>
+        <p class="game-desc">Watch feature space split into rectangles — tree and partition update together.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Greedy splitting: best feature + threshold by Gini or entropy.</p></div>
+            <div><strong>Controls</strong><p>Click to place points. Watch tree grow. Toggle Gini vs entropy.</p></div>
+            <div><strong>The Math</strong><p>Gini: 1 - Σp_k². Gain: H(parent) - Σ(n/N)·H(child).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Word2Vec Explorer -->
+      <div class="game-container lab-sim" id="word2vecContainer">
+        <div class="game-header">
+          <span class="game-label">Word2Vec Explorer</span>
+          <span class="game-badge">NLP</span>
+        </div>
+        <p class="game-desc">King - Man + Woman = Queen. Vector arithmetic captures semantic meaning.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Words as vectors: similar words nearby. Arithmetic = analogies.</p></div>
+            <div><strong>Controls</strong><p>Click words for neighbors. Drag for arithmetic (A-B+C=?).</p></div>
+            <div><strong>The Math</strong><p>cos_sim = u·v/(|u||v|). argmax cos(v, v_b-v_a+v_c).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Bayesian Optimization -->
+      <div class="game-container lab-sim" id="bayesianOptContainer">
+        <div class="game-header">
+          <span class="game-label">Bayesian Optimization</span>
+          <span class="game-badge">OPTIMIZATION</span>
+        </div>
+        <p class="game-desc">Gaussian Process learns unknown function — acquisition function guides sampling.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>GP fits belief. Expected Improvement finds best next sample.</p></div>
+            <div><strong>Controls</strong><p>Choose function. Watch GP update. View mean, CI, and EI.</p></div>
+            <div><strong>The Math</strong><p>GP: μ(x), σ²(x). EI = E[max(f(x)-f*, 0)]. RBF kernel.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Potential Field Navigation -->
+      <div class="game-container lab-sim" id="potentialFieldContainer">
+        <div class="game-header">
+          <span class="game-label">Potential Field Navigation</span>
+          <span class="game-badge">ROBOTICS</span>
+        </div>
+        <p class="game-desc">Robot follows attractive/repulsive fields — beautiful gradient visualization.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Goal attracts, obstacles repel. Gradient descent navigation.</p></div>
+            <div><strong>Controls</strong><p>Drag goal and obstacles. Toggle arrows, heatmap, streamlines.</p></div>
+            <div><strong>The Math</strong><p>U_att = ½k|x-x_goal|². U_rep = ½k(1/d-1/d₀)². F = -∇U.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- RL Walking Gait -->
+      <div class="game-container lab-sim" id="rlWalkingContainer">
+        <div class="game-header">
+          <span class="game-label">RL Walking Gait</span>
+          <span class="game-badge">RL + 3D</span>
+        </div>
+        <p class="game-desc">3D stick figure learns to walk via policy gradient — stumbling to stable gait.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Articulated body with torque joints. RL learns forward locomotion.</p></div>
+            <div><strong>Controls</strong><p>Watch training. Speed up. View reward plot. Rotate 3D view.</p></div>
+            <div><strong>The Math</strong><p>Policy: π(a|s) = N(μ_θ(s), σ²). REINFORCE gradient update.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Imitation Learning -->
+      <div class="game-container lab-sim" id="imitationLearningContainer">
+        <div class="game-header">
+          <span class="game-label">Imitation Learning</span>
+          <span class="game-badge">LEARNING FROM DEMO</span>
+        </div>
+        <p class="game-desc">Record stick figure motion — watch agent learn to imitate it.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Behavioral cloning + DAgger. Supervised learning on expert demos.</p></div>
+            <div><strong>Controls</strong><p>Record demo. Train imitator. Side-by-side expert vs learner.</p></div>
+            <div><strong>The Math</strong><p>BC: min Σ||π_θ(s)-a*||². DAgger: aggregate on-policy states.</p></div>
+          </div>
+        </details>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CATEGORY 3: Control & Estimation -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lab-category" data-accent="control">
+      <div class="lab-category-header">
+        <div class="lab-category-accent"></div>
+        <div>
+          <h2>Control & Estimation</h2>
+          <p class="lab-category-desc">State estimation, sensor fusion, and control systems with real-time noise and uncertainty.</p>
+        </div>
+      </div>
+
+      <!-- Kalman Filter -->
+      <div class="game-container lab-sim" id="kalmanContainer">
+        <div class="game-header">
+          <span class="game-label">Kalman Filter Tracker</span>
+          <span class="game-badge">ESTIMATION</span>
+        </div>
+        <p class="game-desc">Track a noisy trajectory with a Kalman Filter. See truth (blue), measurement (red), and estimate (green) with uncertainty ellipses.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Sensors are noisy. The Kalman Filter optimally combines a motion model (prediction) with noisy measurements (update) to produce a better estimate than either alone.</p></div>
+            <div><strong>Controls</strong><p>Adjust process noise (how unpredictable the motion is), measurement noise (how noisy the sensor is), and update rate. The green trail shows the filter's cleaned-up estimate.</p></div>
+            <div><strong>The Math</strong><p>Predict: x̂ = F·x, P = F·P·F' + Q. Update: K = P·H'·(H·P·H' + R)⁻¹, x̂ += K·(z - H·x̂). The Kalman gain K balances trust between model and measurement.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Sensor Fusion -->
+      <div class="game-container lab-sim" id="sensorFusionContainer">
+        <div class="game-header">
+          <span class="game-label">Sensor Fusion</span>
+          <span class="game-badge">IMU</span>
+        </div>
+        <p class="game-desc">Complementary filter fusing gyroscope and accelerometer data. Adjust drift, noise, and blending factor to see fusion quality.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Gyroscopes drift over time but track fast changes. Accelerometers are noisy but don't drift. A complementary filter blends both: α×gyro + (1-α)×accel gives you the best of both worlds.</p></div>
+            <div><strong>Controls</strong><p>Move mouse to tilt the virtual IMU. Adjust gyro drift rate, accelerometer noise, and blending factor (α). Watch how each sensor alone fails but fusion succeeds. RMS error shows quality.</p></div>
+            <div><strong>The Math</strong><p>angle = α·(angle + gyro·dt) + (1-α)·accel_angle. High α trusts gyro more (good for fast motion), low α trusts accelerometer more (good for steady state).</p></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CATEGORY 4: Robotics & Planning -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lab-category" data-accent="robotics">
+      <div class="lab-category-header">
+        <div class="lab-category-accent"></div>
+        <div>
+          <h2>Robotics & Planning</h2>
+          <p class="lab-category-desc">Inverse kinematics, circuit analysis, and robotic planning algorithms.</p>
+        </div>
+      </div>
+
+      <!-- IK Playground -->
+      <div class="game-container lab-sim" id="ikPlaygroundContainer">
+        <div class="game-header">
+          <span class="game-label">IK Playground</span>
+          <span class="game-badge">3 SOLVERS</span>
+        </div>
+        <p class="game-desc">Compare CCD, Jacobian Transpose, and FABRIK inverse kinematics solvers. Drag the target to move a multi-joint arm.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Inverse Kinematics (IK): given a target position, compute joint angles that place the end-effector there. Three different algorithms solve this differently — each with tradeoffs.</p></div>
+            <div><strong>Controls</strong><p>Drag the target point. Watch three arms solve simultaneously: CCD (iterative joint rotation), Jacobian (gradient-based), FABRIK (forward-backward reaching). Compare convergence speed and smoothness.</p></div>
+            <div><strong>The Math</strong><p>CCD: rotate each joint to minimize tip-to-target distance. Jacobian: J·Δθ = Δx, solve for Δθ. FABRIK: alternately reach forward then pull back from base.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Circuit Builder -->
+      <div class="game-container lab-sim" id="circuitContainer">
+        <div class="game-header">
+          <span class="game-label">Circuit Builder</span>
+          <span class="game-badge">INTERACTIVE</span>
+        </div>
+        <p class="game-desc">Build circuits with batteries, resistors, LEDs, and switches. Real-time Kirchhoff solver shows current flow and voltages.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Place components on a grid to build circuits. The solver applies Kirchhoff's laws to compute voltages and currents in real-time. LEDs glow with current, and pop if overloaded!</p></div>
+            <div><strong>Controls</strong><p>Select a component type (battery, resistor, LED, switch, wire) and click grid cells to place. Click switches to toggle. Hover components to see voltage/current info. Try presets: Series, Parallel, Voltage Divider.</p></div>
+            <div><strong>The Math</strong><p>Kirchhoff's Current Law (sum of currents = 0) + Kirchhoff's Voltage Law (sum of voltages = 0) + Ohm's Law (V = IR). BFS traces current paths.</p></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CATEGORY 5: Signal Processing -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lab-category" data-accent="signal">
+      <div class="lab-category-header">
+        <div class="lab-category-accent"></div>
+        <div>
+          <h2>Signal Processing</h2>
+          <p class="lab-category-desc">Frequency analysis, Fourier transforms, and signal decomposition visualized.</p>
+        </div>
+      </div>
+
+      <!-- FFT Visualizer -->
+      <div class="game-container lab-sim" id="fftContainer">
+        <div class="game-header">
+          <span class="game-label">FFT Visualizer</span>
+          <span class="game-badge">FREQUENCY</span>
+        </div>
+        <p class="game-desc">Compose signals from sine waves, apply filters (low-pass, high-pass, band-pass), and see the FFT decomposition in real-time.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Any signal can be decomposed into sine waves of different frequencies. The FFT (Fast Fourier Transform) reveals which frequencies are present and how strong they are.</p></div>
+            <div><strong>Controls</strong><p>Add sine waves with custom frequency and amplitude. Draw freehand signals. Apply filters to remove frequencies. Toggle playback to hear the signal through Web Audio API.</p></div>
+            <div><strong>The Math</strong><p>Cooley-Tukey radix-2 FFT: O(n·log·n) decomposition of time-domain signal into frequency-domain. Inverse FFT reconstructs the filtered signal.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Fourier Series Drawer -->
+      <div class="game-container lab-sim" id="fourierDrawContainer">
+        <div class="game-header">
+          <span class="game-label">Fourier Series Drawer</span>
+          <span class="game-badge">DRAW</span>
+        </div>
+        <p class="game-desc">Draw any shape freehand and watch epicycles decompose it into rotating circles. Adjust the number of circles and speed.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Any closed curve can be approximated by a sum of rotating circles (epicycles). More circles = more detail. This is the Fourier Series in action — decomposing a shape into frequency components.</p></div>
+            <div><strong>Controls</strong><p>Draw any shape on the canvas. After releasing, epicycles animate to trace your drawing. Slider adjusts how many circles are used (fewer = rougher approximation). Presets: Circle, Square, Star, Heart.</p></div>
+            <div><strong>The Math</strong><p>Discrete Fourier Transform treats (x,y) path as complex numbers. Each DFT coefficient becomes one rotating circle. Coefficients sorted by magnitude — largest circles contribute most.</p></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- CATEGORY 6: Math & Visualization -->
+    <!-- ═══════════════════════════════════════════ -->
+    <section class="lab-category" data-accent="math">
+      <div class="lab-category-header">
+        <div class="lab-category-accent"></div>
+        <div>
+          <h2>Math & Visualization</h2>
+          <p class="lab-category-desc">Fractals, cellular automata, strange attractors, geometric constructions, and procedural generation.</p>
+        </div>
+      </div>
+
+      <!-- Lorenz Attractor -->
+      <div class="game-container lab-sim" id="lorenzContainer">
+        <div class="game-header">
+          <span class="game-label">Lorenz Attractor</span>
+          <span class="game-badge">CHAOS</span>
+        </div>
+        <p class="game-desc">3D butterfly attractor projected to 2D with RK4 integration. Adjust σ/ρ/β parameters, rotate view, compare dual trajectories.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>The Lorenz system (1963) models atmospheric convection. Its butterfly-shaped attractor was one of the first demonstrations of deterministic chaos — the "butterfly effect."</p></div>
+            <div><strong>Controls</strong><p>Sliders adjust σ (Prandtl number), ρ (Rayleigh number), β (aspect ratio). Drag to rotate the 3D view. Toggle dual trajectories to see how a tiny 0.001 difference in initial conditions leads to completely different paths.</p></div>
+            <div><strong>The Math</strong><p>dx/dt = σ(y-x), dy/dt = x(ρ-z)-y, dz/dt = xy-βz. RK4 integration. 3D→2D projection with rotation matrices.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Mandelbrot Explorer -->
+      <div class="game-container lab-sim" id="mandelbrotContainer">
+        <div class="game-header">
+          <span class="game-label">Mandelbrot Explorer</span>
+          <span class="game-badge">FRACTAL</span>
+        </div>
+        <p class="game-desc">Click to zoom into the Mandelbrot set with smooth coloring. Hover to see the corresponding Julia set. Adjust max iterations.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>The Mandelbrot set: iterate z = z² + c. If the sequence stays bounded, c is in the set (black). The boundary has infinite detail — you can zoom forever and find new patterns.</p></div>
+            <div><strong>Controls</strong><p>Click to zoom in 3x. Shift/right-click to zoom out. Hover to see the Julia set for that point. Toggle Julia mode. Adjust iterations (more = finer detail at deep zooms). Choose color scheme: Fire, Ocean, Neon, Grayscale.</p></div>
+            <div><strong>The Math</strong><p>z_{n+1} = z_n² + c. Color from smooth iteration count: n + 1 - log(log|z|)/log(2). Two-pass rendering: fast preview then full resolution.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Game of Life -->
+      <div class="game-container lab-sim" id="gameOfLifeContainer">
+        <div class="game-header">
+          <span class="game-label">Game of Life</span>
+          <span class="game-badge">CELLULAR</span>
+        </div>
+        <p class="game-desc">Conway's Game of Life with preset patterns (glider, pulsar, LWSS). Click to toggle cells, adjust simulation speed.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Four simple rules create infinite complexity. A cell is born with exactly 3 neighbors, survives with 2-3, and dies otherwise. From these rules emerge gliders, oscillators, and even Turing-complete computers.</p></div>
+            <div><strong>Controls</strong><p>Click/drag to paint cells. Play/Pause and Step buttons. Speed slider (1-30 gen/sec). Random fill. Presets: Glider (moves), Pulsar (oscillates), LWSS (spaceship), Gosper Gun (makes gliders), R-pentomino (chaos).</p></div>
+            <div><strong>The Math</strong><p>B3/S23 rule on a toroidal grid. Each cell counts its 8 neighbors. Simple counting produces emergence — one of the deepest ideas in computation.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Bezier Curve Editor -->
+      <div class="game-container lab-sim" id="bezierContainer">
+        <div class="game-header">
+          <span class="game-label">Bezier Curve Editor</span>
+          <span class="game-badge">GEOMETRY</span>
+        </div>
+        <p class="game-desc">Drag control points to shape Bezier curves. See de Casteljau construction lines, adjust t-parameter, add more control points.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Bezier curves are the backbone of computer graphics, fonts, and CAD. They're defined by control points — the curve doesn't pass through all points but is "pulled" toward them.</p></div>
+            <div><strong>Controls</strong><p>Drag control points to reshape the curve. The t-slider (0 to 1) shows the de Casteljau construction — how the point on the curve is found by recursive linear interpolation. Add/remove points. Animate t to see the construction in motion.</p></div>
+            <div><strong>The Math</strong><p>De Casteljau: recursively lerp between adjacent points at parameter t. Level by level, the points converge to a single point on the curve. Colored lines show each level.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- L-System Trees -->
+      <div class="game-container lab-sim" id="lsystemContainer">
+        <div class="game-header">
+          <span class="game-label">L-System Trees</span>
+          <span class="game-badge">FRACTAL</span>
+        </div>
+        <p class="game-desc">Generate fractal trees and plants from simple rewriting rules. Adjust angle, iterations, and axiom to create botanical structures.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Lindenmayer Systems (L-Systems) model plant growth through string rewriting. Start with a simple axiom, apply rules repeatedly, then interpret the result as turtle graphics commands.</p></div>
+            <div><strong>Controls</strong><p>Choose presets: Binary Tree, Fern, Koch Snowflake, Dragon Curve, Sierpinski. Adjust branching angle, number of iterations (detail level), and segment length. Click Grow to re-generate.</p></div>
+            <div><strong>The Math</strong><p>Rules like F→F[+F]F[-F]F replace characters iteratively. F=draw forward, +=turn right, -=turn left, [=save state, ]=restore state. Simple rules create stunning botanical complexity.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Reaction-Diffusion -->
+      <div class="game-container lab-sim" id="reactionDiffusionContainer">
+        <div class="game-header">
+          <span class="game-label">Reaction-Diffusion</span>
+          <span class="game-badge">PATTERNS</span>
+        </div>
+        <p class="game-desc">Gray-Scott model creates Turing patterns — spots, stripes, and labyrinths emerge from two diffusing chemicals.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Alan Turing proposed (1952) that biological patterns (zebra stripes, leopard spots) emerge from two chemicals that diffuse and react. The Gray-Scott model simulates this — simple PDEs create stunning organic patterns.</p></div>
+            <div><strong>Controls</strong><p>Click/drag to seed chemical B. Adjust feed rate (f) and kill rate (k) to get different pattern types: spots, stripes, waves, mitosis. Presets for common parameter combinations. Clear to restart.</p></div>
+            <div><strong>The Math</strong><p>∂A/∂t = Dₐ∇²A - AB² + f(1-A). ∂B/∂t = D_b∇²B + AB² - (k+f)B. Laplacian computed via convolution. Diffusion rates Dₐ > D_b create instability → patterns.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Terrain Generator -->
+      <div class="game-container lab-sim" id="terrainContainer">
+        <div class="game-header">
+          <span class="game-label">Terrain Generator</span>
+          <span class="game-badge">PROCEDURAL</span>
+        </div>
+        <p class="game-desc">Procedural terrain using layered Perlin noise. Adjust octaves, persistence, and scale to sculpt mountains, hills, and valleys.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Real terrain has detail at every scale — mountains, hills, rocks, pebbles. Layered Perlin noise (octaves) mimics this by adding noise at different frequencies and amplitudes.</p></div>
+            <div><strong>Controls</strong><p>Adjust octaves (detail layers), persistence (roughness), scale (zoom), and water level. Choose view: heightmap (top-down colors) or side profile. Click Regenerate for a new random seed.</p></div>
+            <div><strong>The Math</strong><p>Perlin noise: smooth gradient noise interpolated on a grid. Octaves: sum noise at frequencies f, 2f, 4f... with decreasing amplitude. Height coloring: water→sand→grass→rock→snow.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Strange Attractors -->
+      <div class="game-container lab-sim" id="strangeAttractorsContainer">
+        <div class="game-header">
+          <span class="game-label">Strange Attractors</span>
+          <span class="game-badge">POINT ART</span>
+        </div>
+        <p class="game-desc">Clifford, De Jong, and other strange attractors rendered as millions of points. Tiny parameter changes create wildly different artwork.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Strange attractors are iterated function systems — apply a simple formula millions of times, plot each point, and beautiful structure emerges from chaos. Each attractor type has its own formula with 2-4 parameters.</p></div>
+            <div><strong>Controls</strong><p>Choose attractor type: Clifford, De Jong, Svensson, Bedhead. Adjust parameters with sliders — tiny changes create completely different patterns. Randomize for surprises. Color based on density or iteration count.</p></div>
+            <div><strong>The Math</strong><p>Clifford: x' = sin(a·y) + c·cos(a·x), y' = sin(b·x) + d·cos(b·y). Iterate millions of times, accumulate point density, render as a heatmap. Pure mathematical beauty.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Pathfinding Visualizer -->
+      <div class="game-container lab-sim" id="pathfindingContainer">
+        <div class="game-header">
+          <span class="game-label">Pathfinding Visualizer</span>
+          <span class="game-badge">A* / DIJKSTRA</span>
+        </div>
+        <p class="game-desc">Draw walls, set start/end — watch A*, Dijkstra, BFS, and DFS explore the grid. Generate mazes and compare algorithm performance.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Pathfinding algorithms search for the shortest route between two points. BFS explores uniformly, Dijkstra by cost, A* adds a heuristic to focus search. Watch how each algorithm explores differently — some are smart, some are brute-force.</p></div>
+            <div><strong>Controls</strong><p>Click/drag to draw walls. Drag start (green) and end (red) nodes. Choose algorithm: A*, Dijkstra, BFS, DFS, Greedy BFS. Generate mazes: Recursive Division, Prim's, Kruskal's. Adjust speed, toggle diagonal movement.</p></div>
+            <div><strong>The Math</strong><p>A*: f(n) = g(n) + h(n) where g = cost so far, h = heuristic (Manhattan/Euclidean distance). Dijkstra: same but h=0. BFS: unweighted shortest path. DFS: goes deep first, not optimal.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Gradient Descent Visualizer -->
+      <div class="game-container lab-sim" id="gradientDescentContainer">
+        <div class="game-header">
+          <span class="game-label">Gradient Descent</span>
+          <span class="game-badge">OPTIMIZERS</span>
+        </div>
+        <p class="game-desc">Drop a ball on a 2D loss landscape — watch SGD, Momentum, Adam, and RMSProp race to find the minimum. Compare convergence behavior.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Neural networks learn by minimizing a loss function. Gradient descent walks downhill, but the landscape has saddle points, local minima, and ravines. Different optimizers handle these differently.</p></div>
+            <div><strong>Controls</strong><p>Click to place starting point(s). Choose optimizers to compare (run simultaneously). Adjust learning rate. Choose landscape: Beale, Rosenbrock, Himmelblau, Rastrigin, custom. Watch trajectories and loss curves.</p></div>
+            <div><strong>The Math</strong><p>SGD: θ -= lr·∇L. Momentum: v = β·v + ∇L, θ -= lr·v. Adam: combines momentum + RMSProp with bias correction. Each handles curvature differently — Adam adapts per-parameter.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- DLA Crystal Growth -->
+      <div class="game-container lab-sim" id="dlaContainer">
+        <div class="game-header">
+          <span class="game-label">DLA Crystal Growth</span>
+          <span class="game-badge">GROWTH</span>
+        </div>
+        <p class="game-desc">Diffusion-Limited Aggregation — random walkers stick on contact, building snowflake and coral-like crystal structures.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Particles random-walk until they touch the growing crystal, then stick permanently. This simple rule produces branching, fractal structures that look like snowflakes, lightning, or mineral dendrites.</p></div>
+            <div><strong>Controls</strong><p>Adjust stickiness (probability of attaching on contact), particle spawn rate, and max particles. Choose seed shape: Point (center), Line (bottom), Circle. Watch the crystal grow in real-time.</p></div>
+            <div><strong>The Math</strong><p>Random walk: each step moves ±1 in x or y. On contact with crystal, particle sticks with probability p. Fractal dimension of DLA clusters ≈ 1.71. Discovered by Witten & Sander (1981).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Wave Function Collapse -->
+      <div class="game-container lab-sim" id="wfcContainer">
+        <div class="game-header">
+          <span class="game-label">Wave Function Collapse</span>
+          <span class="game-badge">PROCEDURAL</span>
+        </div>
+        <p class="game-desc">Watch a tilemap generate itself tile by tile using constraint propagation. The algorithm collapses possibilities until a valid pattern emerges.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Inspired by quantum mechanics: each cell starts as a "superposition" of all possible tiles. The algorithm picks the most constrained cell, collapses it to one tile, then propagates constraints to neighbors — eliminating impossible options until the entire grid is filled.</p></div>
+            <div><strong>Controls</strong><p>Choose tileset: Pipes, Circuit, Terrain, Dungeon, Knots. Click any cell to force a specific tile. Adjust grid size and animation speed. Step through one collapse at a time or auto-run. Reset to try a new generation.</p></div>
+            <div><strong>The Math</strong><p>Entropy = log(remaining_options). Pick lowest entropy cell → collapse (weighted random). Propagate: for each neighbor, remove tiles that violate adjacency rules. Repeat until all cells collapsed or contradiction found.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Voronoi Diagram -->
+      <div class="game-container lab-sim" id="voronoiContainer">
+        <div class="game-header">
+          <span class="game-label">Voronoi Diagram</span>
+          <span class="game-badge">GEOMETRY</span>
+        </div>
+        <p class="game-desc">Every point in the plane colored by its nearest seed. Drag seeds to reshape cells. Beautiful geometric partitioning in real-time.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>A Voronoi diagram divides space into cells — each cell contains all points closest to one particular seed. It appears everywhere: cell biology, city planning, crystal structure, network coverage.</p></div>
+            <div><strong>Controls</strong><p>Click to add seed points. Drag seeds to reshape cells in real-time. Toggle Delaunay triangulation overlay (the dual graph). Adjust point count. Presets: Random, Grid, Circle, Clustered.</p></div>
+            <div><strong>The Math</strong><p>Cell for seed s: {x : ||x-s|| ≤ ||x-s'|| for all seeds s'}. Computed by brute-force distance comparison per pixel. Delaunay triangulation connects seeds whose Voronoi cells share an edge.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Force-Directed Graph -->
+      <div class="game-container lab-sim" id="forceGraphContainer">
+        <div class="game-header">
+          <span class="game-label">Force-Directed Graph</span>
+          <span class="game-badge">NETWORK</span>
+        </div>
+        <p class="game-desc">Nodes repel each other, edges act as springs. Watch a network layout organize itself through physics simulation.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Force-directed layout uses physics to arrange graphs: nodes repel like charged particles (Coulomb's law), edges attract like springs (Hooke's law). The system settles into a readable layout naturally.</p></div>
+            <div><strong>Controls</strong><p>Click to add nodes, drag between nodes to create edges. Drag nodes to reposition. Adjust repulsion strength, spring length, and damping. Presets: Tree, Mesh, Ring, Random. Delete nodes with right-click.</p></div>
+            <div><strong>The Math</strong><p>Repulsion: F = k/d² (all pairs). Attraction: F = -k·(d - rest_length) (connected pairs). Velocity Verlet integration with damping for convergence.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Sorting Visualizer -->
+      <div class="game-container lab-sim" id="sortingContainer">
+        <div class="game-header">
+          <span class="game-label">Sorting Visualizer</span>
+          <span class="game-badge">ALGORITHMS</span>
+        </div>
+        <p class="game-desc">Watch sorting algorithms race — Bubble, Selection, Insertion, Merge, Quick, and Heap sort compared visually.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Different sorting algorithms have different strategies and performance. O(n²) algorithms (Bubble, Selection) are slow but simple. O(n·log·n) algorithms (Merge, Quick, Heap) are fast but complex. See the difference visually.</p></div>
+            <div><strong>Controls</strong><p>Choose algorithm, array size, and initial order (random, nearly sorted, reversed). Hit Sort to watch bars rearrange. Comparisons and swaps are counted. Speed slider controls animation pace.</p></div>
+            <div><strong>The Math</strong><p>Bubble: O(n²) worst case. Merge: O(n·log·n) guaranteed. Quick: O(n·log·n) average, O(n²) worst. Heap: O(n·log·n) guaranteed. Visual bars make the differences obvious.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Langton's Ant -->
+      <div class="game-container lab-sim" id="langtonsAntContainer">
+        <div class="game-header">
+          <span class="game-label">Langton's Ant</span>
+          <span class="game-badge">EMERGENCE</span>
+        </div>
+        <p class="game-desc">A 2D Turing machine — an ant follows two rules on a grid. After ~10,000 chaotic steps, a highway magically emerges from the noise.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>On a white cell: turn right, flip color, move forward. On a black cell: turn left, flip color, move forward. Two trivial rules create chaos, then suddenly a diagonal highway emerges after ~10,000 steps. Nobody fully understands why.</p></div>
+            <div><strong>Controls</strong><p>Speed slider (1-1000 steps/frame). Pause/resume. Multiple ants with different colors. Toggle between classic (2-color) and extended rules (multi-color Turmites). Click to place obstacles.</p></div>
+            <div><strong>The Math</strong><p>Proven to be a universal Turing machine. The highway is conjectured (unproven!) to always emerge regardless of initial configuration. Simple rules → universal computation.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Elementary Cellular Automata -->
+      <div class="game-container lab-sim" id="cellularAutomataContainer">
+        <div class="game-header">
+          <span class="game-label">Elementary CA</span>
+          <span class="game-badge">WOLFRAM</span>
+        </div>
+        <p class="game-desc">All 256 one-dimensional cellular automata rules. Rule 110 is Turing complete — infinite complexity from 3-cell neighborhoods.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Each cell looks at itself and its two neighbors (8 possible patterns). A rule number (0-255) defines what each pattern produces. From these trivially simple rules emerge Class 1 (uniform), 2 (periodic), 3 (chaotic), and 4 (complex/computational) behavior.</p></div>
+            <div><strong>Controls</strong><p>Choose rule number (0-255) or click presets: Rule 30 (chaotic), Rule 90 (Sierpinski), Rule 110 (Turing complete), Rule 184 (traffic). Toggle initial conditions: single cell, random, custom draw. Speed and zoom sliders.</p></div>
+            <div><strong>The Math</strong><p>Rule number = 8-bit binary encoding of output for each of 8 possible 3-cell neighborhoods. Rule 110 proven Turing complete by Matthew Cook (2004). Stephen Wolfram's "A New Kind of Science" is built on this.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Metaballs -->
+      <div class="game-container lab-sim" id="metaballsContainer">
+        <div class="game-header">
+          <span class="game-label">Metaballs</span>
+          <span class="game-badge">ORGANIC</span>
+        </div>
+        <p class="game-desc">Organic blobs that merge and split smoothly. An implicit surface defined by overlapping radial falloff functions.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Each metaball defines a field f = r²/d². At any point, sum all fields. Where the total exceeds a threshold, you're "inside" the shape. The boundary (isosurface) creates smooth, organic blobs that seamlessly merge when close.</p></div>
+            <div><strong>Controls</strong><p>Click to add metaballs (up to 15). Drag to move them. Adjust threshold for blob size. Toggle between filled and outline rendering. Color by distance/velocity. Metaballs bounce off walls.</p></div>
+            <div><strong>The Math</strong><p>Field function: f(x,y) = Σ(rᵢ²/((x-xᵢ)²+(y-yᵢ)²)). Isosurface at f = threshold. Rendered via marching squares for smooth contours, or pixel-based for filled glow effect.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Marching Squares -->
+      <div class="game-container lab-sim" id="marchingSquaresContainer">
+        <div class="game-header">
+          <span class="game-label">Marching Squares</span>
+          <span class="game-badge">CONTOUR</span>
+        </div>
+        <p class="game-desc">The marching squares algorithm extracts contour lines from a scalar field. Watch how 16 cell cases combine to form smooth curves.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Given a grid of scalar values, marching squares finds the boundary where values cross a threshold. Each 2×2 cell has 4 corners, each above or below threshold → 16 possible cases → lookup table of line segments.</p></div>
+            <div><strong>Controls</strong><p>Choose scalar field: sine waves, circles, noise, custom paint. Adjust threshold with slider (animates for wave effect). Toggle: show grid values, show cell cases, interpolate edges. Adjust grid resolution.</p></div>
+            <div><strong>The Math</strong><p>4 corners × 2 states = 16 cases. Linear interpolation along edges for precise contour placement. Ambiguous cases (5 and 10) resolved by center value. This is the 2D version of Marching Cubes (3D).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Phyllotaxis -->
+      <div class="game-container lab-sim" id="phyllotaxisContainer">
+        <div class="game-header">
+          <span class="game-label">Phyllotaxis</span>
+          <span class="game-badge">NATURE</span>
+        </div>
+        <p class="game-desc">The golden angle creates sunflower spirals — nature's most efficient packing pattern. Adjust the angle to see why 137.5° is special.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Place each seed at angle n × θ, distance √n from center. At θ = 137.507...° (golden angle = 360°/φ²), seeds pack perfectly with no gaps. Any other angle creates visible spokes — even 0.01° off ruins the pattern.</p></div>
+            <div><strong>Controls</strong><p>Adjust angle (0-360°, default golden angle). Adjust seed count (50-2000). Toggle color modes: by index, by spiral arm, rainbow. Animate the angle to see patterns form and break. Size scaling options.</p></div>
+            <div><strong>The Math</strong><p>Position of seed n: r = c·√n, θ = n·137.507...°. The golden angle = 360°·(1 - 1/φ) where φ = (1+√5)/2. Fibonacci numbers appear in the spiral arm counts (8, 13, 21, 34...).</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- String Art -->
+      <div class="game-container lab-sim" id="stringArtContainer">
+        <div class="game-header">
+          <span class="game-label">String Art</span>
+          <span class="game-badge">GEOMETRIC</span>
+        </div>
+        <p class="game-desc">Connect numbered pins with strings following a rule — cardioids, nephriods, and stunning geometric envelopes emerge from straight lines.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Place pins around a circle. Connect pin n to pin (n×k) mod total. Different multipliers k create different curves: k=2 → cardioid, k=3 → nephroid, k=4 → 3-cusped epicycloid. Straight lines create curved envelopes.</p></div>
+            <div><strong>Controls</strong><p>Adjust number of pins (20-360), multiplier k (2-50), and line opacity. Animate k to morph between patterns. Color modes: solid, rainbow by connection, gradient by angle. Pin shape: circle, polygon, custom.</p></div>
+            <div><strong>The Math</strong><p>Connect pin i to pin (i×k) mod N. The envelope of these chords forms a curve called an epicycloid. When k and N share factors, fewer distinct strings appear. Prime N gives the most complex patterns.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Pixel Sorter -->
+      <div class="game-container lab-sim" id="pixelSortContainer">
+        <div class="game-header">
+          <span class="game-label">Pixel Sorter</span>
+          <span class="game-badge">GLITCH ART</span>
+        </div>
+        <p class="game-desc">Sort pixels by brightness, hue, or saturation — creating stunning glitch art effects. The intersection of algorithms and aesthetics.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>Take an image (or generated pattern), find spans of pixels above/below a brightness threshold, and sort those spans. The result is a distinctive "dripping" glitch aesthetic that's become iconic in digital art.</p></div>
+            <div><strong>Controls</strong><p>Choose source: gradient, noise, circles, photo upload. Sort mode: brightness, hue, saturation. Direction: horizontal, vertical, both. Threshold slider controls which pixels get sorted. Animate for continuous glitch effect.</p></div>
+            <div><strong>The Math</strong><p>For each row/column: find contiguous spans where brightness > threshold. Sort pixels within each span by chosen criterion. Threshold creates the boundary between sorted (glitched) and unsorted (preserved) regions.</p></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Ray Caster -->
+      <div class="game-container lab-sim" id="raycasterContainer">
+        <div class="game-header">
+          <span class="game-label">Ray Caster</span>
+          <span class="game-badge">2.5D</span>
+        </div>
+        <p class="game-desc">Walk through a maze in first-person 2.5D — the same rendering technique behind Wolfenstein 3D. Cast rays, draw walls, feel the depth.</p>
+        <details class="sim-info">
+          <summary>How it works</summary>
+          <div class="sim-info-content">
+            <div><strong>Concept</strong><p>For each column of pixels, cast a ray from the player into the map. When it hits a wall, calculate the distance. Closer walls are drawn taller, creating a convincing 3D illusion from a 2D map — the technique that launched the FPS genre.</p></div>
+            <div><strong>Controls</strong><p>WASD or arrow keys to move and turn. Mouse to look around. Split view: minimap (top-down with rays) + 3D view. Toggle floor/ceiling rendering, fog distance, wall textures. Generate random mazes.</p></div>
+            <div><strong>The Math</strong><p>DDA (Digital Differential Analyzer) ray stepping through grid. Wall height = canvas_height / perpendicular_distance (fishbowl correction). Texture mapping via wall hit position. Floor casting via scanline.</p></div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="lab-footer">
+      <a href="index.html" class="lab-footer-link">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Back to Portfolio
+      </a>
+    </footer>
+
+  </main>
+
+  <script type="module" src="js/lab-app.js"></script>
+</body>
+</html>

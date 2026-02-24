@@ -1,0 +1,342 @@
+/* =============================================
+   INTERACTIVE LEARNING LAB — Layout & Styling
+   Extends main.css design tokens
+   ============================================= */
+
+/* ── LAB TOPBAR ── */
+.lab-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 56px;
+  padding: 0 var(--content-padding);
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: var(--border-subtle);
+}
+
+.lab-topbar-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-md);
+  color: var(--text-primary);
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  transition: color var(--duration-fast);
+}
+
+.lab-topbar-name:hover {
+  color: var(--accent);
+}
+
+.lab-topbar-name svg {
+  opacity: 0.5;
+  transition: opacity var(--duration-fast), transform var(--duration-fast);
+}
+
+.lab-topbar-name:hover svg {
+  opacity: 1;
+  transform: translateX(-2px);
+}
+
+.lab-topbar-divider {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.lab-topbar-page {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.lab-topbar-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  border: var(--border-subtle);
+}
+
+/* ── LAB CONTENT ── */
+.lab-content {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--content-padding);
+}
+
+/* ── LAB HERO ── */
+.lab-hero {
+  padding: var(--space-3xl) 0 var(--space-2xl);
+}
+
+.lab-hero .game-badge {
+  margin-bottom: var(--space-md);
+  display: inline-block;
+}
+
+.lab-hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.03em;
+}
+
+.lab-hero-subtitle {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 650px;
+}
+
+/* ── CATEGORY SECTIONS ── */
+.lab-category {
+  padding: var(--space-2xl) 0;
+  border-top: var(--border-subtle);
+}
+
+.lab-category-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.lab-category-accent {
+  width: 4px;
+  height: 32px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.lab-category-header h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.lab-category-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* ── Category Accent Colors ── */
+
+/* Physics — amber */
+.lab-category[data-accent="physics"] .lab-category-accent {
+  background: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+.lab-category[data-accent="physics"] .game-badge {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.15);
+}
+
+/* AI — blue */
+.lab-category[data-accent="ai"] .lab-category-accent {
+  background: #4a9eff;
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.3);
+}
+.lab-category[data-accent="ai"] .game-badge {
+  color: #4a9eff;
+  background: rgba(74, 158, 255, 0.08);
+  border-color: rgba(74, 158, 255, 0.15);
+}
+
+/* Control — green */
+.lab-category[data-accent="control"] .lab-category-accent {
+  background: #10b981;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.lab-category[data-accent="control"] .game-badge {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+/* Robotics — orange */
+.lab-category[data-accent="robotics"] .lab-category-accent {
+  background: #f97316;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.3);
+}
+.lab-category[data-accent="robotics"] .game-badge {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.15);
+}
+
+/* Signal — cyan */
+.lab-category[data-accent="signal"] .lab-category-accent {
+  background: #22d3ee;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+}
+.lab-category[data-accent="signal"] .game-badge {
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.15);
+}
+
+/* Math — purple */
+.lab-category[data-accent="math"] .lab-category-accent {
+  background: #a78bfa;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.3);
+}
+.lab-category[data-accent="math"] .game-badge {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.15);
+}
+
+/* ── SIM INFO DROPDOWN (native <details>) ── */
+.sim-info {
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-sm);
+  border: var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-code);
+  overflow: hidden;
+}
+
+.sim-info summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--duration-fast), background var(--duration-fast);
+  list-style: none;
+}
+
+.sim-info summary::-webkit-details-marker { display: none; }
+
+.sim-info summary::before {
+  content: '▸';
+  font-size: 0.7rem;
+  transition: transform var(--duration-fast);
+}
+
+.sim-info[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.sim-info summary:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sim-info-content {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  border-top: var(--border-subtle);
+  animation: sim-info-reveal 0.2s ease-out;
+}
+
+@keyframes sim-info-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sim-info-content strong {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.sim-info-content p {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── LAB SIM CONTAINERS ── */
+.lab-sim {
+  margin-bottom: var(--space-xl);
+}
+
+.lab-sim:last-child {
+  margin-bottom: 0;
+}
+
+/* ── LAB FOOTER ── */
+.lab-footer {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+  border-top: var(--border-subtle);
+  text-align: center;
+}
+
+.lab-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  transition: color var(--duration-fast);
+}
+
+.lab-footer-link:hover {
+  color: var(--accent);
+}
+
+.lab-footer-link svg {
+  transition: transform var(--duration-fast);
+}
+
+.lab-footer-link:hover svg {
+  transform: translateX(-3px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .lab-hero {
+    padding: var(--space-2xl) 0 var(--space-xl);
+  }
+
+  .lab-hero-title {
+    font-size: var(--text-2xl);
+  }
+
+  .lab-topbar-count {
+    display: none;
+  }
+
+  .lab-category {
+    padding: var(--space-xl) 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .lab-topbar-divider,
+  .lab-topbar-page {
+    display: none;
+  }
+}

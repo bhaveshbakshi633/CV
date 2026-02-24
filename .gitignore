@@ -1,0 +1,16 @@
+# build artifacts
+cv-react/
+projects_code/
+node_modules/
+
+# recovery/temp files
+recovered_*.html
+recovered_*.css
+recovered_*.js
+reconstruct_codex.py
+projects_map.md
+styles-3000.css
+
+# OS
+.DS_Store
+Thumbs.db

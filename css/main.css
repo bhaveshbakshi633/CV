@@ -2258,6 +2258,51 @@ ul, ol {
   padding: var(--space-lg);
 }
 
+/* ── LAB CTA SECTION ── */
+.lab-cta-section {
+  padding: var(--space-2xl) 0;
+}
+
+.lab-cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  background: var(--bg-surface);
+  border: 1px solid rgba(74, 158, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl) var(--space-2xl);
+  box-shadow: 0 0 40px rgba(74, 158, 255, 0.04),
+              inset 0 1px 0 rgba(74, 158, 255, 0.06);
+}
+
+.lab-cta-inner h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: var(--space-sm) 0 var(--space-xs);
+}
+
+.lab-cta-inner p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+.lab-cta-inner .game-badge {
+  display: inline-block;
+}
+
+@media (max-width: 640px) {
+  .lab-cta-inner {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-xl);
+  }
+}
+
 /* ── GAME CONTAINERS ── */
 .game-container,
 .game-standalone {

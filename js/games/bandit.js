@@ -622,6 +622,8 @@ export function initBandit() {
 
   // --- Animation loop ---
   function animate() {
+    // lab pause: only active sim animates
+    if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
     if (!isVisible) {
       animationId = requestAnimationFrame(animate);
       return;
@@ -669,6 +671,7 @@ export function initBandit() {
     { threshold: 0.1 }
   );
   observer.observe(container);
+  document.addEventListener('lab:resume', () => { if (isVisible && !animationId) animate(); });
 
   // --- Init sab kuch ---
   initAlgorithms();

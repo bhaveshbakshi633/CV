@@ -685,6 +685,8 @@ export function initIKPlayground() {
 
   // --- Main animation loop ---
   function animate() {
+    // lab pause: only active sim animates
+    if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
     animationId = requestAnimationFrame(animate);
     if (!isVisible) return;
 
@@ -707,6 +709,7 @@ export function initIKPlayground() {
     });
   }, { threshold: 0.1 });
   observer.observe(container);
+  document.addEventListener('lab:resume', () => { if (isVisible && !animationId) animate(); });
 
   // resize listener
   window.addEventListener('resize', () => {
