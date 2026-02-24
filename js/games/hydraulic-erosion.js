@@ -64,6 +64,11 @@ export function initHydraulicErosion() {
   let heightmap = new Float32Array(GW * GH);
   let waterMap = new Float32Array(GW * GH); // paani ka level track karo
   let imgData = null;
+  // temporary canvas — render mein reuse karenge, har frame createElement nahi karenge
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = GW;
+  tmpCanvas.height = GH;
+  const tmpCtx = tmpCanvas.getContext('2d');
 
   // simulation parameters
   let rainRate = 80;       // boondein per frame
@@ -331,12 +336,10 @@ export function initHydraulicErosion() {
       }
     }
 
-    // offscreen canvas pe draw karo fir stretch karo
-    const tmp = new OffscreenCanvas(GW, GH);
-    const tmpCtx = tmp.getContext('2d');
+    // temporary canvas pe draw karo fir stretch karo — reusable canvas, har frame naya nahi banate
     tmpCtx.putImageData(imgData, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(tmp, 0, 0, canvasW, CANVAS_HEIGHT);
+    ctx.drawImage(tmpCanvas, 0, 0, canvasW, CANVAS_HEIGHT);
 
     // stats dikhao
     ctx.font = "10px 'JetBrains Mono',monospace";

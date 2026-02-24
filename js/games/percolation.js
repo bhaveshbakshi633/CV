@@ -258,6 +258,15 @@ export function initPercolation() {
     ctx.putImageData(imageData, 0, 0);
   }
 
+  // --- Resize handler --- canvas fixed GRID_SIZE hai but container change ho sakta hai
+  function resize() {
+    canvasW = container.clientWidth;
+    // canvas.width aur height GRID_SIZE pe fixed rehni chahiye (pixel-mapped grid)
+    // bas CSS size sync karo
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
   // --- Initial generate ---
   generateGrid();
   render();

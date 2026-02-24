@@ -199,6 +199,18 @@ export function initGaltonBoard() {
         balls.splice(i, 1);
       }
     }
+
+    // memory limit — zyada settled balls ho gayi toh purani hata do
+    if (balls.length > 500) {
+      let removed = 0;
+      for (let i = 0; i < balls.length && removed < 50; i++) {
+        if (balls[i].settled) {
+          balls.splice(i, 1);
+          removed++;
+          i--;
+        }
+      }
+    }
   }
 
   // --- draw ---
@@ -331,6 +343,9 @@ export function initGaltonBoard() {
     if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
 
     frameCount++;
+    // layout pehle compute karo — resize ke baad updateBalls sahi positions use kare
+    computeLayout();
+
     // har kuch frames pe naya ball spawn karo
     if (frameCount % Math.max(1, 6 - ballRate) === 0) {
       spawnBall();

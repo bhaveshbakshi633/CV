@@ -113,6 +113,16 @@ export function initQuantumTunneling() {
     alpha = dt / (4 * dx * dx);
   }
 
+  // --- tridiagonal arrays ek baar allocate karo — reuse har step mein ---
+  const _a = new Float64Array(N);
+  const _b = new Float64Array(N);
+  const _c = new Float64Array(N);
+  const _d = new Float64Array(N);
+  const _cp = new Float64Array(N);
+  const _dp = new Float64Array(N);
+  const _newR = new Float64Array(N);
+  const _newI = new Float64Array(N);
+
   // --- Crank-Nicolson step: Thomas algorithm se solve ---
   // (I + i*H*dt/2) * psi_new = (I - i*H*dt/2) * psi_old
   // H = -d²/dx² + V(x), finite difference mein tridiagonal hai
@@ -123,10 +133,7 @@ export function initQuantumTunneling() {
     // RHS involves psi_I (current imaginary part)
 
     // Pehle imaginary part advance karo using real part
-    const a = new Float64Array(N);
-    const b = new Float64Array(N);
-    const c = new Float64Array(N);
-    const d = new Float64Array(N);
+    const a = _a, b = _b, c = _c, d = _d;
 
     // Step 1: advance psiI by dt/2 using psiR
     for (let i = 1; i < N - 1; i++) {
@@ -141,8 +148,7 @@ export function initQuantumTunneling() {
     a[N - 1] = 0; b[N - 1] = -1; d[N - 1] = 0;
 
     // Thomas algorithm — forward sweep
-    const cp = new Float64Array(N);
-    const dp = new Float64Array(N);
+    const cp = _cp, dp = _dp;
     cp[0] = c[0] / b[0];
     dp[0] = d[0] / b[0];
     for (let i = 1; i < N; i++) {
@@ -151,7 +157,7 @@ export function initQuantumTunneling() {
       dp[i] = (d[i] - a[i] * dp[i - 1]) / m;
     }
     // back substitution — naya psiI nikalo
-    const newI = new Float64Array(N);
+    const newI = _newI;
     newI[N - 1] = dp[N - 1];
     for (let i = N - 2; i >= 0; i--) {
       newI[i] = dp[i] - cp[i] * newI[i + 1];
@@ -175,7 +181,7 @@ export function initQuantumTunneling() {
       cp[i] = c[i] / m;
       dp[i] = (d[i] - a[i] * dp[i - 1]) / m;
     }
-    const newR = new Float64Array(N);
+    const newR = _newR;
     newR[N - 1] = dp[N - 1];
     for (let i = N - 2; i >= 0; i--) {
       newR[i] = dp[i] - cp[i] * newR[i + 1];

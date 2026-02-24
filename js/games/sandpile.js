@@ -232,6 +232,15 @@ export function initSandpile() {
     animationId = requestAnimationFrame(loop);
   }
 
+  // --- Resize handler --- grid fixed GRID_SIZE hai, CSS size sync karo
+  function resize() {
+    canvasW = container.clientWidth;
+    // canvas.width/height GRID_SIZE pe fixed hai (pixel-mapped grid)
+    // sirf CSS size container ke saath sync hoti hai — wo style mein already hai
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
   // initial render — blank grid dikhao
   render();
 

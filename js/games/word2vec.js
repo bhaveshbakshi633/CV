@@ -372,10 +372,11 @@ export function initWord2Vec() {
     }
   }
 
-  // animation loop
+  // animation loop — har frame pe redraw taaki resize/pan smooth rahe
   function loop() {
     if (!isVisible) { animationId = null; return; }
     if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
+    draw();
     animationId = requestAnimationFrame(loop);
   }
 

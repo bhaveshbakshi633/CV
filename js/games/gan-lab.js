@@ -142,21 +142,24 @@ export function initGanLab() {
   }
 
   // backprop for discriminator — binary cross entropy loss
+  // dL/dz = sigmoid(z) - label, ye already logit gradient hai
+  // isSigmoid=false rakhna hai kyunki dOut already pre-activation gradient hai
   function trainDisc(realBatch, fakeBatch, lr) {
     // real examples ke liye — label=1
     for (let b = 0; b < realBatch.length; b++) {
       const fwd = forward(disc, realBatch[b], true);
       const pred = fwd.a3[0];
-      // dL/dpred = -1/pred (binary CE, label=1)
-      const dOut = pred - 1; // simplified gradient
-      applyGradients(disc, fwd, [dOut], lr, true);
+      // dL/dz = pred - 1 (sigmoid + BCE combined gradient for label=1)
+      const dOut = pred - 1;
+      applyGradients(disc, fwd, [dOut], lr, false);
     }
     // fake examples ke liye — label=0
     for (let b = 0; b < fakeBatch.length; b++) {
       const fwd = forward(disc, fakeBatch[b], true);
       const pred = fwd.a3[0];
-      const dOut = pred; // gradient jab label=0
-      applyGradients(disc, fwd, [dOut], lr, true);
+      // dL/dz = pred - 0 = pred (sigmoid + BCE combined gradient for label=0)
+      const dOut = pred;
+      applyGradients(disc, fwd, [dOut], lr, false);
     }
   }
 
@@ -223,12 +226,12 @@ export function initGanLab() {
   }
 
   // discriminator ke through backprop — input tak gradient laao
+  // dOutput already logit gradient hai (sigmoid + BCE ka combined), double sigmoid mat lagao
   function backpropToInput(net, fwd, dOutput) {
     const outDim = net.w3[0].length;
     const dz3 = new Array(outDim);
     for (let j = 0; j < outDim; j++) {
-      const s = sigmoid(fwd.z3[j]);
-      dz3[j] = dOutput[j] * s * (1 - s);
+      dz3[j] = dOutput[j]; // already dL/dz3 hai, sigmoid derivative nahi chahiye
     }
     const da2 = new Array(16).fill(0);
     for (let i = 0; i < 16; i++) {
@@ -302,7 +305,7 @@ export function initGanLab() {
   function trainStep() {
     const lr = parseFloat(lrSlider.value);
     // batch banao
-    const realBatch = [], fakeBatch = [], genBatch = [];
+    const realBatch = [], fakeBatch = [];
     for (let i = 0; i < BATCH; i++) {
       realBatch.push(realData[Math.floor(Math.random() * realData.length)]);
       const z = [randn() * 0.5, randn() * 0.5];
@@ -312,7 +315,8 @@ export function initGanLab() {
     // discriminator ko train karo — real vs fake
     trainDisc(realBatch, fakeBatch, lr);
     // generator ko train karo — discriminator ko fool karo
-    trainGen(genBatch, lr * 2);
+    // genBatch nahi chahiye — trainGen khud z sample karta hai
+    trainGen(new Array(BATCH), lr * 2);
     epoch++;
     infoLbl.textContent = 'Epoch: ' + epoch;
   }

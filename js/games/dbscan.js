@@ -332,22 +332,19 @@ export function initDBSCAN() {
       ctx.fillText('K-Means', splitX + splitX / 2, 18);
     }
 
-    // epsilon circles — core points ke around
+    // epsilon circles — core points ke around halke se dikhao
     if (showEps && clusters > 0) {
+      ctx.globalAlpha = 0.08;
+      ctx.lineWidth = 1;
       points.forEach(p => {
         if (p.type === 'core') {
           ctx.beginPath();
           ctx.arc(hasKmeans ? p.x * (splitX / canvasW) : p.x, p.y, eps * (hasKmeans ? splitX / canvasW : 1), 0, Math.PI * 2);
-          const col = p.cluster >= 0 ? COLORS[p.cluster % COLORS.length] : '#555';
-          ctx.strokeStyle = col.replace(')', ',0.08)').replace('rgb', 'rgba').replace('#', '');
-          // hex to rgba ke liye seedha opacity lagao
-          ctx.globalAlpha = 0.08;
-          ctx.strokeStyle = col;
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = p.cluster >= 0 ? COLORS[p.cluster % COLORS.length] : '#555';
           ctx.stroke();
-          ctx.globalAlpha = 1;
         }
       });
+      ctx.globalAlpha = 1;
     }
 
     // DBSCAN points draw karo

@@ -225,11 +225,11 @@ export function initNeuralCA() {
           }
         }
 
-        // alive masking — agar alpha < threshold toh cell dead maano
+        // alive masking — current grid se check karo, gridNext mein race condition hogi
         const maxAlpha = Math.max(
-          getCell(gridNext, x - 1, y, 3), getCell(gridNext, x + 1, y, 3),
-          getCell(gridNext, x, y - 1, 3), getCell(gridNext, x, y + 1, 3),
-          gridNext[idx + 3]
+          getCell(grid, x - 1, y, 3), getCell(grid, x + 1, y, 3),
+          getCell(grid, x, y - 1, 3), getCell(grid, x, y + 1, 3),
+          grid[idx + 3]
         );
         if (maxAlpha < 0.1) {
           for (let ch = 0; ch < CHANNELS; ch++) gridNext[idx + ch] = 0;
@@ -356,4 +356,5 @@ export function initNeuralCA() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && isVisible && !animationId) loop(); });
 
   resetToSeed();
+  draw();
 }

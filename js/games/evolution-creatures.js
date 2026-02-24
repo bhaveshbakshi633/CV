@@ -401,9 +401,8 @@ export function initEvolutionCreatures() {
     if (allTimeBestFitness > -Infinity) {
       // har generation ke baad best creature ka fresh replay
       if (!showCreature || showFrame >= SIM_STEPS) {
-        // best genome se nayi creature banao replay ke liye
-        const sorted = population.map((g, i) => ({ g, f: evaluateFitness(g), i })).sort((a, b) => b.f - a.f);
-        showCreature = createCreature(sorted[0].g);
+        // best genome se nayi creature banao replay ke liye — elitism se pehla genome best hai
+        showCreature = createCreature(population[0]);
         showFrame = 0;
       }
       simStep(showCreature, showFrame);
@@ -425,4 +424,5 @@ export function initEvolutionCreatures() {
 
   // --- init ---
   initPopulation();
+  draw();
 }

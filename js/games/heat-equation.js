@@ -92,8 +92,9 @@ export function initHeatEquation() {
     const rect = canvas.getBoundingClientRect();
     const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
     const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-    const gx = Math.floor((cx / canvasW) * GW);
-    const gy = Math.floor((cy / CANVAS_HEIGHT) * GH);
+    // rect.width/height use karo — border include hota hai, accurate mapping ke liye
+    const gx = Math.floor((cx / rect.width) * GW);
+    const gy = Math.floor((cy / rect.height) * GH);
     return [Math.max(0, Math.min(GW - 1, gx)), Math.max(0, Math.min(GH - 1, gy))];
   }
 
@@ -145,9 +146,12 @@ export function initHeatEquation() {
   canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!isDrawing) return; const [gx, gy] = getGridPos(e); paintAt(gx, gy, e); }, { passive: false });
   canvas.addEventListener('touchend', () => { isDrawing = false; });
 
+  // --- scratch buffer — har step mein reuse hoga ---
+  const _newTemp = new Float64Array(GW * GH);
+
   // --- physics: explicit Euler heat diffusion ---
   function diffuseStep() {
-    const newTemp = new Float64Array(GW * GH);
+    const newTemp = _newTemp;
     // alpha clamped for stability: alpha * dt / dx^2 <= 0.25 (2D)
     const alpha = Math.min(diffusivity, 0.24);
 
@@ -198,16 +202,14 @@ export function initHeatEquation() {
     return [r, g, b];
   }
 
+  // --- offscreen canvas ek baar banao, har frame pe reuse karo ---
+  const imgCanvas = document.createElement('canvas');
+  imgCanvas.width = GW;
+  imgCanvas.height = GH;
+  const imgCtx = imgCanvas.getContext('2d');
+
   // --- draw using ImageData for speed ---
   function draw() {
-    const cellW = canvasW / GW;
-    const cellH = CANVAS_HEIGHT / GH;
-
-    // offscreen imagedata use karo — fast rendering ke liye
-    const imgCanvas = document.createElement('canvas');
-    imgCanvas.width = GW;
-    imgCanvas.height = GH;
-    const imgCtx = imgCanvas.getContext('2d');
     const imgData = imgCtx.createImageData(GW, GH);
 
     for (let y = 0; y < GH; y++) {

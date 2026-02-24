@@ -315,7 +315,9 @@ export function initRLWalking() {
         const scaledGrad = dMean * advantage;
 
         // backprop through output layer
-        const dTanh = (1 - Math.tanh(mean[a] / 5) ** 2) * 5; // derivative of tanh scaling
+        // mean[a] = tanh(sum) * 5, toh d(mean)/d(sum) = (1 - (mean[a]/5)^2) * 5
+        const tanhVal = mean[a] / 5; // ye tanh(sum) hai
+        const dTanh = (1 - tanhVal * tanhVal) * 5;
         for (let h = 0; h < HIDDEN; h++) {
           dW2[a][h] += scaledGrad * dTanh * hidden[h];
         }
@@ -325,12 +327,13 @@ export function initRLWalking() {
         dLogStd[a] += (diff * diff / (std[a] * std[a]) - 1) * advantage;
       }
 
-      // backprop through hidden layer (simplified — just update W1 based on W2 gradient)
+      // backprop through hidden layer — W2 gradient ko hidden layer tak propagate karo
       for (let h = 0; h < HIDDEN; h++) {
         let dh = 0;
         for (let a = 0; a < ACTION_DIM; a++) {
           const diff = action[a] - mean[a];
-          const dTanh = (1 - Math.tanh(mean[a] / 5) ** 2) * 5;
+          const tanhV = mean[a] / 5;
+          const dTanh = (1 - tanhV * tanhV) * 5;
           dh += W2[a][h] * (diff / (Math.exp(logStd[a]) ** 2)) * advantage * dTanh;
         }
         const dtanh = 1 - hidden[h] * hidden[h]; // tanh derivative

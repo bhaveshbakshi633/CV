@@ -58,7 +58,7 @@ export function initQLearning() {
   // --- Grid setup: 10 columns x 8 rows ---
   const COLS = 10, ROWS = 8;
   // cell types: 0=empty, 1=wall, 2=cliff(death), 3=goal, 4=start
-  const ACTIONS = [[0, -1], [0, 1], [-1, 0], [1, 0]]; // up, down, left, right
+  const ACTIONS = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // up, down, left, right (dRow, dCol)
   const ACTION_NAMES = ['↑', '↓', '←', '→'];
   let grid = [];
   let Q = [];  // Q[row][col][action]

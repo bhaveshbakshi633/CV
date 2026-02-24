@@ -218,11 +218,12 @@ export function initMCMC() {
       ctx.fillRect(i * barW, plotH + MARGIN_Y - 2 - h, barW - 1, h);
     }
 
-    // y-histogram right side
+    // y-histogram right side — flip karo taaki y-axis match ho plot se
     const barH = plotH / HIST_BINS;
     for (let i = 0; i < HIST_BINS; i++) {
       const w = (yHist[i] / maxYH) * (MARGIN_X - 5);
-      ctx.fillRect(plotW + 2, i * barH, w, barH - 1);
+      // bin 0 = most negative y = bottom, so draw at (HIST_BINS-1-i)
+      ctx.fillRect(plotW + 2, (HIST_BINS - 1 - i) * barH, w, barH - 1);
     }
   }
 

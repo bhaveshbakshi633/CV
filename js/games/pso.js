@@ -21,6 +21,10 @@ export function initPSO() {
   ctrl.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;align-items:center;';
   container.appendChild(ctrl);
 
+  // pehle declare karo — resize mein use hoga, TDZ se bachne ke liye
+  let heatmapDirty = true;
+  let heatmapCanvas = null;
+
   function resize() {
     const dpr = window.devicePixelRatio || 1;
     canvasW = container.clientWidth;
@@ -86,8 +90,6 @@ export function initPSO() {
   let gBest = null; // global best position
   let gBestVal = Infinity;
   let iteration = 0;
-  let heatmapDirty = true;
-  let heatmapCanvas = null;
   const C1 = 1.5, C2 = 1.5; // cognitive aur social coefficients
 
   // heatmap color — blue to red through green/yellow
@@ -385,4 +387,5 @@ export function initPSO() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && isVisible && !animationId) loop(); });
 
   initSwarm();
+  draw();
 }

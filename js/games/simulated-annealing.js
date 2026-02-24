@@ -21,6 +21,10 @@ export function initSimulatedAnnealing() {
   ctrl.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;align-items:center;';
   container.appendChild(ctrl);
 
+  // pehle declare karo — resize mein use hoga, TDZ se bachne ke liye
+  let heatmapDirty = true;
+  let heatmapCanvas = null;
+
   function resize() {
     const dpr = window.devicePixelRatio || 1;
     canvasW = container.clientWidth;
@@ -75,8 +79,6 @@ export function initSimulatedAnnealing() {
   let currentLandscape = 'rastrigin';
   let coolingRate = 0.995;
   let initialTemp = 100;
-  let heatmapDirty = true;
-  let heatmapCanvas = null;
   let iteration = 0;
 
   // SA state
@@ -111,8 +113,10 @@ export function initSimulatedAnnealing() {
         if (v > maxV) maxV = v;
       }
     }
-    const logMin = Math.log(minV + 1);
-    const logMax = Math.log(maxV + 1);
+    // shift karo taaki sab values positive ho jaayein — log safe rahe
+    const shift = minV < 0 ? -minV + 1 : 1;
+    const logMin = Math.log(minV + shift);
+    const logMax = Math.log(maxV + shift);
     const logRange = logMax - logMin || 1;
 
     const imgData = hctx.createImageData(hRes, hH);
@@ -121,7 +125,7 @@ export function initSimulatedAnnealing() {
         const wx = r[0] + (px / hRes) * (r[1] - r[0]);
         const wy = r[0] + (py / hH) * (r[1] - r[0]);
         const v = fn(wx, wy);
-        const t = (Math.log(v + 1) - logMin) / logRange;
+        const t = (Math.log(v + shift) - logMin) / logRange;
         const idx = (py * hRes + px) * 4;
         const tc = Math.max(0, Math.min(1, t));
         imgData.data[idx] = Math.floor(20 + tc * 180);
@@ -401,4 +405,5 @@ export function initSimulatedAnnealing() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && isVisible && !animationId) loop(); });
 
   resetSearch();
+  draw();
 }

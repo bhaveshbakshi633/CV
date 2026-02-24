@@ -158,6 +158,9 @@ export function initHarmonograph() {
     t = 0;
     tMax = 0;
     trailPoints = [];
+    // canvas saaf karo — purana drawing hata do
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, canvasW, CANVAS_HEIGHT);
     needsRedraw = false;
   }
 

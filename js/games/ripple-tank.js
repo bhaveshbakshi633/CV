@@ -88,6 +88,8 @@ export function initRippleTank() {
     const [gx, gy] = toGrid(e.clientX, e.clientY);
     if (e.shiftKey) {
       drawing = true;
+      // pointer capture le lo — canvas ke bahar bhi events aayein
+      canvas.setPointerCapture(e.pointerId);
       walls[idx(gx, gy)] = 1;
     } else {
       sources.push({ gx, gy });
@@ -102,7 +104,12 @@ export function initRippleTank() {
         if (nx >= 0 && nx < GW && ny >= 0 && ny < GH) walls[idx(nx, ny)] = 1;
       }
   });
-  canvas.addEventListener('pointerup', () => { drawing = false; });
+  canvas.addEventListener('pointerup', e => {
+    drawing = false;
+    if (canvas.hasPointerCapture(e.pointerId)) {
+      canvas.releasePointerCapture(e.pointerId);
+    }
+  });
 
   // presets
   document.getElementById('rtClear').addEventListener('click', clearSim);
@@ -124,6 +131,9 @@ export function initRippleTank() {
     }
   });
 
+  // scratch buffer ek baar allocate karo — har step mein reuse hoga
+  let uNext = new Float32Array(GW * GH);
+
   function step() {
     const freq = +document.getElementById('rtFreq').value || 8;
     const c = (+document.getElementById('rtSpeed').value || 15) / 15;
@@ -134,7 +144,7 @@ export function initRippleTank() {
       u[idx(s.gx, s.gy)] = Math.sin(t * freq * 0.05) * 2;
     }
 
-    const uNext = new Float32Array(GW * GH);
+    uNext.fill(0);
     for (let y = 1; y < GH - 1; y++) {
       for (let x = 1; x < GW - 1; x++) {
         const i = idx(x, y);
@@ -169,11 +179,16 @@ export function initRippleTank() {
         }
       }
     }
-    const tmp = new OffscreenCanvas(GW, GH);
-    const tmpCtx = tmp.getContext('2d');
+    // temporary canvas pe imgData put karo, fir scale karke main canvas pe draw karo
+    if (!render._tmpCanvas) {
+      render._tmpCanvas = document.createElement('canvas');
+      render._tmpCanvas.width = GW;
+      render._tmpCanvas.height = GH;
+    }
+    const tmpCtx = render._tmpCanvas.getContext('2d');
     tmpCtx.putImageData(imgData, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(tmp, 0, 0, canvasW, CANVAS_HEIGHT);
+    ctx.drawImage(render._tmpCanvas, 0, 0, canvasW, CANVAS_HEIGHT);
 
     const sx = canvasW / GW, sy = CANVAS_HEIGHT / GH;
     ctx.fillStyle = ACCENT;

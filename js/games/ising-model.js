@@ -136,6 +136,12 @@ export function initIsingModel() {
     }
   }
 
+  // --- offscreen canvas ek baar banao, har frame pe reuse karo ---
+  const imgCanvas = document.createElement('canvas');
+  imgCanvas.width = L;
+  imgCanvas.height = L;
+  const imgCtx = imgCanvas.getContext('2d');
+
   // --- draw using ImageData for speed ---
   function draw() {
     ctx.clearRect(0, 0, canvasW, CANVAS_HEIGHT);
@@ -147,10 +153,6 @@ export function initIsingModel() {
     const cellSize = latticeSize / L;
 
     // ImageData se fast rendering
-    const imgCanvas = document.createElement('canvas');
-    imgCanvas.width = L;
-    imgCanvas.height = L;
-    const imgCtx = imgCanvas.getContext('2d');
     const imgData = imgCtx.createImageData(L, L);
 
     for (let i = 0; i < L * L; i++) {

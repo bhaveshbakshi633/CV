@@ -384,10 +384,11 @@ export function initDecisionTree() {
     }
   }
 
-  // --- animation loop (mostly static) ---
+  // --- animation loop (mostly static — redraw har frame pe taaki resize smooth rahe) ---
   function loop() {
     if (!isVisible) { animationId = null; return; }
     if (window.__labPaused && window.__labPaused !== container.id) { animationId = null; return; }
+    draw();
     animationId = requestAnimationFrame(loop);
   }
 

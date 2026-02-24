@@ -269,10 +269,10 @@ export function initOrbitalSlingshot() {
     const r = Math.sqrt(spacecraft.x * spacecraft.x + spacecraft.y * spacecraft.y);
     if (r > 500) {
       spacecraft = null;
+      return; // spacecraft gayab — aage check ki zarurat nahi
     }
-    // star se collision check
-    const rStar = Math.sqrt((spacecraft ? spacecraft.x : 0) ** 2 + (spacecraft ? spacecraft.y : 0) ** 2);
-    if (spacecraft && rStar < star.radius * 0.5) {
+    // star se collision check — pehle null check karo
+    if (r < star.radius * 0.5) {
       spacecraft = null;
     }
   }
@@ -350,12 +350,14 @@ export function initOrbitalSlingshot() {
       ctx.shadowBlur = 10;
       ctx.fill();
       ctx.shadowBlur = 0;
-      // atmosphere effect
+      // atmosphere effect — hex color ko alpha ke saath use karte hain
       ctx.beginPath();
       ctx.arc(px, py, p.radius + 3, 0, Math.PI * 2);
-      ctx.strokeStyle = p.color.replace(')', ',0.2)').replace('rgb', 'rgba');
+      ctx.globalAlpha = 0.2;
+      ctx.strokeStyle = p.color;
       ctx.lineWidth = 2;
       ctx.stroke();
+      ctx.globalAlpha = 1;
     }
 
     // spacecraft draw karo

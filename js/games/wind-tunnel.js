@@ -83,6 +83,11 @@ export function initWindTunnel() {
   let uy = new Float32Array(NX * NY);
   let curl = new Float32Array(NX * NY);
   let imgData = null;
+  // temporary canvas — render mein reuse karenge, har frame createElement nahi karenge
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = NX;
+  tmpCanvas.height = NY;
+  const tmpCtx = tmpCanvas.getContext('2d');
 
   // controls
   createSlider('speed', 0.02, 0.15, 0.01, u0, v => { u0 = v; });
@@ -337,11 +342,10 @@ export function initWindTunnel() {
       }
     }
 
-    const tmp = new OffscreenCanvas(NX, NY);
-    const tmpCtx = tmp.getContext('2d');
+    // temporary canvas pe draw karo — reusable canvas, har frame naya nahi banate
     tmpCtx.putImageData(imgData, 0, 0);
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(tmp, 0, 0, canvasW, CANVAS_HEIGHT);
+    ctx.drawImage(tmpCanvas, 0, 0, canvasW, CANVAS_HEIGHT);
 
     // label
     ctx.font = "10px 'JetBrains Mono',monospace";
