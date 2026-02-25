@@ -358,4 +358,5 @@ export function initRRT() {
   // init
   generateObstacles();
   resetTree();
+  draw();
 }

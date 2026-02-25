@@ -324,4 +324,6 @@ export function initBayesianInference() {
   obs.observe(container);
   document.addEventListener('lab:resume', () => { if (isVisible && !animationId) loop(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && isVisible && !animationId) loop(); });
+
+  draw();
 }

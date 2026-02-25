@@ -102,9 +102,10 @@ export function initDiffusionModel() {
       const curve = -0.3 - 0.15 * Math.cos(a * Math.PI / 1.6);
       pts.push({ x: a * 0.5 + randn() * 0.03, y: curve + randn() * 0.03 });
     }
-    // face outline
-    for (let i = 0; i < N_POINTS - pts.length; i++) {
-      const a = (i / (N_POINTS - pts.length)) * Math.PI * 2;
+    // face outline — remaining count pehle capture karo, nahi toh loop shrink hoga
+    const remaining = N_POINTS - pts.length;
+    for (let i = 0; i < remaining; i++) {
+      const a = (i / remaining) * Math.PI * 2;
       const r = 0.7 + randn() * 0.03;
       pts.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
     }

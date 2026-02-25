@@ -467,4 +467,5 @@ export function initMCTS() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && isVisible && !animationId) loop(); });
 
   initBoard();
+  draw();
 }
