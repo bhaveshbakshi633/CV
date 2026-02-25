@@ -122,125 +122,43 @@ import { initImitationLearning } from './games/imitation-learning.js';
 
 function init() {
   // saare sims ko init karo — har ek apna container dhundh lega
-  // IntersectionObserver har sim ke andar hai already
-
-  // dormant games activate
-  initBandit();
-  initCircuit();
-  initFFT();
-  initIKPlayground();
-  initKalman();
-  initSensorFusion();
-
-  // batch 1
-  initDoublePendulum();
-  initNeuralPlayground();
-  initLorenz();
-  initGenetic();
-  initFourierDraw();
-  initKMeans();
-  initCollisions();
-  initMandelbrot();
-  initGameOfLife();
-  initSpringMass();
-  initWaveSim();
-  initPerceptron();
-  initBackprop();
-  initBezier();
-
-  // batch 2
-  initParticleLife();
-  initBoids();
-  initCloth();
-  initLSystem();
-  initReactionDiffusion();
-  initVerletChain();
-  initSorting();
-  initTerrain();
-
-  // batch 3
-  initStrangeAttractors();
-  initVoronoi();
-  initForceGraph();
-  initEpidemic();
-  initDLA();
-  initFluidSim();
-  initFallingSand();
-  initPathfinding();
-  initGradientDescent();
-  initWFC();
-
-  // batch 4
-  initElectricField();
-  initGravity();
-  initBrownian();
-  initTuringMachine();
-  initLangtonsAnt();
-  initCellularAutomata();
-  initMetaballs();
-  initMarchingSquares();
-  initPhyllotaxis();
-  initStringArt();
-  initPixelSort();
-  initRaycaster();
-
-  // batch 5
-  initSoftBody();
-  initRigidBody();
-  initOptics();
-  initMagneticField();
-  initFlappyRL();
-  initNeat();
-  initAntColony();
-  initMinimax();
-  initSnakeAI();
-  initConvolution();
-
-  // batch 6 — physics
-  initRippleTank();
-  initMagneticPendulum();
-  initQuantumTunneling();
-  initChladni();
-  initGaltonBoard();
-  initHeatEquation();
-  initIsingModel();
-  initBrachistochrone();
-  initPendulumWave();
-  initDoppler();
-  initPercolation();
-  initLorentzTransform();
-  initJoukowski();
-  initSandpile();
-  initChaosGame();
-  initHydraulicErosion();
-  initWindTunnel();
-  initHarmonograph();
-  initOrbitalSlingshot();
-
-  // batch 6 — AI/ML/RL
-  initGanLab();
-  initMCMC();
-  initQLearning();
-  initSOM();
-  initHopfield();
-  initTSNE();
-  initDiffusionModel();
-  initAttentionViz();
-  initEvolutionCreatures();
-  initNeuralCA();
-  initPSO();
-  initSimulatedAnnealing();
-  initMCTS();
-  initBayesianInference();
-  initRRT();
-  initGMM();
-  initDBSCAN();
-  initDecisionTree();
-  initWord2Vec();
-  initBayesianOpt();
-  initPotentialField();
-  initRLWalking();
-  initImitationLearning();
+  // try-catch wrap hai taaki ek crash kare toh baaki sab chale
+  const sims = [
+    // dormant games
+    initBandit, initCircuit, initFFT, initIKPlayground, initKalman, initSensorFusion,
+    // batch 1
+    initDoublePendulum, initNeuralPlayground, initLorenz, initGenetic, initFourierDraw,
+    initKMeans, initCollisions, initMandelbrot, initGameOfLife, initSpringMass,
+    initWaveSim, initPerceptron, initBackprop, initBezier,
+    // batch 2
+    initParticleLife, initBoids, initCloth, initLSystem, initReactionDiffusion,
+    initVerletChain, initSorting, initTerrain,
+    // batch 3
+    initStrangeAttractors, initVoronoi, initForceGraph, initEpidemic, initDLA,
+    initFluidSim, initFallingSand, initPathfinding, initGradientDescent, initWFC,
+    // batch 4
+    initElectricField, initGravity, initBrownian, initTuringMachine, initLangtonsAnt,
+    initCellularAutomata, initMetaballs, initMarchingSquares, initPhyllotaxis,
+    initStringArt, initPixelSort, initRaycaster,
+    // batch 5
+    initSoftBody, initRigidBody, initOptics, initMagneticField, initFlappyRL,
+    initNeat, initAntColony, initMinimax, initSnakeAI, initConvolution,
+    // batch 6 — physics
+    initRippleTank, initMagneticPendulum, initQuantumTunneling, initChladni,
+    initGaltonBoard, initHeatEquation, initIsingModel, initBrachistochrone,
+    initPendulumWave, initDoppler, initPercolation, initLorentzTransform,
+    initJoukowski, initSandpile, initChaosGame, initHydraulicErosion,
+    initWindTunnel, initHarmonograph, initOrbitalSlingshot,
+    // batch 6 — AI/ML/RL
+    initGanLab, initMCMC, initQLearning, initSOM, initHopfield, initTSNE,
+    initDiffusionModel, initAttentionViz, initEvolutionCreatures, initNeuralCA,
+    initPSO, initSimulatedAnnealing, initMCTS, initBayesianInference, initRRT,
+    initGMM, initDBSCAN, initDecisionTree, initWord2Vec, initBayesianOpt,
+    initPotentialField, initRLWalking, initImitationLearning,
+  ];
+  for (const fn of sims) {
+    try { fn(); } catch (e) { console.error(`${fn.name} crashed:`, e); }
+  }
 }
 
 // Performance manager — ek sim interact karo toh baaki pause
