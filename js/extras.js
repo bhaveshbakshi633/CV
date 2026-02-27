@@ -1,6 +1,32 @@
 // extras.js — portfolio ke extra masaledaar features
-// cursor trail, section beams, boot sequence, achievements
+// cursor trail, section beams, boot sequence, achievements, scroll progress
 // sab independent hain, koi bhi init function alag se call kar sakte ho
+
+
+// ============================================================
+// 0. SCROLL PROGRESS BAR — page ke top pe scroll indicator
+// ============================================================
+
+export function initScrollProgress() {
+  // progress bar element banao
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.appendChild(bar);
+
+  // scroll pe width update karo — 0% se 100% tak
+  function updateProgress() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    // agar page scroll nahi hota (chota content) toh 100% dikha do
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 100;
+    bar.style.width = progress + '%';
+  }
+
+  // passive listener — performance ke liye
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  // initial state set karo
+  updateProgress();
+}
 
 // ============================================================
 // 1. MAGNETIC CURSOR TRAIL — glowing particles jo cursor follow kare

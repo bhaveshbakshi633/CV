@@ -2,6 +2,9 @@
    PORTFOLIO — Live Robotics Lab Interface
    Bhavesh Bakshi | Robotics Systems Engineer
    Dark theme, capability-driven, no framework
+
+   Unminified size: ~59KB / 2629 lines
+   TODO: build step mein minify karna hai toh cssnano ya lightningcss use karna
    ============================================= */
 
 /* ── DESIGN TOKENS ── */
@@ -155,6 +158,21 @@ ul, ol {
   top: var(--space-md);
 }
 
+/* ── SCROLL PROGRESS — page scroll indicator topbar ke upar ── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--accent);
+  z-index: 101;
+  pointer-events: none;
+  transition: width 0.05s linear;
+  /* thoda glow bhi de do — dikhna chahiye */
+  box-shadow: 0 0 8px rgba(74, 158, 255, 0.4);
+}
+
 /* ── TOPBAR ── */
 .topbar {
   position: sticky;
@@ -206,7 +224,10 @@ ul, ol {
   border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  transition: color var(--duration-fast), background var(--duration-fast);
+  /* smoother transition — color, background, shadow, glow sab animate hoga */
+  transition: color 0.3s var(--ease-out),
+              background 0.3s var(--ease-out),
+              box-shadow 0.3s var(--ease-out);
   white-space: nowrap;
   position: relative;
 }
@@ -221,22 +242,26 @@ ul, ol {
   background: var(--bg-elevated);
 }
 
-/* capability accent on active topbar links */
+/* capability accent on active topbar links — glow ke saath premium indicator */
 .topbar-link.active[data-capability="real-time-control"] {
   color: var(--accent-control);
-  box-shadow: inset 0 -2px 0 var(--accent-control);
+  box-shadow: inset 0 -2px 0 var(--accent-control),
+              0 2px 8px rgba(245, 158, 11, 0.15);
 }
 .topbar-link.active[data-capability="learning-systems"] {
   color: var(--accent-rl);
-  box-shadow: inset 0 -2px 0 var(--accent-rl);
+  box-shadow: inset 0 -2px 0 var(--accent-rl),
+              0 2px 8px rgba(74, 158, 255, 0.15);
 }
 .topbar-link.active[data-capability="human-robot-interaction"] {
   color: var(--accent-hri);
-  box-shadow: inset 0 -2px 0 var(--accent-hri);
+  box-shadow: inset 0 -2px 0 var(--accent-hri),
+              0 2px 8px rgba(16, 185, 129, 0.15);
 }
 .topbar-link.active[data-capability="hardware-build"] {
   color: var(--accent-hw);
-  box-shadow: inset 0 -2px 0 var(--accent-hw);
+  box-shadow: inset 0 -2px 0 var(--accent-hw),
+              0 2px 8px rgba(249, 115, 22, 0.15);
 }
 
 .topbar-actions {
@@ -425,14 +450,16 @@ ul, ol {
   position: relative;
 }
 
-/* dot grid behind hero */
+/* dot grid behind hero — thoda zyada visible for premium feel */
 .hero-section::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
   background-size: 24px 24px;
   pointer-events: none;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 70%);
 }
 
 /* radial accent glow behind hero */
@@ -454,6 +481,13 @@ ul, ol {
   position: relative;
 }
 
+/* hero pe shimmer lagao — premium feel */
+@keyframes hero-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .hero-title {
   font-family: var(--font-display);
   font-size: var(--text-hero);
@@ -462,10 +496,19 @@ ul, ol {
   letter-spacing: -0.04em;
   color: var(--text-primary);
   margin-bottom: var(--space-md);
-  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 40%, var(--accent) 100%);
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #e0e0e0 25%,
+    var(--accent) 50%,
+    #e0e0e0 75%,
+    #ffffff 100%
+  );
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: hero-shimmer 8s ease-in-out infinite;
 }
 
 .hero-subtitle {
@@ -510,6 +553,12 @@ ul, ol {
   flex-wrap: wrap;
 }
 
+/* profile photo floating animation — subtle up-down breathing */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
 /* hero photo */
 .hero-photo-container {
   flex: 0 0 auto;
@@ -524,6 +573,7 @@ ul, ol {
               0 0 0 1px rgba(255, 255, 255, 0.05),
               0 0 80px rgba(74, 158, 255, 0.06);
   transition: border-color 0.5s, box-shadow 0.5s;
+  animation: hero-float 6s ease-in-out infinite;
 }
 
 .hero-photo-container:hover {
@@ -650,6 +700,14 @@ ul, ol {
 .bento-card:hover {
   transform: translateY(-6px) scale(1.01);
   border-color: rgba(255, 255, 255, 0.15);
+  /* hover pe gradient border effect — premium feel */
+  border-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2),
+    var(--card-accent, rgba(74, 158, 255, 0.3)),
+    rgba(255, 255, 255, 0.1)
+  ) 1;
+  border-top: 4px solid var(--card-accent, var(--text-muted));
 }
 
 /* accent glow on hover per capability — STRONGER */
@@ -684,6 +742,28 @@ ul, ol {
   box-shadow: 0 16px 48px rgba(249, 115, 22, 0.15),
               0 0 0 1px rgba(249, 115, 22, 0.25),
               0 0 60px rgba(249, 115, 22, 0.06);
+}
+
+/* bento hover glow pulse — subtle breathing effect */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.bento-card:hover::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    var(--card-accent, rgba(74, 158, 255, 0.08)) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: glow-pulse 2.5s ease-in-out infinite;
 }
 
 /* bento card entrance animation */
@@ -835,6 +915,20 @@ ul, ol {
   padding: var(--space-section) 0;
   border-top: var(--border-subtle);
   position: relative;
+}
+
+/* gradient divider — sections ke beech mein subtle light line */
+.capability-section + .capability-section::after,
+.capability-section + .game-standalone::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.2), transparent);
+  pointer-events: none;
 }
 
 /* subtle accent gradient at top of each capability section */
@@ -1106,6 +1200,33 @@ ul, ol {
 .about-bio strong {
   color: var(--text-primary);
   font-weight: 500;
+}
+
+/* ── ANIMATED UNDERLINE — links pe smooth slide-in underline ── */
+/* about bio aur capability desc ke links pe lagao */
+.about-bio a,
+.capability-desc a {
+  position: relative;
+  text-decoration: none;
+  color: var(--accent);
+  transition: color 0.3s var(--ease-out);
+}
+
+.about-bio a::after,
+.capability-desc a::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.3s var(--ease-out);
+}
+
+.about-bio a:hover::after,
+.capability-desc a:hover::after {
+  width: 100%;
 }
 
 /* tech stack — terminal aesthetic */
@@ -2303,7 +2424,7 @@ ul, ol {
   }
 }
 
-/* ── GAME CONTAINERS ── */
+/* ── GAME CONTAINERS — inner glow + hover polish ── */
 .game-container,
 .game-standalone {
   background: var(--bg-surface);
@@ -2313,6 +2434,22 @@ ul, ol {
   margin-bottom: var(--space-xl);
   position: relative;
   overflow: visible;
+  /* subtle inner glow — canvas border pe halka sa light effect */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04),
+              0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.4s var(--ease-out),
+              box-shadow 0.4s var(--ease-out),
+              filter 0.4s var(--ease-out);
+}
+
+/* hover pe thoda sa uthao aur brightness badhao */
+.game-container:hover,
+.game-standalone:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+              0 8px 32px rgba(0, 0, 0, 0.4),
+              0 0 40px rgba(74, 158, 255, 0.04);
+  filter: brightness(1.03);
 }
 
 .game-standalone {
@@ -2339,6 +2476,7 @@ ul, ol {
   letter-spacing: 0.08em;
 }
 
+/* game badge — pill shape with subtle glow, premium look */
 .game-badge {
   font-family: var(--font-mono);
   font-size: 0.6rem;
@@ -2346,10 +2484,11 @@ ul, ol {
   color: var(--accent-hri);
   background: rgba(16, 185, 129, 0.08);
   border: 1px solid rgba(16, 185, 129, 0.15);
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
+  padding: 3px 12px;
+  border-radius: 999px;
   letter-spacing: 0.1em;
   animation: status-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.1);
 }
 
 .game-desc {
@@ -2366,6 +2505,9 @@ ul, ol {
   width: 100%;
   display: block;
   border-radius: var(--radius-sm);
+  /* canvas ke border pe subtle inner glow — game feel premium lagega */
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3),
+              0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 /* particle swarm description */
@@ -2395,7 +2537,7 @@ ul, ol {
 }
 
 /* ── SCROLL REVEAL ── */
-/* subtle entrance — content starts visible but slightly dimmed, never invisible */
+/* puraana basic reveal — backward compat ke liye rakh rahe hain */
 .scroll-reveal {
   opacity: 0.5;
   transform: translateY(10px);
@@ -2417,6 +2559,29 @@ ul, ol {
 .capability-projects .scroll-reveal:nth-child(1) { transition-delay: 0s; }
 .capability-projects .scroll-reveal:nth-child(2) { transition-delay: 0.12s; }
 .capability-projects .scroll-reveal:nth-child(3) { transition-delay: 0.24s; }
+
+/* ── CINEMATIC REVEAL — premium slide-up + fade ── */
+/* naya reveal system — Linear/Apple level smooth entrance */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* stagger children — har child 80ms baad aayega, waterfall effect */
+.reveal-stagger > .reveal:nth-child(1) { transition-delay: 0s; }
+.reveal-stagger > .reveal:nth-child(2) { transition-delay: 0.08s; }
+.reveal-stagger > .reveal:nth-child(3) { transition-delay: 0.16s; }
+.reveal-stagger > .reveal:nth-child(4) { transition-delay: 0.24s; }
+.reveal-stagger > .reveal:nth-child(5) { transition-delay: 0.32s; }
+.reveal-stagger > .reveal:nth-child(6) { transition-delay: 0.4s; }
+.reveal-stagger > .reveal:nth-child(7) { transition-delay: 0.48s; }
+.reveal-stagger > .reveal:nth-child(8) { transition-delay: 0.56s; }
 
 /* ── TOAST ── */
 .toast {
@@ -2617,7 +2782,8 @@ ul, ol {
     scroll-behavior: auto !important;
   }
 
-  .scroll-reveal {
+  .scroll-reveal,
+  .reveal {
     opacity: 1;
     transform: none;
   }

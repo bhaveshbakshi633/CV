@@ -22,10 +22,15 @@
   <meta name="keywords" content="robotics engineer, reinforcement learning, humanoid robots, sim-to-real, real-time control, surgical robotics, Isaac Gym, ROS2" />
   <link rel="canonical" href="https://bhaveshbakshi633.github.io/CV/" />
 
-  <!-- Fonts -->
+  <!-- Fonts — non-blocking load, critical font preload for hero title -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="preload" href="https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2" as="font" type="font/woff2" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <!-- fallback agar JS disabled hai toh fonts waise bhi load ho jaayein -->
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" /></noscript>
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/main.css" />
@@ -109,7 +114,11 @@
         </div>
       </div>
       <div class="hero-photo-container">
-        <img src="profile_pic.jpg" alt="Bhavesh Bakshi" />
+        <!-- hero photo — above the fold hai, lazy mat kar, priority high rakh -->
+        <picture>
+          <source srcset="profile_pic.webp" type="image/webp">
+          <img src="profile_pic.jpg" alt="Bhavesh Bakshi" width="666" height="717" fetchpriority="high" />
+        </picture>
       </div>
     </section>
 
@@ -242,7 +251,11 @@
     <section id="about" class="about-section">
       <div class="about-content">
         <div class="about-photo">
-          <img src="about_photo_cropped.png" alt="Bhavesh Bakshi" loading="lazy" />
+          <!-- about photo — below the fold, lazy loading rakh -->
+          <picture>
+            <source srcset="about_photo_cropped.webp" type="image/webp">
+            <img src="about_photo_cropped.png" alt="Bhavesh Bakshi" width="900" height="560" loading="lazy" />
+          </picture>
         </div>
         <div class="about-text">
           <h2>About</h2>

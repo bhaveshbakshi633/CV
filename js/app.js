@@ -18,7 +18,7 @@ import { initMaze } from './games/maze.js';
 import { initRobotNav } from './games/robot-nav.js';
 import { initProjectile } from './games/projectile.js';
 import { initNBody } from './games/nbody.js';
-import { initCursorTrail, initSectionBeams, initBootSequence, initAchievements } from './extras.js';
+import { initScrollProgress, initCursorTrail, initSectionBeams, initBootSequence, initAchievements } from './extras.js';
 
 function getAllProjects(data) {
   return [...data.flagship, ...data.supporting, ...data.archived];
@@ -73,6 +73,9 @@ function init() {
 
   // easter eggs — konami, sudo, photo click
   initEasterEggs();
+
+  // scroll progress — page ke top pe scroll indicator
+  initScrollProgress();
 
   // extras — cursor trail, section beams, achievements
   initCursorTrail();
