@@ -60,6 +60,10 @@ function resetIdle() {
 }
 
 export function initRewards() {
+  // mobile pe reward signals band — regular visitors confuse hote hain
+  // "+0.3" floating dekh ke lagta hai page mein bug hai
+  if (window.innerWidth < 768) return;
+
   injectStyles();
   createCounter();
   resetIdle();

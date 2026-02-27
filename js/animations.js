@@ -101,6 +101,18 @@ export function initScrollAnimations() {
   });
 }
 
+// lazy images ko smoothly fade-in karo jab load ho jaayein
+export function initLazyImageFade() {
+  document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+    if (img.complete) {
+      // already load ho chuki hai — seedha dikha do
+      img.classList.add('loaded');
+    } else {
+      img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+    }
+  });
+}
+
 export function initTabVisibility() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {

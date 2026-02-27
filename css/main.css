@@ -650,9 +650,28 @@ ul, ol {
   border-color: rgba(255, 255, 255, 0.2);
   background: var(--bg-elevated);
   transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.04);
+}
+
+/* premium click feel — satisfying lagta hai */
+.btn:active {
+  transform: scale(0.97) translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* keyboard accessibility — focus-visible pe glow dikhao */
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.15);
+}
+
+.btn-ghost:focus-visible {
+  border-color: var(--accent);
 }
 
 /* ── SECTION COMMON ── */
+/* section labels — typewriter cursor blink for that terminal vibe */
 .section-label {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -661,6 +680,26 @@ ul, ol {
   letter-spacing: 0.12em;
   color: var(--accent);
   margin-bottom: var(--space-md);
+  transition: letter-spacing 0.4s var(--ease-out);
+}
+
+/* blinking cursor — terminal feel */
+.section-label::after {
+  content: '|';
+  color: var(--accent);
+  animation: cursor-blink 1s step-end infinite;
+  margin-left: 2px;
+  font-weight: 300;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* hover pe letter-spacing thoda spread hota hai — premium micro-interaction */
+.section-label:hover {
+  letter-spacing: 0.18em;
 }
 
 /* ── FLAGSHIP BENTO GRID ── */
@@ -1269,9 +1308,41 @@ ul, ol {
   gap: 6px;
 }
 
+/* tech stack items — hover pe shine effect */
 .tech-stack-item {
   color: var(--text-secondary);
   line-height: 1.5;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-normal) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-stack-item:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+  transform: scale(1.02);
+}
+
+/* shimmer effect — hover pe ek shine guzarti hai */
+.tech-stack-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: none;
+}
+
+.tech-stack-item:hover::after {
+  transform: translateX(100%);
+  transition: transform 0.6s ease;
 }
 
 .tech-stack-item::before {
@@ -1298,6 +1369,7 @@ ul, ol {
   color: var(--text-primary);
 }
 
+/* current role — subtle pulsing glow border for "active" indicator */
 .experience-current {
   background: var(--bg-surface);
   border: var(--border-subtle);
@@ -1307,6 +1379,13 @@ ul, ol {
   margin-bottom: var(--space-xl);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2),
               inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  animation: current-role-glow 3s ease-in-out infinite;
+}
+
+/* halka sa glow pulse — attention grab karta hai bina annoying hue */
+@keyframes current-role-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(74, 158, 255, 0); }
+  50% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 20px rgba(74, 158, 255, 0.08); }
 }
 
 .experience-current-header {
@@ -1365,6 +1444,7 @@ ul, ol {
   margin-top: var(--space-lg);
 }
 
+/* tags — hover pe subtle brightness aur scale */
 .tag {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -1374,23 +1454,49 @@ ul, ol {
   border-radius: var(--radius-sm);
   border: var(--border-subtle);
   white-space: nowrap;
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
-/* past roles */
+.tag:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05);
+}
+
+/* past roles — timeline feel with left border connecting them */
 .experience-past {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   margin-bottom: var(--space-xl);
+  border-left: 2px solid rgba(255, 255, 255, 0.06);
+  padding-left: var(--space-lg);
+  margin-left: 2px;
 }
 
+/* timeline dot — har past role ke aage ek dot */
 .experience-past-item {
   display: flex;
   align-items: baseline;
   gap: var(--space-md);
   padding: var(--space-sm) 0;
+  position: relative;
   border-bottom: var(--border-subtle);
   flex-wrap: wrap;
+}
+
+.experience-past-item::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--space-lg) - 5px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid rgba(255, 255, 255, 0.15);
 }
 
 .experience-past-role {
@@ -1468,10 +1574,20 @@ ul, ol {
   flex-wrap: wrap;
 }
 
+/* contact cards — hover pe subtle lift aur glow */
 .contact-item {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.contact-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .contact-icon {
@@ -1495,6 +1611,21 @@ ul, ol {
   box-shadow: 0 4px 16px rgba(74, 158, 255, 0.1);
 }
 
+/* brand colors — LinkedIn blue, GitHub white */
+.contact-icon[aria-label="LinkedIn"]:hover {
+  color: #0a66c2;
+  border-color: #0a66c2;
+  background: rgba(10, 102, 194, 0.08);
+  box-shadow: 0 4px 16px rgba(10, 102, 194, 0.15);
+}
+
+.contact-icon[aria-label="GitHub"]:hover {
+  color: #f0f0f0;
+  border-color: rgba(240, 240, 240, 0.3);
+  background: rgba(240, 240, 240, 0.06);
+  box-shadow: 0 4px 16px rgba(240, 240, 240, 0.08);
+}
+
 .contact-icon svg {
   width: 18px;
   height: 18px;
@@ -1516,6 +1647,7 @@ ul, ol {
   gap: var(--space-sm);
 }
 
+/* copy button — click pe color change smooth hona chahiye */
 .contact-copy {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -1523,12 +1655,21 @@ ul, ol {
   padding: 2px 8px;
   border: var(--border-subtle);
   border-radius: var(--radius-sm);
-  transition: all var(--duration-fast);
+  transition: all var(--duration-normal) var(--ease-out);
+  cursor: pointer;
 }
 
 .contact-copy:hover {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-elevated);
+}
+
+/* copied state — green flash for confirmation */
+.contact-copy.copied {
+  color: var(--accent-hri);
+  border-color: var(--accent-hri);
+  background: rgba(16, 185, 129, 0.08);
 }
 
 /* ── PROJECT DETAIL VIEW ── */
@@ -2500,14 +2641,25 @@ ul, ol {
   max-width: 60ch;
 }
 
+/* mobile pe canvas interact karte waqt page scroll nahi hona chahiye */
 .game-container canvas,
 .game-standalone canvas {
+  touch-action: none;
   width: 100%;
   display: block;
   border-radius: var(--radius-sm);
   /* canvas ke border pe subtle inner glow — game feel premium lagega */
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3),
               0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* game controls — buttons/sliders ko finger-friendly banao (min 44px touch target) */
+.game-container button,
+.game-container input[type="range"],
+.game-standalone button,
+.game-standalone input[type="range"] {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 /* particle swarm description */
@@ -2583,7 +2735,7 @@ ul, ol {
 .reveal-stagger > .reveal:nth-child(7) { transition-delay: 0.48s; }
 .reveal-stagger > .reveal:nth-child(8) { transition-delay: 0.56s; }
 
-/* ── TOAST ── */
+/* ── TOAST — glassmorphism premium notification ── */
 .toast {
   position: fixed;
   bottom: var(--space-xl);
@@ -2592,16 +2744,20 @@ ul, ol {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--text-primary);
-  background: var(--bg-elevated);
-  border: var(--border-subtle);
+  /* glassmorphism — frosted glass feel */
+  background: rgba(30, 30, 30, 0.75);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: var(--space-sm) var(--space-lg);
   border-radius: var(--radius-md);
   opacity: 0;
   visibility: hidden;
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 500;
   pointer-events: none;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .toast.show {
@@ -2635,11 +2791,22 @@ ul, ol {
     text-align: center;
     min-height: auto;
     padding: var(--space-2xl) 0;
+    /* mobile pe gap thoda kam — photo aur text ke beech zyada gap nahi chahiye */
+    gap: var(--space-lg);
+  }
+
+  /* mobile pe mono font bahut wide hota hai — body font use karo, wrap hone do */
+  .hero-subtitle {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    letter-spacing: 0;
   }
 
   .hero-photo-container {
     width: clamp(140px, 40vw, 200px);
     order: -1;
+    /* mobile pe floating animation band karo — scroll mein annoying lagta hai */
+    animation: none;
   }
 
   .hero-arm-canvas {
@@ -2726,7 +2893,22 @@ ul, ol {
   }
 
   .hero-subtitle {
-    font-size: var(--text-md);
+    /* 480px pe aur bhi chhota — ek line mein fit ho jaaye */
+    font-size: clamp(0.72rem, 3vw, 0.9rem);
+  }
+
+  /* chhote screens pe topbar mein jagah kam hai — gap tight karo */
+  .topbar {
+    gap: var(--space-sm);
+  }
+
+  .topbar-actions {
+    gap: var(--space-xs);
+  }
+
+  /* 480px pe lock icon chhupa do — jagah nahi hai topbar mein */
+  #protectionSettingsBtn {
+    display: none;
   }
 }
 
@@ -2771,6 +2953,28 @@ ul, ol {
   }
 }
 
+/* ── SITE FOOTER — minimal, muted, premium ── */
+.site-footer {
+  text-align: center;
+  padding: var(--space-xl) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* ── SMOOTH IMAGE LOADING — lazy images fade in gracefully ── */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+img[loading="lazy"].loaded,
+img.loaded {
+  opacity: 1;
+}
+
 /* ── REDUCED MOTION ── */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -2786,6 +2990,11 @@ ul, ol {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+
+  /* reduced motion mein lazy images seedha dikha do */
+  img[loading="lazy"] {
+    opacity: 1;
   }
 }
 

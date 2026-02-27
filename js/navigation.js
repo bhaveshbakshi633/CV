@@ -74,6 +74,16 @@ function initCopyButtons() {
       e.stopPropagation();
       const text = btn.dataset.copy;
       navigator.clipboard.writeText(text).then(() => {
+        // button pe green flash — copied feedback
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('copied');
+        }, 1500);
+
+        // toast notification bhi dikha do
         const toast = document.getElementById('toast');
         toast.textContent = 'Copied to clipboard';
         toast.classList.add('show');

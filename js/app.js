@@ -5,7 +5,7 @@ import { projectData } from './data/projects.js';
 import { initProtection } from './protection.js';
 import { renderBentoGrid, renderCapabilitySections, initRenderer } from './renderer.js';
 import { initNavigation } from './navigation.js';
-import { initScrollAnimations, initTabVisibility } from './animations.js';
+import { initScrollAnimations, initTabVisibility, initLazyImageFade } from './animations.js';
 import { initLightbox } from './lightbox.js';
 import { initTiltCards, initTypingEffect, initRobotArm } from './interactions.js';
 import { initBackground } from './background.js';
@@ -52,6 +52,7 @@ function init() {
   // animations — after content is in the DOM
   initScrollAnimations();
   initTabVisibility();
+  initLazyImageFade();
 
   // interactive gimmicks
   initTiltCards();
