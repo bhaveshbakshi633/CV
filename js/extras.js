@@ -228,8 +228,12 @@ export function initSectionBeams() {
 // ============================================================
 
 export function initBootSequence() {
-  // pehle check karo — kya ye pehli baar hai?
-  if (sessionStorage.getItem('bootShown')) return;
+  // FOUC prevention — boot-pending class hatao taaki content dikhe
+  // agar boot already dikha chuka hai toh seedha reveal karo
+  if (sessionStorage.getItem('bootShown')) {
+    document.body.classList.remove('boot-pending');
+    return;
+  }
   sessionStorage.setItem('bootShown', 'true');
 
   // boot lines — terminal output jaisi
@@ -255,6 +259,10 @@ export function initBootSequence() {
     'color: #10b981', 'overflow: hidden'
   ].join(';');
   document.body.appendChild(overlay);
+
+  // boot overlay aa gaya — ab CSS pseudo-element wala cover hatao
+  // body content abhi bhi boot overlay ke peeche hidden rahega
+  document.body.classList.remove('boot-pending');
 
   // body scroll band karo jab tak boot chal raha hai
   const originalOverflow = document.body.style.overflow;

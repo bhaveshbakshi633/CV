@@ -29,8 +29,21 @@
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/main.css" />
+
+  <!-- FOUC prevention — black screen dikhao jab tak JS boot sequence ready na ho -->
+  <style>
+    .boot-pending { visibility: hidden; }
+    .boot-pending::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: #0a0a0a;
+      z-index: 9999;
+      visibility: visible;
+    }
+  </style>
 </head>
-<body>
+<body class="boot-pending">
   <a href="#main" class="skip-link">Skip to main content</a>
 
   <!-- Sidebar overlay (mobile) -->
