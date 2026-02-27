@@ -497,15 +497,15 @@ Keyboard Controls:
       description: 'Custom Isaac Lab environment for training PPO-based arm reaching policies on the Unitree G1. 3-phase curriculum learning with distance-based action scaling for precision manipulation.',
       currentWork: 'Extending to bimanual coordination and integrating with arm control GUI',
       tags: ['Isaac Lab', 'RSL-RL', 'PPO', 'PhysX', 'PyTorch', 'Curriculum Learning'],
-      thumbnail: 'assets/projects/rl-training-center/img1.png',
+      thumbnail: 'assets/projects/rl-training-center/img1.jpg',
       images: [
-        'assets/projects/rl-training-center/img1.png',
-        'assets/projects/rl-training-center/img2.png',
-        'assets/projects/rl-training-center/img3.png',
-        'assets/projects/rl-training-center/img4.png',
-        'assets/projects/rl-training-center/img5.png',
-        'assets/projects/rl-training-center/img6.png',
-        'assets/projects/rl-training-center/img7.png'
+        'assets/projects/rl-training-center/img1.jpg',
+        'assets/projects/rl-training-center/img2.jpg',
+        'assets/projects/rl-training-center/img3.jpg',
+        'assets/projects/rl-training-center/img4.jpg',
+        'assets/projects/rl-training-center/img5.jpg',
+        'assets/projects/rl-training-center/img6.jpg',
+        'assets/projects/rl-training-center/img7.jpg'
       ],
       videos: [],
       tier: 'flagship',
@@ -653,15 +653,15 @@ Training Performance:
     `,
       tags: ['PyQt6', 'MuJoCo', 'PPO', 'arm_sdk', 'DDS', 'ArUco'],
       images: [
-        'assets/projects/arm-control-gui/screenshot1.png',
-        'assets/projects/arm-control-gui/screenshot2.png',
-        'assets/projects/arm-control-gui/screenshot3.png',
-        'assets/projects/arm-control-gui/screenshot4.png'
+        'assets/projects/arm-control-gui/screenshot1.jpg',
+        'assets/projects/arm-control-gui/screenshot2.jpg',
+        'assets/projects/arm-control-gui/screenshot3.jpg',
+        'assets/projects/arm-control-gui/screenshot4.jpg'
       ],
       videos: [
         { src: 'assets/projects/arm-control-gui/demo_video.mp4', title: 'GUI Demo with MuJoCo Simulation' }
       ],
-      thumbnail: 'assets/projects/arm-control-gui/screenshot2.png',
+      thumbnail: 'assets/projects/arm-control-gui/screenshot2.jpg',
       tier: 'supporting',
       capability: 'real-time-control',
       ongoing: false,
@@ -1058,7 +1058,7 @@ Safety:
       BAJA SAE ATV chassis design using AISI 4130 chromoly space frame. FEA-optimized in Ansys for 2.5G bump, braking, and cornering loads with 2.1+ FOS. 38kg bare frame weight achieved through DFM optimization with 25% cost reduction.
     `,
       tags: ['SolidWorks', 'FEA', 'Ansys', 'BAJA SAE', 'Manufacturing'],
-      images: ['assets/projects/atv/img1.jpg', 'assets/projects/atv/img2.jpg', 'assets/projects/atv/img3.jpg', 'assets/projects/atv/img4.png'],
+      images: ['assets/projects/atv/img1.jpg', 'assets/projects/atv/img2.jpg', 'assets/projects/atv/img3.jpg', 'assets/projects/atv/img4.jpg'],
       video: 'assets/projects/atv/video.mp4',
       thumbnail: 'assets/projects/atv/img1.jpg',
       tier: 'archived',
